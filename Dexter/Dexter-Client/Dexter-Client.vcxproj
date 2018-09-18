@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{59FC9C05-AB68-4CCE-B778-5EF2A3CA7554}</ProjectGuid>
-    <RootNamespace>dexter</RootNamespace>
+    <ProjectGuid>{87472476-7C57-48BB-97C6-6CD1C5532B5E}</ProjectGuid>
+    <RootNamespace>DexterClient</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
