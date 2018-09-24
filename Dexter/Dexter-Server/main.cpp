@@ -1,4 +1,4 @@
-//DEXTER - Data Exfiltration Tester
+//DEXTER - Data EXfiltration TestER
 //This file is part of DEXTER Project
 
 //Written by : @maldevel
