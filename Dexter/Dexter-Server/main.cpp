@@ -22,8 +22,22 @@
 
 //For more see the file 'LICENSE' for copying permission.
 
+
+#include <iostream>
+#include <string>
+
+#include "libreporter.h"
+
+#define VERSION "1.0"
+
 int main(int argc, char *argv[])
 {
+	std::cout << std::endl;
+	std::cout << "-----------------------------------------------------------------" << std::endl;
+	std::cout << "  Dexter reporter v." << VERSION << " - Data EXfiltration TestER" << std::endl;
+	std::cout << "-----------------------------------------------------------------" << std::endl << std::endl;
+
+	std::cout << "[*] Data Exfiltration using HTTP protocol: " << libreporter::test_for_http_data_exfil() << std::endl;
 
 	return 0;
 }
