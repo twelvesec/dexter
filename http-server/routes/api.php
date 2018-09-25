@@ -16,3 +16,18 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+/*Route::post('computers', function(Request $request) {
+    return Computer::create($request->all);
+});
+
+Route::put('computers/{id}', function(Request $request, $id) {
+    $computer = Computer::findOrFail($id);
+    $computer->update($request->all());
+
+    return $computer;
+});*/
+
+Route::middleware('auth:api')->group( function () {
+    Route::resource('computers', 'api\ComputerController');
+});
