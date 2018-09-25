@@ -10,6 +10,18 @@ use Validator;
 
 class ComputerController extends BaseController
 {
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    public function index()
+    {
+        $computers = Computer::all();
+
+        return $this->sendResponse($computers->toArray(), 'Computers retrieved successfully.');
+    }
+
     public function store(Request $request)
     {
         $input = $request->all();
