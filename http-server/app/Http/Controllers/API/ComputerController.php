@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\API\BaseController;
 use Illuminate\Http\Request;
-use App\Product;
+use App\Computer;
 use Validator;
 
 class ComputerController extends BaseController
