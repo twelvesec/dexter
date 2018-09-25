@@ -27,7 +27,7 @@ class ComputerController extends BaseController
         $input = $request->all();
 
         $validator = Validator::make($input, [
-            'computername' => 'required|unique',
+            'computername' => 'required|unique:computername',
             'os' => 'required',
             'username' => 'required'
         ]);
@@ -56,7 +56,7 @@ class ComputerController extends BaseController
         $input = $request->all();
 
         $validator = Validator::make($input, [
-            'computername' => 'required|unique',
+            'computername' => 'required|unique:computername',
             'os' => 'required',
             'username' => 'required'
         ]);
