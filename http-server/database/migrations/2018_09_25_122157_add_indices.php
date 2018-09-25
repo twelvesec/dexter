@@ -13,7 +13,11 @@ class AddIndices extends Migration
      */
     public function up()
     {
-        //
+        Schema::table('computers', function (Blueprint $table) {
+            $table->unique('computername');
+            $table->index('os');
+            $table->index('username');
+        });
     }
 
     /**
@@ -23,6 +27,10 @@ class AddIndices extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('computers', function (Blueprint $table) {
+            $table->dropUnique('computername');
+            $table->dropIndex('os');
+            $table->dropIndex('username');
+        });
     }
 }
