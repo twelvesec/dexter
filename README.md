@@ -31,7 +31,7 @@ Written by:
 
 ---
 
-### User-agents strings
+### User-Agent strings
 
 [sqlmap project](https://github.com/sqlmapproject/sqlmap/blob/master/txt/user-agents.txt)
 
@@ -39,6 +39,7 @@ Written by:
 
 ### Credits
 
+* [Laravel - PHP Framework](https://laravel.com/)
 * [rapidjson](https://github.com/Tencent/rapidjson)
 * [DET](https://github.com/PaulSec/DET)
 
