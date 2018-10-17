@@ -23,3 +23,10 @@
 //For more see the file 'LICENSE' for copying permission.
 
 #pragma once
+
+#include <string>
+
+namespace libagent {
+	void test_http_protocol(std::string host, int port);
+	void test_https_protocol(std::string host, int port);
+}

@@ -27,5 +27,6 @@
 #include <string>
 
 namespace libreporter {
-	std::string test_for_http_data_exfil(void);
+	void test_http_protocol(std::string host, int port);
+	void test_https_protocol(std::string host, int port);
 }

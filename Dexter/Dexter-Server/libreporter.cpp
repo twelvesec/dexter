@@ -23,9 +23,10 @@
 //For more see the file 'LICENSE' for copying permission.
 
 #include "libreporter.h"
+#include "config.h"
 
-std::string libreporter::test_for_http_data_exfil(void) {
-	std::string result = "NOT BLOCKED";
+void libreporter::test_http_protocol(std::string host, int port) {
+}
 
-	return result;
+void libreporter::test_https_protocol(std::string host, int port) {
 }

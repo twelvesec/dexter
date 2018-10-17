@@ -23,3 +23,4 @@
 //For more see the file 'LICENSE' for copying permission.
 
 #pragma once
+

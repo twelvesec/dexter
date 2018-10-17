@@ -1,0 +1,12 @@
+{
+	"AES_KEY": "THIS.IS.MY.AES.KEY",
+	"IGNORE_UNKNOWN_CA": 1,
+	"HTTP": {
+		"host": "192.168.10.1",
+		"port": 80
+	},
+	"HTTPS": {
+		"host": "192.168.10.1",
+		"port": 443
+	}
+}

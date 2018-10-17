@@ -23,4 +23,12 @@
 //For more see the file 'LICENSE' for copying permission.
 
 #include "libagent.h"
+#include "config.h"
 
+void libagent::test_http_protocol(std::string host, int port) {
+
+}
+
+void libagent::test_https_protocol(std::string host, int port) {
+
+}
