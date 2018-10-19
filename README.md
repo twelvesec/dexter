@@ -21,7 +21,7 @@ Written by:
 
 ### Servers
 
-* [HTTP/s server](http-server/README.md)
+* HTTP/s - LAMP [more..](http-server/README.md)
 
 ---
 
