@@ -34,7 +34,23 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
-std::string helper::read_config_string_value(rapidjson::Document *doc, const char *name, const char *config) {
+std::string helper::read_string_value(rapidjson::Document *doc, const char *name) {
+	if (doc->HasMember(name) && (*doc)[name].IsString()) {
+		std::string val((*doc)[name].GetString());
+		return val;
+	}
+	return "";
+}
+
+bool helper::read_bool_value(rapidjson::Document *doc, const char *name) {
+	if (doc->HasMember(name) && (*doc)[name].IsBool()) {
+		bool val((*doc)[name].GetBool());
+		return val;
+	}
+	return false;
+}
+
+std::string helper::read_object_string_value(rapidjson::Document *doc, const char *name, const char *config) {
 	if (doc->HasMember(name) && (*doc)[name].IsObject()) {
 		for (rapidjson::Value::ConstMemberIterator itr = (*doc)[name].MemberBegin(); itr != (*doc)[name].MemberEnd(); ++itr) {
 			if (itr->name != NULL) {
@@ -48,7 +64,7 @@ std::string helper::read_config_string_value(rapidjson::Document *doc, const cha
 	return "";
 }
 
-int helper::read_config_int_value(rapidjson::Document *doc, const char *name, const char *config) {
+int helper::read_object_int_value(rapidjson::Document *doc, const char *name, const char *config) {
 	if (doc->HasMember(name) && (*doc)[name].IsObject()) {
 		for (rapidjson::Value::ConstMemberIterator itr = (*doc)[name].MemberBegin(); itr != (*doc)[name].MemberEnd(); ++itr) {
 			if (itr->name != NULL) {

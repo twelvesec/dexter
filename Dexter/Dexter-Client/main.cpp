@@ -51,10 +51,13 @@ int main(int argc, char *argv[])
 	std::string config_file_content = helper::load_json_file(CONFIG_FILE);
 	d.Parse(config_file_content.c_str());
 
-	std::string HTTP_host = helper::read_config_string_value(&d, "HTTP", "host");
-	int HTTP_port = helper::read_config_int_value(&d, "HTTP", "port");
-	std::string HTTPs_host = helper::read_config_string_value(&d, "HTTPS", "host");
-	int HTTPs_port = helper::read_config_int_value(&d, "HTTPS", "port");
+	std::string AES_KEY = helper::read_string_value(&d, "AES_KEY");
+	bool IGNORE_UNKNOWN_CA = helper::read_bool_value(&d, "IGNORE_UNKNOWN_CA");
+
+	std::string HTTP_host = helper::read_object_string_value(&d, "HTTP", "host");
+	int HTTP_port = helper::read_object_int_value(&d, "HTTP", "port");
+	std::string HTTPs_host = helper::read_object_string_value(&d, "HTTPS", "host");
+	int HTTPs_port = helper::read_object_int_value(&d, "HTTPS", "port");
 
 	std::set<std::string> useragents = helper::load_useragent_strings(USER_AGENTS);
 

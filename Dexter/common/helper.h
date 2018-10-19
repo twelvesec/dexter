@@ -29,8 +29,10 @@
 #include "rapidjson/document.h"
 
 namespace helper {
-	std::string read_config_string_value(rapidjson::Document *doc, const char *name, const char *config);
-	int read_config_int_value(rapidjson::Document *doc, const char *name, const char *config);
+	bool read_bool_value(rapidjson::Document *doc, const char *name);
+	std::string read_string_value(rapidjson::Document *doc, const char *name);
+	std::string read_object_string_value(rapidjson::Document *doc, const char *name, const char *config);
+	int read_object_int_value(rapidjson::Document *doc, const char *name, const char *config);
 	int random_number(int min, int max);
 	std::string pick_random_useragent_fromfile(std::set<std::string> useragents);
 	std::set<std::string> load_useragent_strings(std::wstring filename);
