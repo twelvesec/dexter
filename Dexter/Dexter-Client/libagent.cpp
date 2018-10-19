@@ -25,10 +25,10 @@
 #include "libagent.h"
 #include "config.h"
 
-void libagent::test_http_protocol(std::string host, int port) {
+void libagent::test_http_protocol(std::string host, int port, std::string useragent) {
 
 }
 
-void libagent::test_https_protocol(std::string host, int port) {
+void libagent::test_https_protocol(std::string host, int port, std::string useragent) {
 
 }

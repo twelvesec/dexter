@@ -22,11 +22,17 @@
 
 //For more see the file 'LICENSE' for copying permission.
 
-#include "libreporter.h"
-#include "config.h"
+#pragma once
 
-void libreporter::test_http_protocol(std::string host, int port, std::string useragent) {
-}
+#include <string>
+#include <set>
+#include "rapidjson/document.h"
 
-void libreporter::test_https_protocol(std::string host, int port, std::string useragent) {
+namespace helper {
+	std::string read_config_string_value(rapidjson::Document *doc, const char *name, const char *config);
+	int read_config_int_value(rapidjson::Document *doc, const char *name, const char *config);
+	int random_number(int min, int max);
+	std::string pick_random_useragent_fromfile(std::set<std::string> useragents);
+	std::set<std::string> load_useragent_strings(std::wstring filename);
+	std::string load_json_file(std::wstring filename);
 }

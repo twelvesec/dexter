@@ -33,33 +33,77 @@
 
 #include "libreporter.h"
 #include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
-
-using namespace rapidjson;
+#include "common/helper.h"
 
 #define VERSION "1.0"
 
+std::wstring CONFIG_FILE;
+std::wstring USER_AGENTS;
+
 void Usage(char *appname);
-std::string read_config_string_value(Document *doc, const char *name, const char *config);
-int read_config_int_value(Document *doc, const char *name, const char *config);
+int PargeArgs(int argc, char *argv[]);
 
 int main(int argc, char *argv[])
 {
-	std::wstring CONFIG_FILE;
-	std::wstring USER_AGENTS;
-
-	int argsCount;
-	LPWSTR *args = CommandLineToArgvW(GetCommandLineW(), &argsCount);
-
 	std::cout << std::endl;
 	std::cout << "-----------------------------------------------------------------" << std::endl;
 	std::cout << "  Dexter reporter v." << VERSION << " - Data EXfiltration TestER" << std::endl;
 	std::cout << "-----------------------------------------------------------------" << std::endl << std::endl;
 
+	PargeArgs(argc, argv);
+
+	rapidjson::Document d;
+	std::string config_file_content = helper::load_json_file(CONFIG_FILE);
+	d.Parse(config_file_content.c_str());
+
+	std::string HTTP_host = helper::read_config_string_value(&d, "HTTP", "host");
+	int HTTP_port = helper::read_config_int_value(&d, "HTTP", "port");
+	std::string HTTPs_host = helper::read_config_string_value(&d, "HTTPS", "host");
+	int HTTPs_port = helper::read_config_int_value(&d, "HTTPS", "port");
+
+	std::set<std::string> useragents = helper::load_useragent_strings(USER_AGENTS);
+
+	// HTTP
+
+	std::cout << "----------------------------------" << std::endl;
+	std::cout << "  Checking HTTP as transport method" << std::endl;
+	std::cout << "----------------------------------" << std::endl << std::endl;
+
+	std::string useragent = helper::pick_random_useragent_fromfile(useragents);
+	std::cout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
+	libreporter::test_http_protocol(HTTP_host, HTTP_port, useragent);
+
+	std::cout << "-------------------------------------------" << std::endl << std::endl;
+
+	// HTTPS
+
+	std::cout << "----------------------------------" << std::endl;
+	std::cout << "  Checking HTTPs as transport method" << std::endl;
+	std::cout << "----------------------------------" << std::endl << std::endl;
+
+	useragent = helper::pick_random_useragent_fromfile(useragents);
+	std::cout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
+	libreporter::test_https_protocol(HTTPs_host, HTTPs_port, useragent);
+
+	std::cout << "-------------------------------------------" << std::endl << std::endl;
+
+	return 0;
+}
+
+void Usage(char *appname) {
+	std::cout << " Usage: " << appname << " [options] ..." << std::endl << std::endl;
+	std::cout << " -c <configuration file>         " << "A JSON formatted configuration file." << std::endl;
+	std::cout << " -u <User-Agent strings file>    " << "A text file containing user-agent strings." << std::endl;
+	std::cout << std::endl;
+}
+
+int PargeArgs(int argc, char *argv[]) {
+	int argsCount;
+	LPWSTR *args = CommandLineToArgvW(GetCommandLineW(), &argsCount);
+
 	if (args == NULL || argc < 5) {
 		Usage(argv[0]);
-		return 0;
+		return -1;
 	}
 
 	for (int i = 0; i < argsCount; i++) {
@@ -79,76 +123,12 @@ int main(int argc, char *argv[])
 				break;
 			default:
 				Usage(argv[0]);
-				return 0;
+				return -1;
 
 			}
 		}
 	}
-
 	LocalFree(args);
 
-	if (!PathFileExistsW(CONFIG_FILE.c_str())) {
-		return 0;
-	}
-
-	std::ifstream ifs(CONFIG_FILE);
-	std::string content((std::istreambuf_iterator<char>(ifs)),
-		(std::istreambuf_iterator<char>()));
-
-	Document d;
-	d.Parse(content.c_str());
-
-	std::string HTTP_host = read_config_string_value(&d, "HTTP", "host");
-	int HTTP_port = read_config_int_value(&d, "HTTP", "port");
-	std::string HTTPs_host = read_config_string_value(&d, "HTTPS", "host");
-	int HTTPs_port = read_config_int_value(&d, "HTTPS", "port");
-
-	std::cout << "----------------------------------" << std::endl;
-	std::cout << "  Checking HTTP as transport method" << std::endl;
-	std::cout << "----------------------------------" << std::endl << std::endl;
-	libreporter::test_http_protocol(HTTP_host, HTTP_port);
-	std::cout << "-------------------------------------------" << std::endl << std::endl;
-
-	std::cout << "----------------------------------" << std::endl;
-	std::cout << "  Checking HTTPs as transport method" << std::endl;
-	std::cout << "----------------------------------" << std::endl << std::endl;
-	libreporter::test_https_protocol(HTTPs_host, HTTPs_port);
-	std::cout << "-------------------------------------------" << std::endl << std::endl;
-
 	return 0;
-}
-
-void Usage(char *appname) {
-	std::cout << " Usage: " << appname << " [options] ..." << std::endl << std::endl;
-	std::cout << " -c <configuration file>         " << "A JSON formatted configuration file." << std::endl;
-	std::cout << " -u <User-Agent strings file>    " << "A text file containing user-agent strings." << std::endl;
-	std::cout << std::endl;
-}
-
-std::string read_config_string_value(Document *doc, const char *name, const char *config) {
-	if (doc->HasMember(name) && (*doc)[name].IsObject()) {
-		for (Value::ConstMemberIterator itr = (*doc)[name].MemberBegin(); itr != (*doc)[name].MemberEnd(); ++itr) {
-			if (itr->name != NULL) {
-				std::string val(itr->name.GetString());
-				if (val == config && itr->value != NULL) {
-					return itr->value.GetString();
-				}
-			}
-		}
-	}
-	return "";
-}
-
-int read_config_int_value(Document *doc, const char *name, const char *config) {
-	if (doc->HasMember(name) && (*doc)[name].IsObject()) {
-		for (Value::ConstMemberIterator itr = (*doc)[name].MemberBegin(); itr != (*doc)[name].MemberEnd(); ++itr) {
-			if (itr->name != NULL) {
-				std::string val(itr->name.GetString());
-				if (val == config && itr->value != NULL) {
-					return itr->value.GetInt();
-				}
-			}
-		}
-	}
-	return -1;
 }

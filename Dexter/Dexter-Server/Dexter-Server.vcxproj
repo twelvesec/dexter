@@ -119,10 +119,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\common\helper.cpp" />
     <ClCompile Include="libreporter.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\common\helper.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="libreporter.h" />
   </ItemGroup>

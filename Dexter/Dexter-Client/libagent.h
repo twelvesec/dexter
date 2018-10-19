@@ -27,6 +27,6 @@
 #include <string>
 
 namespace libagent {
-	void test_http_protocol(std::string host, int port);
-	void test_https_protocol(std::string host, int port);
+	void test_http_protocol(std::string host, int port, std::string useragent);
+	void test_https_protocol(std::string host, int port, std::string useragent);
 }
