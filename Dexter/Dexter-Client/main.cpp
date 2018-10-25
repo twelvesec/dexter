@@ -57,6 +57,8 @@ int main(int argc, char *argv[])
 
 	std::wstring HTTP_host = helper::read_object_string_value(&d, "HTTP", "host");
 	WORD HTTP_port = helper::read_object_word_value(&d, "HTTP", "port");
+
+	WORD HTTP_clientid = helper::read_object_word_value(&d, "HTTP", "clientid");
 	std::string HTTP_secret = helper::read_object_string_value_ascii(&d, "HTTP", "secret");
 	std::string HTTP_username = helper::read_object_string_value_ascii(&d, "HTTP", "username");
 	std::string HTTP_password = helper::read_object_string_value_ascii(&d, "HTTP", "password");
@@ -66,6 +68,8 @@ int main(int argc, char *argv[])
 
 	std::wstring HTTPs_host = helper::read_object_string_value(&d, "HTTPS", "host");
 	WORD HTTPs_port = helper::read_object_word_value(&d, "HTTPS", "port");
+
+	WORD HTTPs_clientid = helper::read_object_word_value(&d, "HTTPS", "clientid");
 	std::string HTTPs_secret = helper::read_object_string_value_ascii(&d, "HTTPS", "secret");
 	std::string HTTPs_username = helper::read_object_string_value_ascii(&d, "HTTPS", "username");
 	std::string HTTPs_password = helper::read_object_string_value_ascii(&d, "HTTPS", "password");
@@ -75,7 +79,8 @@ int main(int argc, char *argv[])
 
 	std::set<std::wstring> useragents = helper::load_useragent_strings(USER_AGENTS);
 
-	std::string token_data = "grant_type=password&client_id=2&client_secret=" + HTTP_secret + "&username=" + HTTP_username + "&password=" + HTTP_password + "&scope=*";
+	std::string HTTP_token_data = "grant_type=password&client_id=" + std::to_string(HTTP_clientid) + "&client_secret=" + HTTP_secret + "&username=" + HTTP_username + "&password=" + HTTP_password + "&scope=*";
+	std::string HTTPs_token_data = "grant_type=password&client_id=" + std::to_string(HTTPs_clientid) + "&client_secret=" + HTTPs_secret + "&username=" + HTTPs_username + "&password=" + HTTPs_password + "&scope=*";
 
 	// HTTP
 
@@ -85,7 +90,7 @@ int main(int argc, char *argv[])
 
 	std::wstring useragent = helper::pick_random_useragent_fromfile(useragents);
 	std::wcout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
-	libagent::test_http_protocol(HTTP_host, HTTP_port, useragent, HTTP_method, HTTP_token_uri, HTTP_logclient_uri, (char*)token_data.c_str(),
+	libagent::test_http_protocol(HTTP_host, HTTP_port, useragent, HTTP_method, HTTP_token_uri, HTTP_logclient_uri, (char*)HTTP_token_data.c_str(),
 		IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
 
 	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
@@ -98,7 +103,7 @@ int main(int argc, char *argv[])
 
 	useragent = helper::pick_random_useragent_fromfile(useragents);
 	std::wcout << "[HTTPS] " << "User-Agent: " << useragent << std::endl;
-	libagent::test_http_protocol(HTTP_host, HTTP_port, useragent, HTTPs_method, HTTPs_token_uri, HTTPs_logclient_uri, (char*)token_data.c_str(),
+	libagent::test_http_protocol(HTTP_host, HTTP_port, useragent, HTTPs_method, HTTPs_token_uri, HTTPs_logclient_uri, (char*)HTTPs_token_data.c_str(),
 		IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, true);
 
 	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;

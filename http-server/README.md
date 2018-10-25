@@ -14,12 +14,6 @@
 * client secret
 
 ```
-php artisan passport:client
-```
-
-or
-
-```
 php artisan passport:client --password
 ```
 
