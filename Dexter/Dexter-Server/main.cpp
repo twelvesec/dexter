@@ -56,15 +56,15 @@ int main(int argc, char *argv[])
 	std::string config_file_content = helper::load_json_file(CONFIG_FILE);
 	d.Parse(config_file_content.c_str());
 
-	std::string AES_KEY = helper::read_string_value(&d, "AES_KEY");
+	std::string AES_KEY = helper::read_string_value_ascii(&d, "AES_KEY");
 	bool IGNORE_UNKNOWN_CA = helper::read_bool_value(&d, "IGNORE_UNKNOWN_CA");
 
-	std::string HTTP_host = helper::read_object_string_value(&d, "HTTP", "host");
-	int HTTP_port = helper::read_object_int_value(&d, "HTTP", "port");
-	std::string HTTPs_host = helper::read_object_string_value(&d, "HTTPS", "host");
-	int HTTPs_port = helper::read_object_int_value(&d, "HTTPS", "port");
+	std::wstring HTTP_host = helper::read_object_string_value(&d, "HTTP", "host");
+	WORD HTTP_port = helper::read_object_word_value(&d, "HTTP", "port");
+	std::wstring HTTPs_host = helper::read_object_string_value(&d, "HTTPS", "host");
+	WORD HTTPs_port = helper::read_object_word_value(&d, "HTTPS", "port");
 
-	std::set<std::string> useragents = helper::load_useragent_strings(USER_AGENTS);
+	std::set<std::wstring> useragents = helper::load_useragent_strings(USER_AGENTS);
 
 	// HTTP
 
@@ -72,8 +72,8 @@ int main(int argc, char *argv[])
 	std::cout << "  Checking HTTP as transport method" << std::endl;
 	std::cout << "----------------------------------" << std::endl << std::endl;
 
-	std::string useragent = helper::pick_random_useragent_fromfile(useragents);
-	std::cout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
+	std::wstring useragent = helper::pick_random_useragent_fromfile(useragents);
+	std::wcout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
 	libreporter::test_http_protocol(HTTP_host, HTTP_port, useragent);
 
 	std::cout << "-------------------------------------------" << std::endl << std::endl;
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 	std::cout << "----------------------------------" << std::endl << std::endl;
 
 	useragent = helper::pick_random_useragent_fromfile(useragents);
-	std::cout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
+	std::wcout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
 	libreporter::test_https_protocol(HTTPs_host, HTTPs_port, useragent);
 
 	std::cout << "-------------------------------------------" << std::endl << std::endl;

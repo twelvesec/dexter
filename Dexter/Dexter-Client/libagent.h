@@ -24,9 +24,10 @@
 
 #pragma once
 
+#include <Windows.h>
 #include <string>
 
 namespace libagent {
-	void test_http_protocol(std::string host, int port, std::string useragent);
-	void test_https_protocol(std::string host, int port, std::string useragent);
+	void test_http_protocol(std::wstring host, WORD port, std::wstring uagent, std::wstring requestMethod, std::wstring uri, std::wstring logclienturi,
+		char *data, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID, bool HTTPS_CONNECTION);
 }

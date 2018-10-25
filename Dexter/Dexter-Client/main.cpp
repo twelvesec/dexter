@@ -51,15 +51,31 @@ int main(int argc, char *argv[])
 	std::string config_file_content = helper::load_json_file(CONFIG_FILE);
 	d.Parse(config_file_content.c_str());
 
-	std::string AES_KEY = helper::read_string_value(&d, "AES_KEY");
-	bool IGNORE_UNKNOWN_CA = helper::read_bool_value(&d, "IGNORE_UNKNOWN_CA");
+	std::string AES_KEY = helper::read_string_value_ascii(&d, "AES_KEY");
+	bool IGNORE_CERT_UNKNOWN_CA = helper::read_bool_value(&d, "IGNORE_CERT_UNKNOWN_CA");
+	bool IGNORE_CERT_DATE_INVALID = helper::read_bool_value(&d, "IGNORE_CERT_DATE_INVALID");
 
-	std::string HTTP_host = helper::read_object_string_value(&d, "HTTP", "host");
-	int HTTP_port = helper::read_object_int_value(&d, "HTTP", "port");
-	std::string HTTPs_host = helper::read_object_string_value(&d, "HTTPS", "host");
-	int HTTPs_port = helper::read_object_int_value(&d, "HTTPS", "port");
+	std::wstring HTTP_host = helper::read_object_string_value(&d, "HTTP", "host");
+	WORD HTTP_port = helper::read_object_word_value(&d, "HTTP", "port");
+	std::string HTTP_secret = helper::read_object_string_value_ascii(&d, "HTTP", "secret");
+	std::string HTTP_username = helper::read_object_string_value_ascii(&d, "HTTP", "username");
+	std::string HTTP_password = helper::read_object_string_value_ascii(&d, "HTTP", "password");
+	std::wstring HTTP_method = helper::read_object_string_value(&d, "HTTP", "method");
+	std::wstring HTTP_token_uri = helper::read_object_string_value(&d, "HTTP", "token_uri");
+	std::wstring HTTP_logclient_uri = helper::read_object_string_value(&d, "HTTP", "logclient_uri");
 
-	std::set<std::string> useragents = helper::load_useragent_strings(USER_AGENTS);
+	std::wstring HTTPs_host = helper::read_object_string_value(&d, "HTTPS", "host");
+	WORD HTTPs_port = helper::read_object_word_value(&d, "HTTPS", "port");
+	std::string HTTPs_secret = helper::read_object_string_value_ascii(&d, "HTTPS", "secret");
+	std::string HTTPs_username = helper::read_object_string_value_ascii(&d, "HTTPS", "username");
+	std::string HTTPs_password = helper::read_object_string_value_ascii(&d, "HTTPS", "password");
+	std::wstring HTTPs_method = helper::read_object_string_value(&d, "HTTPS", "method");
+	std::wstring HTTPs_token_uri = helper::read_object_string_value(&d, "HTTPS", "token_uri");
+	std::wstring HTTPs_logclient_uri = helper::read_object_string_value(&d, "HTTPS", "logclient_uri");
+
+	std::set<std::wstring> useragents = helper::load_useragent_strings(USER_AGENTS);
+
+	std::string token_data = "grant_type=password&client_id=2&client_secret=" + HTTP_secret + "&username=" + HTTP_username + "&password=" + HTTP_password + "&scope=*";
 
 	// HTTP
 
@@ -67,9 +83,10 @@ int main(int argc, char *argv[])
 	std::cout << "  Using HTTP as transport method" << std::endl;
 	std::cout << "----------------------------------" << std::endl << std::endl;
 
-	std::string useragent = helper::pick_random_useragent_fromfile(useragents);
-	std::cout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
-	libagent::test_http_protocol(HTTP_host, HTTP_port, useragent);
+	std::wstring useragent = helper::pick_random_useragent_fromfile(useragents);
+	std::wcout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
+	libagent::test_http_protocol(HTTP_host, HTTP_port, useragent, HTTP_method, HTTP_token_uri, HTTP_logclient_uri, (char*)token_data.c_str(),
+		IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
 
 	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 
@@ -80,8 +97,9 @@ int main(int argc, char *argv[])
 	std::cout << "----------------------------------" << std::endl << std::endl;
 
 	useragent = helper::pick_random_useragent_fromfile(useragents);
-	std::cout << "[HTTPS] " << "User-Agent: " << useragent << std::endl;
-	libagent::test_https_protocol(HTTPs_host, HTTPs_port, useragent);
+	std::wcout << "[HTTPS] " << "User-Agent: " << useragent << std::endl;
+	libagent::test_http_protocol(HTTP_host, HTTP_port, useragent, HTTPs_method, HTTPs_token_uri, HTTPs_logclient_uri, (char*)token_data.c_str(),
+		IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, true);
 
 	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 

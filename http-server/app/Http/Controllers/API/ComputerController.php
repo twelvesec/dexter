@@ -27,7 +27,7 @@ class ComputerController extends BaseController
         $input = $request->all();
 
         $validator = Validator::make($input, [
-            'computername' => 'required|unique:computers',
+            'computername' => 'required',
             'os' => 'required',
             'username' => 'required'
         ]);
@@ -56,7 +56,7 @@ class ComputerController extends BaseController
         $input = $request->all();
 
         $validator = Validator::make($input, [
-            'computername' => 'required|unique:computers',
+            'computername' => 'required',
             'os' => 'required',
             'username' => 'required'
         ]);
@@ -66,14 +66,8 @@ class ComputerController extends BaseController
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
-
-        /*$computer->computername = $input['computername'];
-        $computer->os = $input['os'];
-        $computer->username = $input['username'];
-        $computer->save();*/
-
         $computer->update($request->only(['computername', 'os', 'username']));
 
-        return $this->sendResponse($computer->toArray(), 'Product updated successfully.');
+        return $this->sendResponse($computer->toArray(), 'Computer updated successfully.');
     }
 }

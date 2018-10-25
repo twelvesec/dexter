@@ -1,12 +1,25 @@
 {
 	"AES_KEY": "THIS.IS.MY.AES.KEY",
-	"IGNORE_UNKNOWN_CA": true,
+	"IGNORE_CERT_UNKNOWN_CA": true,
+	"IGNORE_CERT_DATE_INVALID": false,
 	"HTTP": {
-		"host": "192.168.10.1",
-		"port": 80
+		"host": "192.168.1.1",
+		"port": 80,
+		"secret": "xxxxxxxxxxxxxxxxxxxxxxxxxx",
+		"username": "dexteruser@example.com",
+		"password": "dexter_user_passwd",
+		"method": "POST",
+		"token_uri": "/oauth/token",
+		"logclient_uri": "/api/computers"
 	},
 	"HTTPS": {
-		"host": "192.168.10.1",
-		"port": 443
+		"host": "192.168.1.1",
+		"port": 443,
+		"secret": "yyyyyyyyyyyyyyyyyyyyyyyyyy",
+		"username": "dexteruser@example.com",
+		"password": "dexter_user_passwd",
+		"method": "POST",
+		"token_uri": "/oauth/token",
+		"logclient_uri": "/api/computers"
 	}
 }

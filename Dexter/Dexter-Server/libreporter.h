@@ -24,9 +24,10 @@
 
 #pragma once
 
+#include <Windows.h>
 #include <string>
 
 namespace libreporter {
-	void test_http_protocol(std::string host, int port, std::string useragent);
-	void test_https_protocol(std::string host, int port, std::string useragent);
+	void test_http_protocol(std::wstring host, WORD port, std::wstring useragent);
+	void test_https_protocol(std::wstring host, WORD port, std::wstring useragent);
 }

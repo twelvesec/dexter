@@ -24,17 +24,20 @@
 
 #pragma once
 
+#include <Windows.h>
 #include <string>
 #include <set>
 #include "rapidjson/document.h"
 
 namespace helper {
 	bool read_bool_value(rapidjson::Document *doc, const char *name);
-	std::string read_string_value(rapidjson::Document *doc, const char *name);
-	std::string read_object_string_value(rapidjson::Document *doc, const char *name, const char *config);
-	int read_object_int_value(rapidjson::Document *doc, const char *name, const char *config);
+	std::string read_string_value_ascii(rapidjson::Document *doc, const char *name);
+	std::wstring read_string_value(rapidjson::Document *doc, const char *name);
+	std::wstring read_object_string_value(rapidjson::Document *doc, const char *name, const char *config);
+	std::string read_object_string_value_ascii(rapidjson::Document *doc, const char *name, const char *config);
+	WORD read_object_word_value(rapidjson::Document *doc, const char *name, const char *config);
 	int random_number(int min, int max);
-	std::string pick_random_useragent_fromfile(std::set<std::string> useragents);
-	std::set<std::string> load_useragent_strings(std::wstring filename);
+	std::wstring pick_random_useragent_fromfile(std::set<std::wstring> useragents);
+	std::set<std::wstring> load_useragent_strings(std::wstring filename);
 	std::string load_json_file(std::wstring filename);
 }

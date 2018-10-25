@@ -22,11 +22,19 @@
 
 //For more see the file 'LICENSE' for copying permission.
 
-#include "libreporter.h"
-#include "config.h"
+#pragma once
 
-void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring useragent) {
-}
+#include <Windows.h>
+#include <string>
+#pragma comment (lib, "wininet.lib")
+#include <WinInet.h>
 
-void libreporter::test_https_protocol(std::wstring host, WORD port, std::wstring useragent) {
+#define DEFAULT_HTTP_VERSION	L"HTTP/1.1"
+
+namespace libhttp {
+	HINTERNET open(std::wstring uagent);
+	HINTERNET connect(HINTERNET internet, std::wstring host, WORD port);
+	HINTERNET json_request(HINTERNET connection, std::wstring requestMethod, std::wstring uri, char *data, const WCHAR *headers,
+		bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID, bool HTTPS_CONNECTION);
+	bool retrieve_data(HINTERNET request, char **data);
 }

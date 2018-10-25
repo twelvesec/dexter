@@ -24,3 +24,17 @@
 
 #pragma once
 
+#include <string>
+
+#define WIN_S03			0x0502
+#define WIN_S08			0x0600
+#define WIN_S08R2		0x0601
+#define WIN_S12			0x0602
+#define WIN_S12R2		0x0603
+#define WIN_S16			0x0A00
+
+namespace libsysteminfo {
+	std::string get_computer_name(void);
+	std::string get_username(void);
+	std::string get_os_version(void);
+}

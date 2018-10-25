@@ -34,12 +34,20 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
-std::string helper::read_string_value(rapidjson::Document *doc, const char *name) {
+std::string helper::read_string_value_ascii(rapidjson::Document *doc, const char *name) {
 	if (doc->HasMember(name) && (*doc)[name].IsString()) {
 		std::string val((*doc)[name].GetString());
 		return val;
 	}
 	return "";
+}
+
+std::wstring helper::read_string_value(rapidjson::Document *doc, const char *name) {
+	if (doc->HasMember(name) && (*doc)[name].IsString()) {
+		std::string val((*doc)[name].GetString());
+		return std::wstring(val.begin(), val.end());
+	}
+	return L"";
 }
 
 bool helper::read_bool_value(rapidjson::Document *doc, const char *name) {
@@ -50,7 +58,22 @@ bool helper::read_bool_value(rapidjson::Document *doc, const char *name) {
 	return false;
 }
 
-std::string helper::read_object_string_value(rapidjson::Document *doc, const char *name, const char *config) {
+std::wstring helper::read_object_string_value(rapidjson::Document *doc, const char *name, const char *config) {
+	if (doc->HasMember(name) && (*doc)[name].IsObject()) {
+		for (rapidjson::Value::ConstMemberIterator itr = (*doc)[name].MemberBegin(); itr != (*doc)[name].MemberEnd(); ++itr) {
+			if (itr->name != NULL) {
+				std::string val(itr->name.GetString());
+				if (val == config && itr->value != NULL) {
+					std::string s = itr->value.GetString();
+					return std::wstring(s.begin(), s.end());
+				}
+			}
+		}
+	}
+	return L"";
+}
+
+std::string helper::read_object_string_value_ascii(rapidjson::Document *doc, const char *name, const char *config) {
 	if (doc->HasMember(name) && (*doc)[name].IsObject()) {
 		for (rapidjson::Value::ConstMemberIterator itr = (*doc)[name].MemberBegin(); itr != (*doc)[name].MemberEnd(); ++itr) {
 			if (itr->name != NULL) {
@@ -64,7 +87,7 @@ std::string helper::read_object_string_value(rapidjson::Document *doc, const cha
 	return "";
 }
 
-int helper::read_object_int_value(rapidjson::Document *doc, const char *name, const char *config) {
+WORD helper::read_object_word_value(rapidjson::Document *doc, const char *name, const char *config) {
 	if (doc->HasMember(name) && (*doc)[name].IsObject()) {
 		for (rapidjson::Value::ConstMemberIterator itr = (*doc)[name].MemberBegin(); itr != (*doc)[name].MemberEnd(); ++itr) {
 			if (itr->name != NULL) {
@@ -92,17 +115,17 @@ int helper::random_number(int min, int max) {
 	return rand() % (max - min + 1) + min;
 }
 
-std::string helper::pick_random_useragent_fromfile(std::set<std::string> useragents) {
-	std::set<std::string>::const_iterator it(useragents.begin());
+std::wstring helper::pick_random_useragent_fromfile(std::set<std::wstring> useragents) {
+	std::set<std::wstring>::const_iterator it(useragents.begin());
 	int index = random_number(0, (int)useragents.size() - 1);
 	advance(it, index);
 	return *it;
 }
 
-std::set<std::string> helper::load_useragent_strings(std::wstring filename) {
-	std::string line;
-	std::set<std::string> useragents;
-	std::ifstream ifsuagen(filename);
+std::set<std::wstring> helper::load_useragent_strings(std::wstring filename) {
+	std::wstring line;
+	std::set<std::wstring> useragents;
+	std::wifstream ifsuagen(filename);
 	if (!ifsuagen) {
 		return useragents;
 	}
