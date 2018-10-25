@@ -39,8 +39,22 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring uag
 
 	internet = libhttp::open(uagent);
 
+	if (!HTTPS_CONNECTION) {
+		std::wcout << "[HTTP] " << "Connecting to HTTP server" << std::endl;
+	}
+	else {
+		std::wcout << "[HTTPS] " << "Connecting to HTTPS server" << std::endl;
+	}
+
 	if (internet != NULL) {
 		connection = libhttp::connect(internet, host, port);
+	}
+
+	if (!HTTPS_CONNECTION) {
+		std::wcout << "[HTTP] " << "Requesting API token with HTTP packet" << std::endl;
+	}
+	else {
+		std::wcout << "[HTTPS] " << "Requesting API token with HTTPS packet" << std::endl;
 	}
 
 	if (connection != NULL) {
@@ -67,6 +81,13 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring uag
 		std::string logclient_data = "computername=" + libsysteminfo::get_computer_name() + "&os=" + libsysteminfo::get_os_version() +
 			"&username=" + libsysteminfo::get_username();
 
+		if (!HTTPS_CONNECTION) {
+			std::wcout << "[HTTP] " << "Sending data with HTTP packet" << std::endl;
+		}
+		else {
+			std::wcout << "[HTTPS] " << "Sending data with HTTPS packet" << std::endl;
+		}
+
 		if (connection != NULL) {
 			request = libhttp::json_request(connection, requestMethod, logclienturi, (char*)logclient_data.c_str(),
 				logclient_headers.c_str(), IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
@@ -80,8 +101,26 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring uag
 			rapidjson::Document logclient_response;
 			logclient_response.Parse(downloaded);
 
-			bool success = helper::read_bool_value(&logclient_response, "success");
-			std::wstring message = helper::read_string_value(&logclient_response, "message");
+			if (helper::read_bool_value(&logclient_response, "success") == true) {
+
+				if (!HTTPS_CONNECTION) {
+					std::wcout << "[HTTP] " << "Transmission succeeded" << std::endl;
+				}
+				else {
+					std::wcout << "[HTTPS] " << "Transmission succeeded" << std::endl;
+				}
+			}
+			else {
+
+				if (!HTTPS_CONNECTION) {
+					std::wcout << "[HTTP] " << "Transmission failed" << std::endl;
+				}
+				else {
+					std::wcout << "[HTTPS] " << "Transmission failed" << std::endl;
+				}
+
+			}
+			//std::wstring message = helper::read_string_value(&logclient_response, "message");
 		}
 
 		HeapFree(GetProcessHeap(), 0, downloaded);

@@ -5,9 +5,10 @@
 	"HTTP": {
 		"host": "192.168.1.1",
 		"port": 80,
-		"secret": "xxxxxxxxxxxxxxxxxxxxxxxxxx",
+		"clientid": 1,
+		"secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 		"username": "dexteruser@example.com",
-		"password": "dexter_user_passwd",
+		"password": "dexter_user_password",
 		"method": "POST",
 		"token_uri": "/oauth/token",
 		"logclient_uri": "/api/computers"
@@ -15,9 +16,10 @@
 	"HTTPS": {
 		"host": "192.168.1.1",
 		"port": 443,
-		"secret": "yyyyyyyyyyyyyyyyyyyyyyyyyy",
+		"clientid": 1,
+		"secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 		"username": "dexteruser@example.com",
-		"password": "dexter_user_passwd",
+		"password": "dexter_user_password",
 		"method": "POST",
 		"token_uri": "/oauth/token",
 		"logclient_uri": "/api/computers"
