@@ -24,6 +24,7 @@
 
 #include "libhttp.h"
 #include <string>
+#include <iostream>
 
 HINTERNET libhttp::open(std::wstring uagent) {
 	return InternetOpenW(uagent.c_str(), INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
@@ -88,6 +89,8 @@ HINTERNET libhttp::json_request(HINTERNET connection, std::wstring requestMethod
 	}
 
 	if (!HttpSendRequestW(request, headers, (DWORD)wcslen(headers), data, (DWORD)strlen(data))) {
+		std::cout << GetLastError() << std::endl;
+
 		InternetCloseHandle(request);
 		request = NULL;
 		return NULL;

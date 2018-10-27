@@ -24,14 +24,20 @@
 
 #include "libsysteminfo.h"
 
-#include <Windows.h>
+#pragma comment(lib, "IPHLPAPI.lib")
+#pragma comment(lib, "Ws2_32.lib")
+
+#include <winsock2.h>
+#include <windows.h>
+#include <iphlpapi.h>
 #include <VersionHelpers.h>
 
 #define SECURITY_WIN32
 
 #pragma comment (lib, "Secur32.lib")
 #include <Security.h>
-#include <Lmcons.h>
+
+#include <stdio.h>
 
 static bool IsWindowsVersion(unsigned short wMajorVersion, unsigned short wMinorVersion, unsigned short wServicePackMajor, int comparisonType)
 {
@@ -52,25 +58,57 @@ static bool IsWindowsVersion(unsigned short wMajorVersion, unsigned short wMinor
 }
 
 std::string libsysteminfo::get_computer_name(void) {
-	std::string computername;
-	char cname[MAX_COMPUTERNAME_LENGTH + 1];
-	DWORD cnameLen = MAX_COMPUTERNAME_LENGTH + 1;
+	std::string computername = "";
+	char *cname;
+	DWORD cnameLen = 0;
 
-	if (GetComputerNameA(cname, &cnameLen) == TRUE) {
-		computername = std::string(cname);
+	if (GetComputerNameExA(ComputerNameNetBIOS, NULL, &cnameLen) == 0 && GetLastError() != ERROR_MORE_DATA) {
+		return "";
 	}
+
+	if ((cname = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, cnameLen)) == NULL) {
+		return "";
+	}
+
+	if (GetComputerNameExA(ComputerNameNetBIOS, cname, &cnameLen) == 0) {
+		HeapFree(GetProcessHeap(), 0, cname);
+		cname = NULL;
+		return "";
+	}
+
+	cname[cnameLen] = 0;
+
+	computername = std::string(cname);
+	HeapFree(GetProcessHeap(), 0, cname);
+	cname = NULL;
 
 	return computername;
 }
 
 std::string libsysteminfo::get_username(void) {
 	std::string username = "";
-	char uname[UNLEN + 1];
-	DWORD unameLen = UNLEN + 1;
+	char *uname;
+	DWORD unameLen = 0;
 
-	if (GetUserNameExA(NameSamCompatible, uname, &unameLen) == TRUE) {
-		username = std::string(uname);
+	if (GetUserNameExA(NameSamCompatible, NULL, &unameLen) == 0 && GetLastError() != ERROR_MORE_DATA) {
+		return "";
 	}
+
+	if ((uname = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, unameLen)) == NULL) {
+		return "";
+	}
+
+	if (GetUserNameExA(NameSamCompatible, uname, &unameLen) == 0) {
+		HeapFree(GetProcessHeap(), 0, uname);
+		uname = NULL;
+		return "";
+	}
+
+	uname[unameLen] = 0;
+
+	username = std::string(uname);
+	HeapFree(GetProcessHeap(), 0, uname);
+	uname = NULL;
 
 	return username;
 }
@@ -90,7 +128,7 @@ std::string libsysteminfo::get_os_version(void) {
 		if (IsWindowsXPSP2OrGreater()) return "Windows_XP_SP2";
 		if (IsWindowsXPSP1OrGreater()) return "Windows_XP_SP1";
 		if (IsWindowsXPOrGreater())return "Windows_XP";
-		return "Windows";
+		return "";
 	}
 	else {
 		if (IsWindowsVersion(HIBYTE(WIN_S03), LOBYTE(WIN_S03), 0, VER_EQUAL)) return "Windows_Server_2003";
@@ -99,6 +137,134 @@ std::string libsysteminfo::get_os_version(void) {
 		else if (IsWindowsVersion(HIBYTE(WIN_S12), LOBYTE(WIN_S12), 0, VER_EQUAL)) return "Windows_Server_2012";
 		else if (IsWindowsVersion(HIBYTE(WIN_S12R2), LOBYTE(WIN_S12R2), 0, VER_EQUAL)) return "Windows_Server_2012_R2";
 		else if (IsWindowsVersion(HIBYTE(WIN_S16), LOBYTE(WIN_S16), 0, VER_EQUAL)) return "Windows_Server_2016";
-		else return "Windows_Server";
+		else return "";
 	}
+}
+
+std::string libsysteminfo::unique_id(void) {
+	std::string id;
+
+
+
+	return id;
+}
+
+std::string libsysteminfo::get_active_netface_ip(void) {
+	std::string ipaddress = "";
+	DWORD size = 0;
+	ULONG result = 0;
+	PIP_ADAPTER_ADDRESSES aAddr = NULL;
+	PIP_ADAPTER_ADDRESSES aAddrIndex = NULL;
+	PIP_ADAPTER_UNICAST_ADDRESS aAddrUnicast = NULL;
+	WSADATA wsaData;
+	WCHAR *buf;
+	unsigned long bufSize = 50; //xxx.xxx.xxx.xxx
+
+	if ((result = GetAdaptersAddresses(0, 0, 0, 0, &size)) != ERROR_BUFFER_OVERFLOW) {
+		return "";
+	}
+
+	if ((aAddr = (PIP_ADAPTER_ADDRESSES)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size)) == NULL) {
+		return "";
+	}
+
+	if (GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_PREFIX, 0, aAddr, &size) != NO_ERROR) {
+		HeapFree(GetProcessHeap(), 0, aAddr);
+		aAddr = NULL;
+		return "";
+	}
+
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+		HeapFree(GetProcessHeap(), 0, aAddr);
+		aAddr = NULL;
+		return "";
+	}
+
+	aAddrIndex = aAddr;
+	std::wstring tmp;
+
+	while (aAddrIndex) {
+		if ((aAddrIndex->IfType == 6 || aAddrIndex->IfType == 71) && aAddrIndex->OperStatus == 1 &&
+			std::wstring(aAddrIndex->Description).find(L"Hyper-V") == std::string::npos &&
+			std::wstring(aAddrIndex->Description).find(L"VirtualBox") == std::string::npos &&
+			std::wstring(aAddrIndex->Description).find(L"VMware") == std::string::npos) {
+
+			if ((aAddrUnicast = aAddrIndex->FirstUnicastAddress) != NULL) {
+
+				if ((buf = (WCHAR*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, bufSize * sizeof(WCHAR))) == NULL) {
+					continue;
+				}
+
+				if (WSAAddressToStringW(aAddrUnicast->Address.lpSockaddr,
+					aAddrUnicast->Address.iSockaddrLength, NULL, buf, &bufSize) == 0) {
+					tmp += std::wstring(buf) + L" ";
+					HeapFree(GetProcessHeap(), 0, buf);
+					buf = NULL;
+				}
+
+			}
+		}
+		aAddrIndex = aAddrIndex->Next;
+	}
+
+	HeapFree(GetProcessHeap(), 0, aAddr);
+	aAddr = NULL;
+
+	WSACleanup();
+
+	tmp = tmp.substr(0, tmp.size() - 1);
+	ipaddress = std::string(tmp.begin(), tmp.end());
+	return ipaddress;
+}
+
+std::string libsysteminfo::get_active_netface_mac(void) {
+	std::string mac = "";
+	DWORD size = 0;
+	ULONG result = 0;
+	PIP_ADAPTER_ADDRESSES aAddr = NULL;
+	PIP_ADAPTER_ADDRESSES aAddrIndex = NULL;
+	PIP_ADAPTER_UNICAST_ADDRESS aAddrUnicast = NULL;
+
+	char *buf;
+	unsigned long bufSize = 50;
+
+	if ((result = GetAdaptersAddresses(0, 0, 0, 0, &size)) != ERROR_BUFFER_OVERFLOW) {
+		return "";
+	}
+
+	if ((aAddr = (PIP_ADAPTER_ADDRESSES)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size)) == NULL) {
+		return "";
+	}
+
+	if (GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_PREFIX, 0, aAddr, &size) != NO_ERROR) {
+		HeapFree(GetProcessHeap(), 0, aAddr);
+		aAddr = NULL;
+		return "";
+	}
+
+	aAddrIndex = aAddr;
+
+	while (aAddrIndex) {
+		if ((aAddrIndex->IfType == 6 || aAddrIndex->IfType == 71) && aAddrIndex->OperStatus == 1 &&
+			std::wstring(aAddrIndex->Description).find(L"Hyper-V") == std::string::npos &&
+			std::wstring(aAddrIndex->Description).find(L"VirtualBox") == std::string::npos &&
+			std::wstring(aAddrIndex->Description).find(L"VMware") == std::string::npos) {
+
+			if ((buf = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, bufSize)) == NULL) {
+				continue;
+			}
+
+			_snprintf_s(buf, bufSize, _TRUNCATE, "%02X-%02X-%02X-%02X-%02X-%02X", aAddrIndex->PhysicalAddress[0], aAddrIndex->PhysicalAddress[1],
+				aAddrIndex->PhysicalAddress[2], aAddrIndex->PhysicalAddress[3], aAddrIndex->PhysicalAddress[4], aAddrIndex->PhysicalAddress[5]);
+			mac = std::string(buf);
+			HeapFree(GetProcessHeap(), 0, buf);
+			buf = NULL;
+		}
+		aAddrIndex = aAddrIndex->Next;
+	}
+
+	HeapFree(GetProcessHeap(), 0, aAddr);
+	aAddr = NULL;
+
+	return mac;
 }

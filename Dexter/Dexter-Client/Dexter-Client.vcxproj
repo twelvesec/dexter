@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClCompile Include="..\common\helper.cpp" />
     <ClCompile Include="libagent.cpp" />
+    <ClCompile Include="libHash.cpp" />
     <ClCompile Include="libhttp.cpp" />
     <ClCompile Include="libsysteminfo.cpp" />
     <ClCompile Include="main.cpp" />
@@ -140,9 +141,9 @@
   <ItemGroup>
     <ClInclude Include="..\common\helper.h" />
     <ClInclude Include="libagent.h" />
+    <ClInclude Include="libHash.h" />
     <ClInclude Include="libhttp.h" />
     <ClInclude Include="libsysteminfo.h" />
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

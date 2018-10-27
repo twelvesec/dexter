@@ -30,6 +30,9 @@
     <ClCompile Include="libsysteminfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="libHash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="libagent.h">
@@ -44,7 +47,7 @@
     <ClInclude Include="libsysteminfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="libHash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

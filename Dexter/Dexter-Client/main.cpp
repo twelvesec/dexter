@@ -79,33 +79,26 @@ int main(int argc, char *argv[])
 
 	std::set<std::wstring> useragents = helper::load_useragent_strings(USER_AGENTS);
 
-	std::string HTTP_token_data = "grant_type=password&client_id=" + std::to_string(HTTP_clientid) + "&client_secret=" + HTTP_secret + "&username=" + HTTP_username + "&password=" + HTTP_password + "&scope=*";
-	std::string HTTPs_token_data = "grant_type=password&client_id=" + std::to_string(HTTPs_clientid) + "&client_secret=" + HTTPs_secret + "&username=" + HTTPs_username + "&password=" + HTTPs_password + "&scope=*";
-
 	// HTTP
 
 	std::cout << "----------------------------------" << std::endl;
 	std::cout << "  Using HTTP as transport method" << std::endl;
 	std::cout << "----------------------------------" << std::endl << std::endl;
-
-	std::wstring useragent = helper::pick_random_useragent_fromfile(useragents);
-	std::wcout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
-	libagent::test_http_protocol(HTTP_host, HTTP_port, useragent, HTTP_method, HTTP_token_uri, HTTP_logclient_uri, (char*)HTTP_token_data.c_str(),
-		IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
-
+	libagent::test_http_protocol(HTTP_host, HTTP_port, HTTP_method, HTTP_token_uri, HTTP_logclient_uri, useragents, HTTP_clientid,
+		HTTP_secret, HTTP_username, HTTP_password, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
 	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
+
+
+	Sleep(1000);
+
 
 	// HTTPS
 
 	std::cout << "----------------------------------" << std::endl;
 	std::cout << "  Using HTTPs as transport method" << std::endl;
 	std::cout << "----------------------------------" << std::endl << std::endl;
-
-	useragent = helper::pick_random_useragent_fromfile(useragents);
-	std::wcout << "[HTTPS] " << "User-Agent: " << useragent << std::endl;
-	libagent::test_http_protocol(HTTP_host, HTTP_port, useragent, HTTPs_method, HTTPs_token_uri, HTTPs_logclient_uri, (char*)HTTPs_token_data.c_str(),
-		IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, true);
-
+	libagent::test_http_protocol(HTTPs_host, HTTPs_port, HTTPs_method, HTTPs_token_uri, HTTPs_logclient_uri, useragents, HTTPs_clientid,
+		HTTPs_secret, HTTPs_username, HTTPs_password, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
 	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 
 	return 0;

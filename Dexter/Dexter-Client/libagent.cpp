@@ -24,20 +24,27 @@
 
 #include "libagent.h"
 #include "libhttp.h"
-#include <iostream>
+#include "libHash.h"
 #include "rapidjson/document.h"
 #include "common/helper.h"
 #include "libsysteminfo.h"
 
-void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring uagent, std::wstring requestMethod, std::wstring tokenuri,
-	std::wstring logclienturi, char *data, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID, bool HTTPS_CONNECTION) {
+#include <iostream>
+
+void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring requestMethod, std::wstring tokenuri,
+	std::wstring logclienturi, std::set<std::wstring> uagents, WORD clientid, std::string secret, std::string username,
+	std::string password, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID, bool HTTPS_CONNECTION) {
 
 	char *downloaded = 0;
 	HINTERNET internet = NULL, connection = NULL, request = NULL;
 	const WCHAR *token_headers = L"Accept: application/json\r\nContent-Type: application/x-www-form-urlencoded\r\nConnection: close\r\n";
 	bool result = false;
 
-	internet = libhttp::open(uagent);
+	std::wstring useragent = helper::pick_random_useragent_fromfile(uagents);
+	std::wcout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
+
+	std::string token_data = "grant_type=password&client_id=" + std::to_string(clientid) + "&client_secret=" +
+		secret + "&username=" + username + "&password=" + password + "&scope=*";
 
 	if (!HTTPS_CONNECTION) {
 		std::wcout << "[HTTP] " << "Connecting to HTTP server" << std::endl;
@@ -45,6 +52,8 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring uag
 	else {
 		std::wcout << "[HTTPS] " << "Connecting to HTTPS server" << std::endl;
 	}
+
+	internet = libhttp::open(useragent);
 
 	if (internet != NULL) {
 		connection = libhttp::connect(internet, host, port);
@@ -58,7 +67,7 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring uag
 	}
 
 	if (connection != NULL) {
-		request = libhttp::json_request(connection, requestMethod, tokenuri, data, token_headers, IGNORE_CERT_UNKNOWN_CA,
+		request = libhttp::json_request(connection, requestMethod, tokenuri, (char*)token_data.c_str(), token_headers, IGNORE_CERT_UNKNOWN_CA,
 			IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
 	}
 
@@ -78,53 +87,78 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring uag
 		std::wstring logclient_headers = L"Accept: application/json\r\nContent-Type: application/x-www-form-urlencoded\r\nAuthorization: Bearer " +
 			access_token + L"\r\nConnection: close\r\n";
 
-		std::string logclient_data = "computername=" + libsysteminfo::get_computer_name() + "&os=" + libsysteminfo::get_os_version() +
-			"&username=" + libsysteminfo::get_username();
-
 		if (!HTTPS_CONNECTION) {
-			std::wcout << "[HTTP] " << "Sending data with HTTP packet" << std::endl;
+			std::wcout << "[HTTP] " << "Collecting System Information" << std::endl;
 		}
 		else {
-			std::wcout << "[HTTPS] " << "Sending data with HTTPS packet" << std::endl;
+			std::wcout << "[HTTPS] " << "Collecting System Information" << std::endl;
 		}
 
-		if (connection != NULL) {
-			request = libhttp::json_request(connection, requestMethod, logclienturi, (char*)logclient_data.c_str(),
-				logclient_headers.c_str(), IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
-		}
+		std::string computername = libsysteminfo::get_computer_name();
+		std::string osversion = libsysteminfo::get_os_version();
+		std::string username = libsysteminfo::get_username();
+		std::string ipaddress = libsysteminfo::get_active_netface_ip();
+		std::string macaddress = libsysteminfo::get_active_netface_mac();
 
-		if (request != NULL) {
-			result = libhttp::retrieve_data(request, &downloaded);
-		}
+		std::string uid = libHash::sha256("^" + computername + "." + osversion + "." + username + "." + ipaddress + "." + macaddress + "$");
 
-		if (result && downloaded != NULL) {
-			rapidjson::Document logclient_response;
-			logclient_response.Parse(downloaded);
-
-			if (helper::read_bool_value(&logclient_response, "success") == true) {
-
-				if (!HTTPS_CONNECTION) {
-					std::wcout << "[HTTP] " << "Transmission succeeded" << std::endl;
-				}
-				else {
-					std::wcout << "[HTTPS] " << "Transmission succeeded" << std::endl;
-				}
+		if (computername == "" || osversion == "" || username == "") {
+			if (!HTTPS_CONNECTION) {
+				std::wcout << "[HTTP] " << "Collecting System Information failed" << std::endl;
 			}
 			else {
+				std::wcout << "[HTTPS] " << "Collecting System Information failed" << std::endl;
+			}
+		}
+		else {
+			std::string logclient_data = "uid=" + uid + "&computername=" + computername + "&os=" + osversion + "&username=" + username +
+				"&localipaddress=" + ipaddress + "&physicaladdress=" + macaddress;
 
-				if (!HTTPS_CONNECTION) {
-					std::wcout << "[HTTP] " << "Transmission failed" << std::endl;
+			if (!HTTPS_CONNECTION) {
+				std::wcout << "[HTTP] " << "Sending data with HTTP packet" << std::endl;
+			}
+			else {
+				std::wcout << "[HTTPS] " << "Sending data with HTTPS packet" << std::endl;
+			}
+
+			if (connection != NULL) {
+				request = libhttp::json_request(connection, requestMethod, logclienturi, (char*)logclient_data.c_str(),
+					logclient_headers.c_str(), IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
+			}
+
+			if (request != NULL) {
+				result = libhttp::retrieve_data(request, &downloaded);
+			}
+
+			if (result && downloaded != NULL) {
+				rapidjson::Document logclient_response;
+				logclient_response.Parse(downloaded);
+
+				if (helper::read_bool_value(&logclient_response, "success") == true) {
+
+					if (!HTTPS_CONNECTION) {
+						std::wcout << "[HTTP] " << "Transmission succeeded" << std::endl;
+					}
+					else {
+						std::wcout << "[HTTPS] " << "Transmission succeeded" << std::endl;
+					}
 				}
 				else {
-					std::wcout << "[HTTPS] " << "Transmission failed" << std::endl;
+
+					if (!HTTPS_CONNECTION) {
+						std::wcout << "[HTTP] " << "Transmission failed" << std::endl;
+					}
+					else {
+						std::wcout << "[HTTPS] " << "Transmission failed" << std::endl;
+					}
+
 				}
-
+				//std::wstring message = helper::read_string_value(&logclient_response, "message");
 			}
-			//std::wstring message = helper::read_string_value(&logclient_response, "message");
-		}
 
-		HeapFree(GetProcessHeap(), 0, downloaded);
-		downloaded = NULL;
+			HeapFree(GetProcessHeap(), 0, downloaded);
+			downloaded = NULL;
+		}
 	}
 
 	if (request) {

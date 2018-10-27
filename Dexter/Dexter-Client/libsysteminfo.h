@@ -37,4 +37,7 @@ namespace libsysteminfo {
 	std::string get_computer_name(void);
 	std::string get_username(void);
 	std::string get_os_version(void);
+	std::string unique_id(void);
+	std::string get_active_netface_ip(void);
+	std::string get_active_netface_mac(void);
 }

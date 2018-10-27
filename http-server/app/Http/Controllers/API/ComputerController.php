@@ -27,9 +27,12 @@ class ComputerController extends BaseController
         $input = $request->all();
 
         $validator = Validator::make($input, [
+            'uid' => 'required',
             'computername' => 'required',
             'os' => 'required',
-            'username' => 'required'
+            'username' => 'required',
+            'localipaddress' => 'required',
+            'physicaladdress' => 'required'
         ]);
 
 
@@ -47,7 +50,7 @@ class ComputerController extends BaseController
         return $this->sendResponse($computer->toArray(), 'Computer created successfully.');
     }
 
-    public function update(Request $request, Computer $computer)
+    /*public function update(Request $request, Computer $computer)
     {
         if ($request->user()->id !== $computer->user_id) {
             return response()->json(['error' => 'You can only edit your own computers.'], 403);
@@ -56,9 +59,12 @@ class ComputerController extends BaseController
         $input = $request->all();
 
         $validator = Validator::make($input, [
+            'uid' => 'required',
             'computername' => 'required',
             'os' => 'required',
-            'username' => 'required'
+            'username' => 'required',
+            'localipaddress' => 'required',
+            'physicaladdress' => 'required'
         ]);
 
 
@@ -69,5 +75,5 @@ class ComputerController extends BaseController
         $computer->update($request->only(['computername', 'os', 'username']));
 
         return $this->sendResponse($computer->toArray(), 'Computer updated successfully.');
-    }
+    }*/
 }
