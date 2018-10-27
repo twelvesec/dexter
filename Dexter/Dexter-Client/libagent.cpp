@@ -102,7 +102,7 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 
 		std::string uid = libHash::sha256("^" + computername + "." + osversion + "." + username + "." + ipaddress + "." + macaddress + "$");
 
-		if (computername == "" || osversion == "" || username == "") {
+		if (computername == "" || osversion == "" || username == "" || uid == "" || ipaddress == "" || macaddress == "") {
 			if (!HTTPS_CONNECTION) {
 				std::wcout << "[HTTP] " << "Collecting System Information failed" << std::endl;
 			}
