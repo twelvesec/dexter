@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 	std::cout << "  Using HTTPs as transport method" << std::endl;
 	std::cout << "----------------------------------" << std::endl << std::endl;
 	libagent::test_http_protocol(HTTPs_host, HTTPs_port, HTTPs_method, HTTPs_token_uri, HTTPs_logclient_uri, useragents, HTTPs_clientid,
-		HTTPs_secret, HTTPs_username, HTTPs_password, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
+		HTTPs_secret, HTTPs_username, HTTPs_password, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, true);
 	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 
 	return 0;

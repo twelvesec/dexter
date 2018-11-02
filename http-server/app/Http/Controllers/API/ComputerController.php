@@ -41,9 +41,12 @@ class ComputerController extends BaseController
         }
 
         $computer = Computer::create([
+            'uid' => $request->uid,
             'computername' => $request->computername,
             'os' => $request->os,
             'username' => $request->username,
+            'localipaddress' => $request->localipaddress,
+            'physicaladdress' => $request->physicaladdress,
             'user_id' => $request->user()->id
           ]);
 
