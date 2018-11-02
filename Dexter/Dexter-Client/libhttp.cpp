@@ -119,8 +119,7 @@ bool libhttp::retrieve_data(HINTERNET request, char **data) {
 	DWORD read = 4096;
 	char *tmp;
 
-	downloaded = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, read);
-	if (downloaded == NULL) {
+	if ((downloaded = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, read)) == NULL) {
 		return false;
 	}
 

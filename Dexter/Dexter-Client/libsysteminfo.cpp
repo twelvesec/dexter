@@ -141,14 +141,6 @@ std::string libsysteminfo::get_os_version(void) {
 	}
 }
 
-std::string libsysteminfo::unique_id(void) {
-	std::string id;
-
-
-
-	return id;
-}
-
 std::string libsysteminfo::get_active_netface_ip(void) {
 	std::string ipaddress = "";
 	DWORD size = 0;

@@ -24,8 +24,18 @@
 
 #pragma once
 
+#include <windows.h>
 #include <string>
+#include <wincrypt.h>
+
+#define SHA256_HASH_SIZE	32
+
+typedef struct
+{
+	HCRYPTPROV	hCryptProv;
+	HCRYPTHASH	hHash;
+}sha256_context;
 
 namespace libHash {
-	std::string sha256(std::string value);
+	std::string sha256(std::string input);
 }
