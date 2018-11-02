@@ -38,8 +38,8 @@ std::wstring USER_AGENTS;
 void Usage(char *appname);
 int PargeArgs(int argc, char *argv[]);
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
+
 	std::cout << std::endl;
 	std::cout << "---------------------------------------------------------------" << std::endl;
 	std::cout << "  Dexter agent v." << VERSION << " - Data EXfiltration TestER" << std::endl;

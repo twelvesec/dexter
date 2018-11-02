@@ -100,7 +100,7 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 		std::string ipaddress = libsysteminfo::get_active_netface_ip();
 		std::string macaddress = libsysteminfo::get_active_netface_mac();
 
-		std::string uid = libHash::sha256("^" + computername + "." + osversion + "." + username + "." + ipaddress + "." + macaddress + "$");
+		std::string uid = libHash::sha256("^" + computername + "." + osversion + "." + username + "$");
 
 		if (computername == "" || osversion == "" || username == "" || uid == "" || ipaddress == "" || macaddress == "") {
 			if (!HTTPS_CONNECTION) {
