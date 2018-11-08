@@ -26,10 +26,8 @@
 
 #include <windows.h>
 #include <string>
-#include <wincrypt.h>
 
-#define SHA256_HASH_SIZE	32
-
-namespace libHash {
-	std::string sha256(std::string input);
+namespace libcrypt {
+	std::string encrypt(std::string password, std::string plaintext);
+	std::string decrypt(std::string password, std::string ciphertext);
 }

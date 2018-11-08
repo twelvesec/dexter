@@ -84,8 +84,10 @@ int main(int argc, char *argv[]) {
 	std::cout << "----------------------------------" << std::endl;
 	std::cout << "  Using HTTP as transport method" << std::endl;
 	std::cout << "----------------------------------" << std::endl << std::endl;
+
 	libagent::test_http_protocol(HTTP_host, HTTP_port, HTTP_method, HTTP_token_uri, HTTP_logclient_uri, useragents, HTTP_clientid,
-		HTTP_secret, HTTP_username, HTTP_password, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
+		HTTP_secret, HTTP_username, HTTP_password, AES_KEY, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
+
 	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 
 
@@ -97,8 +99,10 @@ int main(int argc, char *argv[]) {
 	std::cout << "----------------------------------" << std::endl;
 	std::cout << "  Using HTTPs as transport method" << std::endl;
 	std::cout << "----------------------------------" << std::endl << std::endl;
+
 	libagent::test_http_protocol(HTTPs_host, HTTPs_port, HTTPs_method, HTTPs_token_uri, HTTPs_logclient_uri, useragents, HTTPs_clientid,
-		HTTPs_secret, HTTPs_username, HTTPs_password, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, true);
+		HTTPs_secret, HTTPs_username, HTTPs_password, AES_KEY, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, true);
+
 	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 
 	return 0;

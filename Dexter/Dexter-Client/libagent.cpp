@@ -28,12 +28,13 @@
 #include "rapidjson/document.h"
 #include "common/helper.h"
 #include "libsysteminfo.h"
+#include "libcrypt.h"
 
 #include <iostream>
 
 void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring requestMethod, std::wstring tokenuri,
 	std::wstring logclienturi, std::set<std::wstring> uagents, WORD clientid, std::string secret, std::string username,
-	std::string password, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID, bool HTTPS_CONNECTION) {
+	std::string password, std::string aespassword, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID, bool HTTPS_CONNECTION) {
 
 	char *downloaded = 0;
 	HINTERNET internet = NULL, connection = NULL, request = NULL;
@@ -103,6 +104,7 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 		std::string uid = libHash::sha256("^" + computername + "." + osversion + "." + username + "$");
 
 		if (computername == "" || osversion == "" || username == "" || uid == "" || ipaddress == "" || macaddress == "") {
+
 			if (!HTTPS_CONNECTION) {
 				std::wcout << "[HTTP] " << "Collecting System Information failed" << std::endl;
 			}
@@ -111,8 +113,11 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 			}
 		}
 		else {
+
 			std::string logclient_data = "uid=" + uid + "&computername=" + computername + "&os=" + osversion + "&username=" + username +
 				"&localipaddress=" + ipaddress + "&physicaladdress=" + macaddress;
+
+			std::string encrypted_logclient_data = libcrypt::encrypt(aespassword, logclient_data);
 
 			if (!HTTPS_CONNECTION) {
 				std::wcout << "[HTTP] " << "Sending data with HTTP packet" << std::endl;
@@ -151,9 +156,7 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 					else {
 						std::wcout << "[HTTPS] " << "Transmission failed" << std::endl;
 					}
-
 				}
-				//std::wstring message = helper::read_string_value(&logclient_response, "message");
 			}
 
 			HeapFree(GetProcessHeap(), 0, downloaded);

@@ -30,7 +30,13 @@
     <ClCompile Include="libsysteminfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="libHash.cpp">
+    <ClCompile Include="libcrypt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libhash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libencode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,7 +53,13 @@
     <ClInclude Include="libsysteminfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="libHash.h">
+    <ClInclude Include="libcrypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libhash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libencode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

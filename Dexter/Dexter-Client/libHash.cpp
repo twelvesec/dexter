@@ -22,7 +22,7 @@
 
 //For more see the file 'LICENSE' for copying permission.
 
-#include "libHash.h"
+#include "libhash.h"
 
 #include <Windows.h>
 #include <wincrypt.h>
@@ -31,46 +31,47 @@
 
 std::string libHash::sha256(std::string input) {
 	std::string hash;
-	sha256_context ctx;
+	HCRYPTPROV	hCryptProv;
+	HCRYPTHASH	hHash;
 	BYTE tmp[SHA256_HASH_SIZE];
 	DWORD size = SHA256_HASH_SIZE;
 	char part[10] = { 0 };
 	int outputSize = (SHA256_HASH_SIZE * 2) + 1;
 	char *str;
 
-	if (CryptAcquireContext(&ctx.hCryptProv, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT) == FALSE) {//CRYPT_VERIFYCONTEXT
+	if (CryptAcquireContext(&hCryptProv, NULL, MS_ENH_RSA_AES_PROV, PROV_RSA_AES, CRYPT_VERIFYCONTEXT) == FALSE) {//CRYPT_VERIFYCONTEXT
 		return "";
 	}
 
-	if (CryptCreateHash(ctx.hCryptProv, CALG_SHA_256, 0, 0, &ctx.hHash) == FALSE)
+	if (CryptCreateHash(hCryptProv, CALG_SHA_256, 0, 0, &hHash) == FALSE)
 	{
-		CryptReleaseContext(ctx.hCryptProv, 0);
-		ctx.hCryptProv = 0;
+		CryptReleaseContext(hCryptProv, 0);
+		hCryptProv = 0;
 		return "";
 	}
 
-	if (CryptHashData(ctx.hHash, (BYTE*)input.c_str(), (DWORD)input.length(), 0) == FALSE)
+	if (CryptHashData(hHash, (BYTE*)input.c_str(), (DWORD)input.length(), 0) == FALSE)
 	{
-		CryptReleaseContext(ctx.hCryptProv, 0);
-		ctx.hCryptProv = 0;
-		CryptDestroyHash(ctx.hHash);
-		ctx.hHash = 0;
+		CryptReleaseContext(hCryptProv, 0);
+		hCryptProv = 0;
+		CryptDestroyHash(hHash);
+		hHash = 0;
 		return "";
 	}
 
-	if (CryptGetHashParam(ctx.hHash, HP_HASHVAL, tmp, &size, 0) == FALSE)
+	if (CryptGetHashParam(hHash, HP_HASHVAL, tmp, &size, 0) == FALSE)
 	{
-		CryptReleaseContext(ctx.hCryptProv, 0);
-		ctx.hCryptProv = 0;
-		CryptDestroyHash(ctx.hHash);
-		ctx.hHash = 0;
+		CryptReleaseContext(hCryptProv, 0);
+		hCryptProv = 0;
+		CryptDestroyHash(hHash);
+		hHash = 0;
 		return "";
 	}
 
-	CryptReleaseContext(ctx.hCryptProv, 0);
-	ctx.hCryptProv = 0;
-	CryptDestroyHash(ctx.hHash);
-	ctx.hHash = 0;
+	CryptReleaseContext(hCryptProv, 0);
+	hCryptProv = 0;
+	CryptDestroyHash(hHash);
+	hHash = 0;
 
 	if ((str = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, outputSize)) == NULL) {
 		return "";
