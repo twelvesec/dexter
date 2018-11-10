@@ -27,7 +27,7 @@
 #include <fstream>
 
 #include "rapidjson/document.h"
-#include "common/helper.h"
+#include "helper.h"
 #include "libagent.h"
 
 #define VERSION "1.0"

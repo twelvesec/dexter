@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\common\helper.h" />
+    <ClInclude Include="helper.h" />
     <ClInclude Include="libcrypt.h" />
     <ClInclude Include="libencode.h" />
     <ClInclude Include="libhash.h" />
@@ -27,7 +27,7 @@
     <ClInclude Include="libsysteminfo.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\common\helper.cpp" />
+    <ClCompile Include="helper.cpp" />
     <ClCompile Include="libcrypt.cpp" />
     <ClCompile Include="libencode.cpp" />
     <ClCompile Include="libhash.cpp" />

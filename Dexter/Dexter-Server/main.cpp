@@ -33,7 +33,7 @@
 
 #include "libreporter.h"
 #include "rapidjson/document.h"
-#include "common/helper.h"
+#include "helper.h"
 
 #define VERSION "1.0"
 

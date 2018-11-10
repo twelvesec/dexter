@@ -26,7 +26,7 @@
 #include "libhttp.h"
 #include "libHash.h"
 #include "rapidjson/document.h"
-#include "common/helper.h"
+#include "helper.h"
 #include "libsysteminfo.h"
 #include "libcrypt.h"
 #include "libencode.h"
