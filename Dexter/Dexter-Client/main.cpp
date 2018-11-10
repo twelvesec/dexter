@@ -51,7 +51,8 @@ int main(int argc, char *argv[]) {
 	std::string config_file_content = helper::load_json_file(CONFIG_FILE);
 	d.Parse(config_file_content.c_str());
 
-	std::string AES_KEY = helper::read_string_value_ascii(&d, "AES_KEY");
+	std::string AES_PASSWORD = helper::read_string_value_ascii(&d, "AES_PASSWORD");
+	std::string PoC_KEYWORD = helper::read_string_value_ascii(&d, "PoC_KEYWORD");
 	bool IGNORE_CERT_UNKNOWN_CA = helper::read_bool_value(&d, "IGNORE_CERT_UNKNOWN_CA");
 	bool IGNORE_CERT_DATE_INVALID = helper::read_bool_value(&d, "IGNORE_CERT_DATE_INVALID");
 
@@ -86,7 +87,7 @@ int main(int argc, char *argv[]) {
 	std::cout << "----------------------------------" << std::endl << std::endl;
 
 	libagent::test_http_protocol(HTTP_host, HTTP_port, HTTP_method, HTTP_token_uri, HTTP_logclient_uri, useragents, HTTP_clientid,
-		HTTP_secret, HTTP_username, HTTP_password, AES_KEY, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
+		HTTP_secret, HTTP_username, HTTP_password, AES_PASSWORD, PoC_KEYWORD, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
 
 	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 
@@ -101,7 +102,7 @@ int main(int argc, char *argv[]) {
 	std::cout << "----------------------------------" << std::endl << std::endl;
 
 	libagent::test_http_protocol(HTTPs_host, HTTPs_port, HTTPs_method, HTTPs_token_uri, HTTPs_logclient_uri, useragents, HTTPs_clientid,
-		HTTPs_secret, HTTPs_username, HTTPs_password, AES_KEY, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, true);
+		HTTPs_secret, HTTPs_username, HTTPs_password, AES_PASSWORD, PoC_KEYWORD, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, true);
 
 	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 

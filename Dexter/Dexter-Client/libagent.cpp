@@ -29,12 +29,13 @@
 #include "common/helper.h"
 #include "libsysteminfo.h"
 #include "libcrypt.h"
+#include "libencode.h"
 
 #include <iostream>
 
 void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring requestMethod, std::wstring tokenuri,
 	std::wstring logclienturi, std::set<std::wstring> uagents, WORD clientid, std::string secret, std::string username,
-	std::string password, std::string aespassword, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID, bool HTTPS_CONNECTION) {
+	std::string password, std::string aespassword, std::string PoC_KEYWORD, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID, bool HTTPS_CONNECTION) {
 
 	char *downloaded = 0;
 	HINTERNET internet = NULL, connection = NULL, request = NULL;
@@ -58,6 +59,13 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 
 	if (internet != NULL) {
 		connection = libhttp::connect(internet, host, port);
+	}
+
+	if (!HTTPS_CONNECTION) {
+		std::wcout << "[HTTP] " << "Requesting API token with HTTP packet" << std::endl;
+	}
+	else {
+		std::wcout << "[HTTPS] " << "Requesting API token with HTTPS packet" << std::endl;
 	}
 
 	if (!HTTPS_CONNECTION) {
@@ -114,12 +122,11 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 		}
 		else {
 
-			std::string logclient_data = "uid=" + uid + "&computername=" + computername + "&os=" + osversion + "&username=" + username +
-				"&localipaddress=" + ipaddress + "&physicaladdress=" + macaddress;
+			std::string encrypted_data = "data=" + libcrypt::encrypt(aespassword, "uid=" + uid + "&computername=" + computername + "&os=" + osversion + "&username=" + username +
+				"&localipaddress=" + ipaddress + "&physicaladdress=" + macaddress) + "&PoC_KEYWORD=" + PoC_KEYWORD;
 
-			std::string encrypted_logclient_data = "data=" + libcrypt::encrypt(aespassword, logclient_data);
-
-			logclient_data = "";
+			std::string encoded = libencode::url_encode(encrypted_data);
+			encrypted_data = "";
 
 			if (!HTTPS_CONNECTION) {
 				std::wcout << "[HTTP] " << "Sending data with HTTP packet" << std::endl;
@@ -129,7 +136,7 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 			}
 
 			if (connection != NULL) {
-				request = libhttp::json_request(connection, requestMethod, logclienturi, (char*)encrypted_logclient_data.c_str(),
+				request = libhttp::json_request(connection, requestMethod, logclienturi, (char*)encoded.c_str(),
 					logclient_headers.c_str(), IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
 			}
 

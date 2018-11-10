@@ -1,12 +1,13 @@
 {
-	"AES_KEY": "THIS.IS.MY.AES.KEY",
+	"AES_PASSWORD": "..THIS.IS.MY.SECRET.AES.PASSWORD..",
 	"IGNORE_CERT_UNKNOWN_CA": true,
 	"IGNORE_CERT_DATE_INVALID": false,
+	"PoC_KEYWORD": "Proof.Of.Concept.Keyword",
 	"HTTP": {
-		"host": "192.168.1.1",
+		"host": "192.168.10.1",
 		"port": 80,
 		"clientid": 1,
-		"secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+		"secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 		"username": "dexteruser@example.com",
 		"password": "dexter_user_password",
 		"method": "POST",
@@ -14,10 +15,10 @@
 		"logclient_uri": "/api/computers"
 	},
 	"HTTPS": {
-		"host": "192.168.1.1",
+		"host": "192.168.10.1",
 		"port": 443,
 		"clientid": 1,
-		"secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+		"secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 		"username": "dexteruser@example.com",
 		"password": "dexter_user_password",
 		"method": "POST",

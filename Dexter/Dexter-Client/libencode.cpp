@@ -24,8 +24,13 @@
 
 #include "libencode.h"
 
+//#include <wininet.h>
+#pragma comment (lib, "Shlwapi.lib")
+#include <shlwapi.h>
+
 #pragma comment(lib, "Crypt32.lib")
 #include <wincrypt.h>
+
 
 std::string libencode::base64_encode(std::string plaintext) {
 	std::string encodedtext;
@@ -130,4 +135,51 @@ DWORD libencode::base64_decode(BYTE **plaintext, std::string encodedtext) {
 	(*plaintext)[size] = 0;
 
 	return size;
+}
+
+std::string libencode::url_encode(std::string uri) {
+	std::string encoded;
+	DWORD len = (DWORD)uri.length();
+	char *tmp;
+	HRESULT result;
+
+	if ((tmp = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 1)) == NULL) {
+		return "";
+	}
+
+	if ((result = UrlEscapeA(uri.c_str(), tmp, &len, URL_ESCAPE_SEGMENT_ONLY | URL_ESCAPE_PERCENT)) != S_OK && result != E_POINTER) {
+		int error = GetLastError();
+		HeapFree(GetProcessHeap(), 0, tmp);
+		tmp = NULL;
+		return "";
+	}
+
+	HeapFree(GetProcessHeap(), 0, tmp);
+	tmp = NULL;
+
+	if ((tmp = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, len)) == NULL) {
+		return "";
+	}
+
+	if ((result = UrlEscapeA(uri.c_str(), tmp, &len, URL_ESCAPE_SEGMENT_ONLY | URL_ESCAPE_PERCENT)) != S_OK && result != E_POINTER) {
+		HeapFree(GetProcessHeap(), 0, tmp);
+		tmp = NULL;
+		return "";
+	}
+
+	tmp[len] = 0;
+	encoded = std::string(tmp);
+	HeapFree(GetProcessHeap(), 0, tmp);
+	tmp = NULL;
+
+	std::string tosearch = "+";
+	std::string replace = "%2b";
+	size_t pos = encoded.find(tosearch);
+	while (pos != std::string::npos)
+	{
+		encoded.replace(pos, tosearch.size(), replace);
+		pos = encoded.find(tosearch, pos + tosearch.size());
+	}
+
+	return encoded;
 }
