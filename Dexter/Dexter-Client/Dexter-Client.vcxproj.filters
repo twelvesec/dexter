@@ -21,45 +21,9 @@
     <ClCompile Include="libagent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\helper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="libhttp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="libsysteminfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="libcrypt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="libhash.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="libencode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="libagent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\helper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="libhttp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="libsysteminfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="libcrypt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="libhash.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="libencode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

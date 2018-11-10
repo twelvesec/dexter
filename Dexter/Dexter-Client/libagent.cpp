@@ -140,6 +140,8 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 					logclient_headers.c_str(), IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
 			}
 
+			encoded = "";
+
 			if (request != NULL) {
 				result = libhttp::retrieve_data(request, &downloaded);
 			}

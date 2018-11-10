@@ -26,9 +26,9 @@
 #include <windows.h>
 #include <fstream>
 
-#include "libagent.h"
 #include "rapidjson/document.h"
 #include "common/helper.h"
+#include "libagent.h"
 
 #define VERSION "1.0"
 
@@ -45,7 +45,9 @@ int main(int argc, char *argv[]) {
 	std::cout << "  Dexter agent v." << VERSION << " - Data EXfiltration TestER" << std::endl;
 	std::cout << "---------------------------------------------------------------" << std::endl << std::endl;
 
-	PargeArgs(argc, argv);
+	if (PargeArgs(argc, argv) == -1) {
+		return -1;
+	}
 
 	rapidjson::Document d;
 	std::string config_file_content = helper::load_json_file(CONFIG_FILE);
