@@ -150,3 +150,85 @@ std::string helper::load_json_file(std::wstring filename) {
 
 	return config_file_content;
 }
+
+char* helper::NextToken(char *strToken, const char *strDelimit, char **context) {
+	return strtok_s(strToken, strDelimit, context);
+}
+
+int helper::SplitString(const char *str, unsigned long size, const char *delim, char ***data) {
+	char *token = 0;
+	char *strCopy = 0;
+	char *next_token = 0;
+	int i = 0;
+	int count = 0;
+
+	if ((strCopy = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size + 1)) == NULL) {
+		return -1;
+	}
+
+	if (strncpy_s(strCopy, size + 1, str, _TRUNCATE) != 0) {
+		HeapFree(GetProcessHeap(), 0, strCopy);
+		strCopy = NULL;
+		return -1;
+	}
+
+	//count tokens
+	token = NextToken(strCopy, delim, &next_token);
+	if (token == NULL) {
+		HeapFree(GetProcessHeap(), 0, strCopy);
+		strCopy = NULL;
+		return -1;
+	}
+
+	while (token != NULL) {
+		token = NextToken(NULL, delim, &next_token);
+		count++;
+	}
+
+	HeapFree(GetProcessHeap(), 0, strCopy);
+	strCopy = NULL;
+
+	if ((strCopy = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size + 1)) == NULL) {
+		return -1;
+	}
+
+	if (strncpy_s(strCopy, size + 1, str, _TRUNCATE) != 0) {
+		HeapFree(GetProcessHeap(), 0, strCopy);
+		strCopy = NULL;
+		return -1;
+	}
+
+	//get data
+	if ((*data = (char**)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, count * sizeof(char*))) == NULL) {
+		HeapFree(GetProcessHeap(), 0, strCopy);
+		strCopy = NULL;
+		return -1;
+	}
+
+	token = NextToken(strCopy, delim, &next_token);
+	if (token == NULL) {
+		HeapFree(GetProcessHeap(), 0, strCopy);
+		strCopy = NULL;
+		return -1;
+	}
+
+	while (token != NULL) {
+		if (((*data)[i] = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, strlen(token) + 1)) == NULL) {
+			break;
+		}
+
+		if (strncpy_s((*data)[i], strlen(token) + 1, token, _TRUNCATE) != 0) {
+			HeapFree(GetProcessHeap(), 0, strCopy);
+			data[i] = NULL;
+			break;
+		}
+
+		i++;
+		token = NextToken(NULL, delim, &next_token);
+	}
+
+	HeapFree(GetProcessHeap(), 0, strCopy);
+	strCopy = NULL;
+
+	return count;
+}

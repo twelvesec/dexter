@@ -50,45 +50,78 @@ int main(int argc, char *argv[])
 	std::cout << "  Dexter reporter v." << VERSION << " - Data EXfiltration TestER" << std::endl;
 	std::cout << "-----------------------------------------------------------------" << std::endl << std::endl;
 
-	PargeArgs(argc, argv);
+	if (PargeArgs(argc, argv) == -1) {
+		return -1;
+	}
 
 	rapidjson::Document d;
 	std::string config_file_content = helper::load_json_file(CONFIG_FILE);
 	d.Parse(config_file_content.c_str());
 
-	std::string AES_KEY = helper::read_string_value_ascii(&d, "AES_KEY");
-	bool IGNORE_UNKNOWN_CA = helper::read_bool_value(&d, "IGNORE_UNKNOWN_CA");
+	std::string AES_PASSWORD = helper::read_string_value_ascii(&d, "AES_PASSWORD");
+	std::string PoC_KEYWORD = helper::read_string_value_ascii(&d, "PoC_KEYWORD");
+	bool IGNORE_CERT_UNKNOWN_CA = helper::read_bool_value(&d, "IGNORE_CERT_UNKNOWN_CA");
+	bool IGNORE_CERT_DATE_INVALID = helper::read_bool_value(&d, "IGNORE_CERT_DATE_INVALID");
 
+	//http
 	std::wstring HTTP_host = helper::read_object_string_value(&d, "HTTP", "host");
 	WORD HTTP_port = helper::read_object_word_value(&d, "HTTP", "port");
+
+	WORD HTTP_clientid = helper::read_object_word_value(&d, "HTTP", "clientid");
+	std::string HTTP_secret = helper::read_object_string_value_ascii(&d, "HTTP", "secret");
+	std::string HTTP_username = helper::read_object_string_value_ascii(&d, "HTTP", "username");
+	std::string HTTP_password = helper::read_object_string_value_ascii(&d, "HTTP", "password");
+
+	std::wstring HTTP_token_uri_method = helper::read_object_string_value(&d, "HTTP", "token_uri_method");
+	std::wstring HTTP_clients_uri_method = helper::read_object_string_value(&d, "HTTP", "clients_uri_method");
+
+	std::wstring HTTP_token_uri = helper::read_object_string_value(&d, "HTTP", "token_uri");
+	std::wstring HTTP_clients_uri = helper::read_object_string_value(&d, "HTTP", "clients_uri");
+
+	//https
 	std::wstring HTTPs_host = helper::read_object_string_value(&d, "HTTPS", "host");
 	WORD HTTPs_port = helper::read_object_word_value(&d, "HTTPS", "port");
+
+	WORD HTTPs_clientid = helper::read_object_word_value(&d, "HTTPS", "clientid");
+	std::string HTTPs_secret = helper::read_object_string_value_ascii(&d, "HTTPS", "secret");
+	std::string HTTPs_username = helper::read_object_string_value_ascii(&d, "HTTPS", "username");
+	std::string HTTPs_password = helper::read_object_string_value_ascii(&d, "HTTPS", "password");
+
+	std::wstring HTTPs_token_uri_method = helper::read_object_string_value(&d, "HTTPS", "token_uri_method");
+	std::wstring HTTPs_clients_uri_method = helper::read_object_string_value(&d, "HTTPS", "clients_uri_method");
+
+	std::wstring HTTPs_token_uri = helper::read_object_string_value(&d, "HTTPS", "token_uri");
+	std::wstring HTTPs_clients_uri = helper::read_object_string_value(&d, "HTTPS", "clients_uri");
 
 	std::set<std::wstring> useragents = helper::load_useragent_strings(USER_AGENTS);
 
 	// HTTP
 
 	std::cout << "----------------------------------" << std::endl;
-	std::cout << "  Checking HTTP as transport method" << std::endl;
+	std::cout << "  Using HTTP as transport method" << std::endl;
 	std::cout << "----------------------------------" << std::endl << std::endl;
 
-	std::wstring useragent = helper::pick_random_useragent_fromfile(useragents);
-	std::wcout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
-	libreporter::test_http_protocol(HTTP_host, HTTP_port, useragent);
+	libreporter::test_http_protocol(HTTP_host, HTTP_port, HTTP_token_uri_method, HTTP_clients_uri_method,
+		HTTP_token_uri, HTTP_clients_uri, useragents, HTTP_clientid, HTTP_secret, HTTP_username, HTTP_password, AES_PASSWORD,
+		PoC_KEYWORD, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
 
-	std::cout << "-------------------------------------------" << std::endl << std::endl;
+	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
+
+
+	Sleep(1000);
+
 
 	// HTTPS
 
 	std::cout << "----------------------------------" << std::endl;
-	std::cout << "  Checking HTTPs as transport method" << std::endl;
+	std::cout << "  Using HTTPs as transport method" << std::endl;
 	std::cout << "----------------------------------" << std::endl << std::endl;
 
-	useragent = helper::pick_random_useragent_fromfile(useragents);
-	std::wcout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
-	libreporter::test_https_protocol(HTTPs_host, HTTPs_port, useragent);
+	libreporter::test_http_protocol(HTTPs_host, HTTPs_port, HTTPs_token_uri_method, HTTPs_clients_uri_method, HTTPs_token_uri,
+		HTTPs_clients_uri, useragents, HTTPs_clientid, HTTPs_secret, HTTPs_username, HTTPs_password, AES_PASSWORD, PoC_KEYWORD,
+		IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, true);
 
-	std::cout << "-------------------------------------------" << std::endl << std::endl;
+	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 
 	return 0;
 }

@@ -29,7 +29,8 @@
 #include <set>
 
 namespace libagent {
-	void test_http_protocol(std::wstring host, WORD port, std::wstring requestMethod, std::wstring tokenuri,
+	void test_http_protocol(std::wstring host, WORD port, std::wstring token_uri_method, std::wstring logclient_uri_method, std::wstring tokenuri,
 		std::wstring logclienturi, std::set<std::wstring> uagents, WORD clientid, std::string secret, std::string username,
-		std::string password, std::string aespassword, std::string PoC_KEYWORD, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID, bool HTTPS_CONNECTION);
+		std::string password, std::string aespassword, std::string PoC_KEYWORD, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID, 
+		bool HTTPS_CONNECTION);
 }

@@ -58,6 +58,7 @@ int main(int argc, char *argv[]) {
 	bool IGNORE_CERT_UNKNOWN_CA = helper::read_bool_value(&d, "IGNORE_CERT_UNKNOWN_CA");
 	bool IGNORE_CERT_DATE_INVALID = helper::read_bool_value(&d, "IGNORE_CERT_DATE_INVALID");
 
+	//http
 	std::wstring HTTP_host = helper::read_object_string_value(&d, "HTTP", "host");
 	WORD HTTP_port = helper::read_object_word_value(&d, "HTTP", "port");
 
@@ -65,10 +66,14 @@ int main(int argc, char *argv[]) {
 	std::string HTTP_secret = helper::read_object_string_value_ascii(&d, "HTTP", "secret");
 	std::string HTTP_username = helper::read_object_string_value_ascii(&d, "HTTP", "username");
 	std::string HTTP_password = helper::read_object_string_value_ascii(&d, "HTTP", "password");
-	std::wstring HTTP_method = helper::read_object_string_value(&d, "HTTP", "method");
+
+	std::wstring HTTP_token_uri_method = helper::read_object_string_value(&d, "HTTP", "token_uri_method");
+	std::wstring HTTP_logclient_uri_method = helper::read_object_string_value(&d, "HTTP", "logclient_uri_method");
+
 	std::wstring HTTP_token_uri = helper::read_object_string_value(&d, "HTTP", "token_uri");
 	std::wstring HTTP_logclient_uri = helper::read_object_string_value(&d, "HTTP", "logclient_uri");
 
+	//https
 	std::wstring HTTPs_host = helper::read_object_string_value(&d, "HTTPS", "host");
 	WORD HTTPs_port = helper::read_object_word_value(&d, "HTTPS", "port");
 
@@ -76,7 +81,10 @@ int main(int argc, char *argv[]) {
 	std::string HTTPs_secret = helper::read_object_string_value_ascii(&d, "HTTPS", "secret");
 	std::string HTTPs_username = helper::read_object_string_value_ascii(&d, "HTTPS", "username");
 	std::string HTTPs_password = helper::read_object_string_value_ascii(&d, "HTTPS", "password");
-	std::wstring HTTPs_method = helper::read_object_string_value(&d, "HTTPS", "method");
+
+	std::wstring HTTPs_token_uri_method = helper::read_object_string_value(&d, "HTTPS", "token_uri_method");
+	std::wstring HTTPs_logclient_uri_method = helper::read_object_string_value(&d, "HTTPS", "logclient_uri_method");
+
 	std::wstring HTTPs_token_uri = helper::read_object_string_value(&d, "HTTPS", "token_uri");
 	std::wstring HTTPs_logclient_uri = helper::read_object_string_value(&d, "HTTPS", "logclient_uri");
 
@@ -88,8 +96,9 @@ int main(int argc, char *argv[]) {
 	std::cout << "  Using HTTP as transport method" << std::endl;
 	std::cout << "----------------------------------" << std::endl << std::endl;
 
-	libagent::test_http_protocol(HTTP_host, HTTP_port, HTTP_method, HTTP_token_uri, HTTP_logclient_uri, useragents, HTTP_clientid,
-		HTTP_secret, HTTP_username, HTTP_password, AES_PASSWORD, PoC_KEYWORD, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
+	libagent::test_http_protocol(HTTP_host, HTTP_port, HTTP_token_uri_method, HTTP_logclient_uri_method, 
+		HTTP_token_uri, HTTP_logclient_uri, useragents, HTTP_clientid, HTTP_secret, HTTP_username, HTTP_password, AES_PASSWORD,
+		PoC_KEYWORD, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
 
 	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 
@@ -103,8 +112,9 @@ int main(int argc, char *argv[]) {
 	std::cout << "  Using HTTPs as transport method" << std::endl;
 	std::cout << "----------------------------------" << std::endl << std::endl;
 
-	libagent::test_http_protocol(HTTPs_host, HTTPs_port, HTTPs_method, HTTPs_token_uri, HTTPs_logclient_uri, useragents, HTTPs_clientid,
-		HTTPs_secret, HTTPs_username, HTTPs_password, AES_PASSWORD, PoC_KEYWORD, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, true);
+	libagent::test_http_protocol(HTTPs_host, HTTPs_port, HTTPs_token_uri_method, HTTPs_logclient_uri_method, HTTPs_token_uri,
+		HTTPs_logclient_uri, useragents, HTTPs_clientid, HTTPs_secret, HTTPs_username, HTTPs_password, AES_PASSWORD, PoC_KEYWORD,
+		IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, true);
 
 	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 

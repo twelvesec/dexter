@@ -88,12 +88,23 @@ HINTERNET libhttp::json_request(HINTERNET connection, std::wstring requestMethod
 		}
 	}
 
-	if (!HttpSendRequestW(request, headers, (DWORD)wcslen(headers), data, (DWORD)strlen(data))) {
-		std::cout << GetLastError() << std::endl;
+	if (data == NULL) {
+		if (!HttpSendRequestW(request, headers, (DWORD)wcslen(headers), NULL, 0)) {
+			std::cout << GetLastError() << std::endl;
 
-		InternetCloseHandle(request);
-		request = NULL;
-		return NULL;
+			InternetCloseHandle(request);
+			request = NULL;
+			return NULL;
+		}
+	}
+	else {
+		if (!HttpSendRequestW(request, headers, (DWORD)wcslen(headers), data, (DWORD)strlen(data))) {
+			std::cout << GetLastError() << std::endl;
+
+			InternetCloseHandle(request);
+			request = NULL;
+			return NULL;
+		}
 	}
 
 	if (!HttpQueryInfoW(request, HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER, &status, &statusLen, NULL)) {
