@@ -4,25 +4,31 @@
 	"IGNORE_CERT_DATE_INVALID": false,
 	"PoC_KEYWORD": "Proof.Of.Concept.Keyword",
 	"HTTP": {
-		"host": "192.168.10.1",
+		"host": "192.168.1.1",
 		"port": 80,
 		"clientid": 1,
-		"secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+		"secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 		"username": "dexteruser@example.com",
 		"password": "dexter_user_password",
-		"method": "POST",
+		"token_uri_method": "POST",
+		"logclient_uri_method": "POST",
+		"clients_uri_method": "GET",
 		"token_uri": "/oauth/token",
-		"logclient_uri": "/api/computers"
+		"logclient_uri": "/api/computers",
+		"clients_uri": "/api/computers"
 	},
 	"HTTPS": {
-		"host": "192.168.10.1",
+		"host": "192.168.1.1",
 		"port": 443,
 		"clientid": 1,
-		"secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+		"secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 		"username": "dexteruser@example.com",
 		"password": "dexter_user_password",
-		"method": "POST",
+		"token_uri_method": "POST",
+		"logclient_uri_method": "POST",
+		"clients_method": "GET",
 		"token_uri": "/oauth/token",
-		"logclient_uri": "/api/computers"
+		"logclient_uri": "/api/computers",
+		"clients_uri": "/api/computers"
 	}
 }
