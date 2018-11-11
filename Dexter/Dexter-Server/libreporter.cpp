@@ -23,7 +23,6 @@
 //For more see the file 'LICENSE' for copying permission.
 
 #include "libreporter.h"
-#include "config.h"
 #include "libhttp.h"
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
