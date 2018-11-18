@@ -41,9 +41,21 @@ int PargeArgs(int argc, char *argv[]);
 int main(int argc, char *argv[]) {
 
 	std::cout << std::endl;
-	std::cout << "---------------------------------------------------------------" << std::endl;
+	std::cout << std::endl <<
+		R"(___________              .__                _________              )" << std::endl <<
+		R"(\__    ___/_  _  __ ____ |  |___  __ ____  /   _____/ ____   ____  )" << std::endl <<
+		R"(  |    |  \ \/ \/ // __ \|  |\  \/ // __ \ \_____  \_/ __ \_/ ___\ )" << std::endl <<
+		R"(  |    |   \     /\  ___/|  |_\   /\  ___/ /        \  ___/\  \___ )" << std::endl <<
+		R"(  |____|    \/\_/  \___  >____/\_/  \___  >_______  /\___  >\___  >)" << std::endl <<
+		R"(                       \/               \/        \/     \/     \/ )" << std::endl <<
+		std::endl;
+	std::cout << "----------------------------------------------------------------" << std::endl;
 	std::cout << "  Dexter agent v." << VERSION << " - Data EXfiltration TestER" << std::endl;
-	std::cout << "---------------------------------------------------------------" << std::endl << std::endl;
+	std::cout << "  Dexter is an open source tool licensed under GPLv3." << std::endl;
+	std::cout << "  Written by : @maldevel" << std::endl;
+	std::cout << "  https ://www.twelvesec.com/" << std::endl;
+	std::cout << "  Please visit https://github.com/twelvesec/dexter for more.." << std::endl;
+	std::cout << "----------------------------------------------------------------" << std::endl << std::endl;
 
 	if (PargeArgs(argc, argv) == -1) {
 		return -1;
