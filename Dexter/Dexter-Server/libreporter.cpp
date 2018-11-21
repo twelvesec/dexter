@@ -208,3 +208,6 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 	}
 }
 
+void test_gmail_protocol(void) {
+
+}

@@ -191,3 +191,7 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring tok
 		internet = NULL;
 	}
 }
+
+void test_gmail_protocol(void) {
+
+}

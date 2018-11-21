@@ -33,4 +33,5 @@ namespace libagent {
 		std::wstring logclienturi, std::set<std::wstring> uagents, WORD clientid, std::string secret, std::string username,
 		std::string password, std::string aespassword, std::string PoC_KEYWORD, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID, 
 		bool HTTPS_CONNECTION);
+	void test_gmail_protocol(void);
 }
