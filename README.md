@@ -23,6 +23,15 @@ Written by:
 ### Servers
 
 * HTTP/s - LAMP [more..](http-server/README.md)
+* SMTPs - GMAIL server
+
+---
+
+### GMAIL
+
+* A Gmail account (Use a dedicated account! Do not use your personal one!)
+* Turn on "Allow less secure apps" under the security settings of the account.
+* You may also have to enable IMAP in the account settings.
 
 ---
 
