@@ -44,7 +44,7 @@ static void handle_data(std::string data, std::string password, bool HTTPS_CONNE
 		std::cout << "[HTTPS] " << "Received HTTPS packet. Details: ";
 	}
 
-	if ((splitted = helper::SplitString(decrypted_data.c_str(), (DWORD)decrypted_data.length(), "&", &details)) != -1) {
+	if ((splitted = helper::split_string(decrypted_data.c_str(), (DWORD)decrypted_data.length(), "&", &details)) != -1) {
 		for (int i = 0; i < splitted; i++) {
 			if (i == splitted - 1) {
 				std::cout << details[i];

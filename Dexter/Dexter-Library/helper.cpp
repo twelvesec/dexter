@@ -151,14 +151,14 @@ std::string helper::load_json_file(std::wstring filename) {
 	return config_file_content;
 }
 
-char* helper::NextToken(char *strToken, const char *strDelimit, char **context) {
+char* helper::next_token(char *strToken, const char *strDelimit, char **context) {
 	return strtok_s(strToken, strDelimit, context);
 }
 
-int helper::SplitString(const char *str, unsigned long size, const char *delim, char ***data) {
+int helper::split_string(const char *str, unsigned long size, const char *delim, char ***data) {
 	char *token = 0;
 	char *strCopy = 0;
-	char *next_token = 0;
+	char *nexttoken = 0;
 	int i = 0;
 	int count = 0;
 
@@ -173,7 +173,7 @@ int helper::SplitString(const char *str, unsigned long size, const char *delim, 
 	}
 
 	//count tokens
-	token = NextToken(strCopy, delim, &next_token);
+	token = next_token(strCopy, delim, &nexttoken);
 	if (token == NULL) {
 		HeapFree(GetProcessHeap(), 0, strCopy);
 		strCopy = NULL;
@@ -181,7 +181,7 @@ int helper::SplitString(const char *str, unsigned long size, const char *delim, 
 	}
 
 	while (token != NULL) {
-		token = NextToken(NULL, delim, &next_token);
+		token = next_token(NULL, delim, &nexttoken);
 		count++;
 	}
 
@@ -205,7 +205,7 @@ int helper::SplitString(const char *str, unsigned long size, const char *delim, 
 		return -1;
 	}
 
-	token = NextToken(strCopy, delim, &next_token);
+	token = next_token(strCopy, delim, &nexttoken);
 	if (token == NULL) {
 		HeapFree(GetProcessHeap(), 0, strCopy);
 		strCopy = NULL;
@@ -224,7 +224,7 @@ int helper::SplitString(const char *str, unsigned long size, const char *delim, 
 		}
 
 		i++;
-		token = NextToken(NULL, delim, &next_token);
+		token = next_token(NULL, delim, &nexttoken);
 	}
 
 	HeapFree(GetProcessHeap(), 0, strCopy);

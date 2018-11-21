@@ -40,6 +40,6 @@ namespace helper {
 	std::wstring pick_random_useragent_fromfile(std::set<std::wstring> useragents);
 	std::set<std::wstring> load_useragent_strings(std::wstring filename);
 	std::string load_json_file(std::wstring filename);
-	char* NextToken(char *strToken, const char *strDelimit, char **context);
-	int SplitString(const char *str, unsigned long size, const char *delim, char ***data);
+	char* next_token(char *strToken, const char *strDelimit, char **context);
+	int split_string(const char *str, unsigned long size, const char *delim, char ***data);
 }
