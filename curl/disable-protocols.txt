@@ -1,0 +1,19 @@
+Edit lib/config-win32.h
+
+
+/* ---------------------------------------------------------------- */
+/*                       DISABLE PROTOCOLS                          */
+/* ---------------------------------------------------------------- */
+
+//#define HTTP_ONLY
+#define CURL_DISABLE_FTP disables FTP
+#define CURL_DISABLE_LDAP disables LDAP
+#define CURL_DISABLE_TELNET disables TELNET
+#define CURL_DISABLE_DICT disables DICT
+#define CURL_DISABLE_FILE disables FILE
+#define CURL_DISABLE_TFTP disables TFTP
+#define CURL_DISABLE_HTTP disables HTTP
+//#define CURL_DISABLE_IMAP disables IMAP
+#define CURL_DISABLE_POP3 disables POP3
+//#define CURL_DISABLE_SMTP
+

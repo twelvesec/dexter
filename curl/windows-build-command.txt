@@ -1,0 +1,2 @@
+cd curl-x.xx.0\winbuild
+nmake /f Makefile.vc mode=static VC=15 GEN_PDB=no ENABLE_SSPI=yes ENABLE_IDN=no ENABLE_IPV6=no ENABLE_WINSSL=yes DEBUG=yes MACHINE=x64
