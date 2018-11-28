@@ -34,6 +34,7 @@
 
 std::wstring CONFIG_FILE;
 std::wstring USER_AGENTS;
+std::wstring PROTOCOL;
 
 void Usage(char *appname);
 int PargeArgs(int argc, char *argv[]);
@@ -98,35 +99,55 @@ int main(int argc, char *argv[]) {
 	std::wstring HTTPs_token_uri = helper::read_object_string_value(&d, "HTTPS", "token_uri");
 	std::wstring HTTPs_logclient_uri = helper::read_object_string_value(&d, "HTTPS", "logclient_uri");
 
+	//gmail
+	std::string Gmail_smtp = helper::read_object_string_value_ascii(&d, "GMAIL", "smtp");
+	std::string Gmail_username = helper::read_object_string_value_ascii(&d, "GMAIL", "username");
+	std::string Gmail_password = helper::read_object_string_value_ascii(&d, "GMAIL", "password");
+	std::string Gmail_name = helper::read_object_string_value_ascii(&d, "GMAIL", "name");
+
 	std::set<std::wstring> useragents = helper::load_useragent_strings(USER_AGENTS);
 
 	// HTTP
+	if (PROTOCOL == L"HTTP" || PROTOCOL == L"ALL") {
+		std::cout << "-----------------------------------" << std::endl;
+		std::cout << "  Using HTTP as transport method" << std::endl;
+		std::cout << "-----------------------------------" << std::endl << std::endl;
 
-	std::cout << "----------------------------------" << std::endl;
-	std::cout << "  Using HTTP as transport method" << std::endl;
-	std::cout << "----------------------------------" << std::endl << std::endl;
+		libagent::test_http_protocol(HTTP_host, HTTP_port, HTTP_token_uri_method, HTTP_logclient_uri_method,
+			HTTP_token_uri, HTTP_logclient_uri, useragents, HTTP_clientid, HTTP_secret, HTTP_username, HTTP_password, AES_PASSWORD,
+			PoC_KEYWORD, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
 
-	libagent::test_http_protocol(HTTP_host, HTTP_port, HTTP_token_uri_method, HTTP_logclient_uri_method,
-		HTTP_token_uri, HTTP_logclient_uri, useragents, HTTP_clientid, HTTP_secret, HTTP_username, HTTP_password, AES_PASSWORD,
-		PoC_KEYWORD, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
-
-	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
-
+		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
+	}
 
 	Sleep(1000);
 
 
 	// HTTPS
+	if (PROTOCOL == L"HTTPS" || PROTOCOL == L"ALL") {
+		std::cout << "-----------------------------------" << std::endl;
+		std::cout << "  Using HTTPs as transport method" << std::endl;
+		std::cout << "-----------------------------------" << std::endl << std::endl;
 
-	std::cout << "----------------------------------" << std::endl;
-	std::cout << "  Using HTTPs as transport method" << std::endl;
-	std::cout << "----------------------------------" << std::endl << std::endl;
+		libagent::test_http_protocol(HTTPs_host, HTTPs_port, HTTPs_token_uri_method, HTTPs_logclient_uri_method, HTTPs_token_uri,
+			HTTPs_logclient_uri, useragents, HTTPs_clientid, HTTPs_secret, HTTPs_username, HTTPs_password, AES_PASSWORD, PoC_KEYWORD,
+			IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, true);
 
-	libagent::test_http_protocol(HTTPs_host, HTTPs_port, HTTPs_token_uri_method, HTTPs_logclient_uri_method, HTTPs_token_uri,
-		HTTPs_logclient_uri, useragents, HTTPs_clientid, HTTPs_secret, HTTPs_username, HTTPs_password, AES_PASSWORD, PoC_KEYWORD,
-		IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, true);
+		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
+	}
 
-	std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
+	Sleep(1000);
+
+	// SMTPS - GMAIL
+	if (PROTOCOL == L"GMAIL" || PROTOCOL == L"ALL") {
+		std::cout << "-------------------------------------------" << std::endl;
+		std::cout << "  Using SMTPS (GMAIL) as transport method" << std::endl;
+		std::cout << "-------------------------------------------" << std::endl << std::endl;
+
+		libagent::test_gmail_protocol(Gmail_smtp, Gmail_username, Gmail_password, Gmail_name, useragents, AES_PASSWORD, PoC_KEYWORD);
+
+		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
+	}
 
 	return 0;
 }
@@ -135,6 +156,7 @@ void Usage(char *appname) {
 	std::cout << " Usage: " << appname << " [options] ..." << std::endl << std::endl;
 	std::cout << " -c <configuration file>         " << "A JSON formatted configuration file." << std::endl;
 	std::cout << " -u <User-Agent strings file>    " << "A text file containing user-agent strings." << std::endl;
+	std::cout << " -p <Protocol>                   " << "Choose a specific protocol e.g. HTTP to test or ALL to test all protocols." << std::endl;
 	std::cout << std::endl;
 }
 
@@ -160,6 +182,12 @@ int PargeArgs(int argc, char *argv[]) {
 				i++;
 				if (i < argc && args[i] != NULL && args[i][0] != '-') {
 					USER_AGENTS = std::wstring(args[i]);
+				}
+				break;
+			case 'p':
+				i++;
+				if (i < argc && args[i] != NULL && args[i][0] != '-') {
+					PROTOCOL = std::wstring(args[i]);
 				}
 				break;
 			default:

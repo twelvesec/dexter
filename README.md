@@ -16,7 +16,7 @@ Written by:
 
 * Windows 10 x64
 * Microsoft Visual C++ 2017 Redistributable (x64)
-* [libcurl](https://curl.haxx.se/libcurl/)
+* [libcurl x64](https://curl.haxx.se/libcurl/)
 
 ---
 

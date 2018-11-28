@@ -24,17 +24,20 @@
 
 #pragma once
 
-#include <Windows.h>
 #include <string>
-#include <set>
 
-namespace libagent {
-	void test_http_protocol(std::wstring host, WORD port, std::wstring token_uri_method, std::wstring logclient_uri_method,
-		std::wstring tokenuri,
-		std::wstring logclienturi, std::set<std::wstring> uagents, WORD clientid, std::string secret, std::string username,
-		std::string password, std::string aespassword, std::string PoC_KEYWORD, bool IGNORE_CERT_UNKNOWN_CA,
-		bool IGNORE_CERT_DATE_INVALID,
-		bool HTTPS_CONNECTION);
-	void test_gmail_protocol(std::string gmail_smtp, std::string gmail_username, std::string gmail_password, std::string gmail_name,
-		std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD);
+#define BOUNDARY	"EEmmaaiill__BBoouunnddaarryy"
+
+#define MYSIZE 4096
+
+typedef struct {
+	char *data;
+	size_t size;
+}data_size;
+
+namespace libcurl {
+	void init(void);
+	void finalize(void);
+	bool send_email(std::string username, std::string password, std::string smtp, std::string name,
+		std::string subject, std::string body, std::string uagent);
 }

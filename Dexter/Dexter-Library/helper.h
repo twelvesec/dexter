@@ -42,4 +42,6 @@ namespace helper {
 	std::string load_json_file(std::wstring filename);
 	char* next_token(char *strToken, const char *strDelimit, char **context);
 	int split_string(const char *str, unsigned long size, const char *delim, char ***data);
+	bool get_timezone_offset(char **datetime);
+	char* Wchar_To_Char(const wchar_t *src, int slen);
 }

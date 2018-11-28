@@ -30,5 +30,13 @@
 		"token_uri": "/oauth/token",
 		"logclient_uri": "/api/computers",
 		"clients_uri": "/api/computers"
+	},
+	"GMAIL": {
+		"smtp": "smtp://smtp.gmail.com:587",
+		"imap_inbox": "imaps://imap.gmail.com:993/INBOX",
+		"imap_inbox_mail": "imaps://imap.gmail.com:993/INBOX/;UID=%d",
+		"username": "xxxxxxxxxxxxxxx@gmail.com",
+		"password": "xxxxxxxxxxxxxxxxxxxxx",
+		"name": "PenTester"
 	}
 }

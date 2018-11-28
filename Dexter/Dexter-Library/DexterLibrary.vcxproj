@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="helper.h" />
     <ClInclude Include="libcrypt.h" />
+    <ClInclude Include="libcurl.h" />
     <ClInclude Include="libencode.h" />
     <ClInclude Include="libhash.h" />
     <ClInclude Include="libhttp.h" />
@@ -29,6 +30,7 @@
   <ItemGroup>
     <ClCompile Include="helper.cpp" />
     <ClCompile Include="libcrypt.cpp" />
+    <ClCompile Include="libcurl.cpp" />
     <ClCompile Include="libencode.cpp" />
     <ClCompile Include="libhash.cpp" />
     <ClCompile Include="libhttp.cpp" />
@@ -117,6 +119,9 @@
       <AdditionalDependencies>libcurl_a_debug.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\curl\libcurl-vc15-x64-debug-static-sspi-winssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -132,6 +137,9 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
