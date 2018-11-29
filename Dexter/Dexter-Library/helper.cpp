@@ -27,6 +27,8 @@
 #include <algorithm>
 #include <time.h>
 #include <fstream>
+#include <string>
+#include <sstream>
 
 #pragma comment (lib, "Shlwapi.lib")
 #include <Shlwapi.h>
@@ -155,82 +157,19 @@ char* helper::next_token(char *strToken, const char *strDelimit, char **context)
 	return strtok_s(strToken, strDelimit, context);
 }
 
-int helper::split_string(const char *str, unsigned long size, const char *delim, char ***data) {
-	char *token = 0;
-	char *strCopy = 0;
-	char *nexttoken = 0;
-	int i = 0;
-	int count = 0;
+std::vector<std::string> helper::split_string(std::string str, char delimeter) {
+	std::vector<std::string> tokens;
+	std::stringstream check1(str);
 
-	if ((strCopy = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size + 1)) == NULL) {
-		return -1;
+	std::string intermediate;
+
+	// Tokenizing w.r.t. space ' ' 
+	while (std::getline(check1, intermediate, delimeter))
+	{
+		tokens.push_back(intermediate);
 	}
 
-	if (strncpy_s(strCopy, size + 1, str, _TRUNCATE) != 0) {
-		HeapFree(GetProcessHeap(), 0, strCopy);
-		strCopy = NULL;
-		return -1;
-	}
-
-	//count tokens
-	token = next_token(strCopy, delim, &nexttoken);
-	if (token == NULL) {
-		HeapFree(GetProcessHeap(), 0, strCopy);
-		strCopy = NULL;
-		return -1;
-	}
-
-	while (token != NULL) {
-		token = next_token(NULL, delim, &nexttoken);
-		count++;
-	}
-
-	HeapFree(GetProcessHeap(), 0, strCopy);
-	strCopy = NULL;
-
-	if ((strCopy = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size + 1)) == NULL) {
-		return -1;
-	}
-
-	if (strncpy_s(strCopy, size + 1, str, _TRUNCATE) != 0) {
-		HeapFree(GetProcessHeap(), 0, strCopy);
-		strCopy = NULL;
-		return -1;
-	}
-
-	//get data
-	if ((*data = (char**)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, count * sizeof(char*))) == NULL) {
-		HeapFree(GetProcessHeap(), 0, strCopy);
-		strCopy = NULL;
-		return -1;
-	}
-
-	token = next_token(strCopy, delim, &nexttoken);
-	if (token == NULL) {
-		HeapFree(GetProcessHeap(), 0, strCopy);
-		strCopy = NULL;
-		return -1;
-	}
-
-	while (token != NULL) {
-		if (((*data)[i] = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, strlen(token) + 1)) == NULL) {
-			break;
-		}
-
-		if (strncpy_s((*data)[i], strlen(token) + 1, token, _TRUNCATE) != 0) {
-			HeapFree(GetProcessHeap(), 0, strCopy);
-			data[i] = NULL;
-			break;
-		}
-
-		i++;
-		token = next_token(NULL, delim, &nexttoken);
-	}
-
-	HeapFree(GetProcessHeap(), 0, strCopy);
-	strCopy = NULL;
-
-	return count;
+	return tokens;
 }
 
 bool helper::get_timezone_offset(char **datetime) {

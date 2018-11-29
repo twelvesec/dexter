@@ -284,6 +284,32 @@ static std::string _buildString(const char *format, const char *value) {
 	return str;
 }
 
+static std::string _buildString(const char *format, int value) {
+
+	size_t _size = 0;
+	char *result;
+	std::string str;
+
+	_size = strlen(format) * 2;
+
+	if ((result = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, _size + 1)) == NULL) {
+		return "";
+	}
+
+	if (_snprintf_s(result, _size + 1, _TRUNCATE, format, value) == -1) {
+		HeapFree(GetProcessHeap(), 0, result);
+		result = NULL;
+		return "";
+	}
+
+	str = std::string(result);
+
+	HeapFree(GetProcessHeap(), 0, result);
+	result = NULL;
+
+	return str;
+}
+
 static std::string _buildMessage(std::string username, std::string name, std::string subject, std::string body) {
 	std::string message;
 
@@ -341,6 +367,65 @@ static size_t _read_function_callback(void *ptr, size_t size, size_t nmemb, void
 	return 0;
 }
 
+//libcurl email write callback
+static size_t _write_function_callback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+	size_t realsize = size * nmemb;
+	data_size *mem = (data_size *)userp;
+	//char *tmp;
+
+	if ((mem->data = (char*)HeapReAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, mem->data, mem->size + realsize + 1)) == NULL) {
+		return 0;
+	}
+
+	//mem->data = tmp;
+	memcpy(&(mem->data[mem->size]), contents, realsize);
+	mem->size += realsize;
+	mem->data[mem->size] = '\0';
+
+	return realsize;
+}
+
+static std::vector<int> _extractEmailsIds(const char *downloadData) {
+	//char **splittedString = { 0 };
+	size_t carriageReturnIndex = 0;
+	char *data = 0;
+	//size_t total = -1;
+	int i = 0;
+	//int splitted = 0;
+	//int j = 0;
+	std::vector<std::string> tokens;
+	std::vector<int> ids;
+
+	//remove carriage return
+	carriageReturnIndex = strcspn(downloadData, "\r\n");
+	if (carriageReturnIndex > 0 && ((data = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, carriageReturnIndex + 1)) != NULL)) {
+
+		if (strncpy_s(data, carriageReturnIndex + 1, downloadData, carriageReturnIndex) == 0) {
+
+			//split string to get email ids
+			//if ((splittedString = helper::split_string(&splitted, data, (DWORD)carriageReturnIndex, " ")) != NULL) {
+			tokens = helper::split_string(std::string(data), ' ');
+			//if ((splitted = helper::split_string(data, (DWORD)carriageReturnIndex, " ", &splittedString)) != -1) {
+
+			if (tokens.size() > 2) {
+				//total = tokens.size() - 2;
+				//get ids
+					//ignore "* SEARCH"
+				for (i = 2; i < tokens.size(); i++) {
+					ids.push_back(atoi(tokens[i].c_str()));
+				}
+			}
+
+		}
+
+		HeapFree(GetProcessHeap(), 0, data);
+		data = NULL;
+	}
+
+	return ids;
+}
+
 void libcurl::init(void) {
 	curl_global_init(CURL_GLOBAL_ALL);
 }
@@ -385,6 +470,77 @@ bool libcurl::send_email(std::string username, std::string password, std::string
 
 		curl_slist_free_all(recipients);
 		curl_easy_cleanup(curl);
+	}
+
+	return success;
+}
+
+std::vector<int> libcurl::get_emails_ids(std::string username, std::string password, std::string imap, std::string command, std::string uagent) {
+
+	CURL *curl;
+	CURLcode res = CURLE_OK;
+	data_size download_ctx;
+	std::vector<int> ids;
+
+	download_ctx.data = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 1);
+	download_ctx.size = 0;
+
+	if ((curl = curl_easy_init()))
+	{
+		curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
+		curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
+		curl_easy_setopt(curl, CURLOPT_URL, imap.c_str());
+		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, command.c_str());
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L); //debug, turn it off on production
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, _write_function_callback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &download_ctx);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, uagent.c_str());
+
+		if ((res = curl_easy_perform(curl)) == CURLE_OK)
+		{
+			ids = _extractEmailsIds(download_ctx.data);
+		}
+
+		curl_easy_cleanup(curl);
+	}
+
+	return ids;
+}
+
+bool libcurl::receive_email(MimeMessage **mm, int uid, std::string imap_inbox_obj, std::string username, std::string password, std::string uagent) {
+	bool success = false;
+
+	CURL *curl;
+	CURLcode res = CURLE_OK;
+	data_size download_ctx;
+
+	download_ctx.data = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 1);
+	download_ctx.size = 0;
+
+	std::string url = _buildString(imap_inbox_obj.c_str(), uid);
+
+	if ((curl = curl_easy_init()))
+	{
+		curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
+		curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L); //debug, turn it off on production
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, _write_function_callback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &download_ctx);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, uagent.c_str());
+
+		if ((res = curl_easy_perform(curl)) == CURLE_OK)
+		{
+			if ((*mm = (MimeMessage*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(MimeMessage))) != NULL) {
+				libmime::parse_mime(*mm, download_ctx.data, download_ctx.size);
+				success = true;
+			}
+		}
+
+		curl_easy_cleanup(curl);
+
+		HeapFree(GetProcessHeap(), 0, download_ctx.data);
+		download_ctx.data = NULL;
 	}
 
 	return success;

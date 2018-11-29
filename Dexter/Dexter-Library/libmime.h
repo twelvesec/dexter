@@ -24,15 +24,11 @@
 
 #pragma once
 
-#include <Windows.h>
-#include <string>
-#include <set>
+typedef struct MimeMessage {
+	char *body;
+	unsigned int length = 0;
+} MimeMessage;
 
-namespace libreporter {
-	void test_http_protocol(std::wstring host, WORD port, std::wstring token_uri_method, std::wstring clients_uri_method, std::wstring tokenuri,
-		std::wstring clients_uri, std::set<std::wstring> uagents, WORD clientid, std::string secret, std::string username,
-		std::string password, std::string aespassword, std::string PoC_KEYWORD, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID,
-		bool HTTPS_CONNECTION);
-	void test_gmail_protocol(std::string gmail_imap, std::string gmail_imap_inbox_obj, std::string gmail_username, std::string gmail_password, std::string gmail_name,
-		std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD);
+namespace libmime {
+	bool parse_mime(MimeMessage *msg, const char *raw_data, size_t rawDataSize);
 }

@@ -24,7 +24,10 @@
 
 #pragma once
 
+#include "libmime.h"
+#include <Windows.h>
 #include <string>
+#include <vector>
 
 #define BOUNDARY	"EEmmaaiill__BBoouunnddaarryy"
 
@@ -40,4 +43,6 @@ namespace libcurl {
 	void finalize(void);
 	bool send_email(std::string username, std::string password, std::string smtp, std::string name,
 		std::string subject, std::string body, std::string uagent);
+	std::vector<int> get_emails_ids(std::string username, std::string password, std::string imap, std::string command, std::string uagent);
+	bool receive_email(MimeMessage **mm, int uid, std::string imap_inbox_obj, std::string username, std::string password, std::string uagent);
 }

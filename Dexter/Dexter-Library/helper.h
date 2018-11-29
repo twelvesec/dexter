@@ -28,6 +28,7 @@
 #include <string>
 #include <set>
 #include "rapidjson/document.h"
+#include <vector>
 
 namespace helper {
 	bool read_bool_value(rapidjson::Document *doc, const char *name);
@@ -41,7 +42,7 @@ namespace helper {
 	std::set<std::wstring> load_useragent_strings(std::wstring filename);
 	std::string load_json_file(std::wstring filename);
 	char* next_token(char *strToken, const char *strDelimit, char **context);
-	int split_string(const char *str, unsigned long size, const char *delim, char ***data);
 	bool get_timezone_offset(char **datetime);
 	char* Wchar_To_Char(const wchar_t *src, int slen);
+	std::vector<std::string> split_string(std::string str, char delimeter);
 }

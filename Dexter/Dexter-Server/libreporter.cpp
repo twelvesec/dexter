@@ -29,42 +29,41 @@
 #include "rapidjson/stringbuffer.h"
 #include "helper.h"
 #include "libcrypt.h"
+#include "libencode.h"
+#include "libcurl.h"
+#include "libmime.h"
 
 #include <iostream>
 
-static void handle_data(std::string data, std::string password, bool HTTPS_CONNECTION) {
-	char **details = { 0 };
-	int splitted = 0;
+#pragma comment(lib, "Ws2_32.lib")
+
+static std::wstring pick_random_useragent(std::set<std::wstring> uagents, std::wstring Protocol) {
+
+	std::wstring useragent = helper::pick_random_useragent_fromfile(uagents);
+	std::wcout << L"[" << Protocol << L"] " << L"User-Agent: " << useragent << std::endl;
+
+	return useragent;
+}
+
+static void handle_data(std::string data, std::string password, std::wstring Protocol) {
+	//char **details = { 0 };
+	//int splitted = 0;
 	std::string decrypted_data = libcrypt::decrypt(password, data);
+	std::vector<std::string> details;
 
-	if (!HTTPS_CONNECTION) {
-		std::cout << "[HTTP] " << "Received HTTP packet. Details: ";
-	}
-	else {
-		std::cout << "[HTTPS] " << "Received HTTPS packet. Details: ";
-	}
+	std::wcout << "[" << Protocol << "] " << "Received " << Protocol << " packet. Details: ";
 
-	if ((splitted = helper::split_string(decrypted_data.c_str(), (DWORD)decrypted_data.length(), "&", &details)) != -1) {
-		for (int i = 0; i < splitted; i++) {
-			if (i == splitted - 1) {
-				std::cout << details[i];
-			}
-			else {
-				std::cout << details[i] << ", ";
-			}
+	//if ((splitted = helper::split_string(decrypted_data.c_str(), (DWORD)decrypted_data.length(), "&", &details)) != -1) {
+	details = helper::split_string(decrypted_data.c_str(), '\n');
+	//if ((splitted = helper::split_string(decrypted_data.c_str(), (DWORD)decrypted_data.length(), "&", &details)) != -1) {
+	for (int i = 0; i < details.size(); i++) {
+		if (i == details.size() - 1) {
+			std::cout << details[i];
+		}
+		else {
+			std::cout << details[i] << ", ";
 		}
 	}
-
-	if (details) {
-		for (int i = 0; i < splitted; i++) {
-			HeapFree(GetProcessHeap(), 0, details[i]);
-			details[i] = NULL;
-		}
-
-		HeapFree(GetProcessHeap(), 0, details);
-		details = NULL;
-	}
-
 	std::cout << std::endl;
 }
 
@@ -78,18 +77,15 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 	const WCHAR *token_headers = L"Accept: application/json\r\nContent-Type: application/x-www-form-urlencoded\r\nConnection: close\r\n";
 	bool result = false;
 
+	std::wstring protocol = (HTTPS_CONNECTION ? L"HTTPS" : L"HTTP");
+
 	std::wstring useragent = helper::pick_random_useragent_fromfile(uagents);
-	std::wcout << "[HTTP] " << "User-Agent: " << useragent << std::endl;
+	std::wcout << L"[" << protocol << L"] " << L"User-Agent: " << useragent << std::endl;
 
 	std::string token_data = "grant_type=password&client_id=" + std::to_string(clientid) + "&client_secret=" +
 		secret + "&username=" + username + "&password=" + password + "&scope=*";
 
-	if (!HTTPS_CONNECTION) {
-		std::wcout << "[HTTP] " << "Connecting to HTTP server" << std::endl;
-	}
-	else {
-		std::wcout << "[HTTPS] " << "Connecting to HTTPS server" << std::endl;
-	}
+	std::wcout << L"[" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
 
 	internet = libhttp::open(useragent);
 
@@ -101,12 +97,7 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 		std::wcout << "[HTTP] " << "Warning! Transmitting unencrypted data over HTTP" << std::endl;
 	}
 
-	if (!HTTPS_CONNECTION) {
-		std::wcout << "[HTTP] " << "Requesting API token with HTTP packet" << std::endl;
-	}
-	else {
-		std::wcout << "[HTTPS] " << "Requesting API token with HTTPS packet" << std::endl;
-	}
+	std::wcout << L"[" << protocol << L"] " << L"Requesting API token with " << protocol << L" packet" << std::endl;
 
 	if (connection != NULL) {
 		request = libhttp::json_request(connection, token_uri_method, tokenuri, (char*)token_data.c_str(), token_headers, IGNORE_CERT_UNKNOWN_CA,
@@ -129,12 +120,7 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 		std::wstring clients_headers = L"Accept: application/json\r\nContent-Type: application/x-www-form-urlencoded\r\nAuthorization: Bearer " +
 			access_token + L"\r\nConnection: close\r\n";
 
-		if (!HTTPS_CONNECTION) {
-			std::wcout << "[HTTP] " << "Sending data with HTTP packet" << std::endl;
-		}
-		else {
-			std::wcout << "[HTTPS] " << "Sending data with HTTPS packet" << std::endl;
-		}
+		std::wcout << L"[" << protocol << L"] " << L"Sending data with " << protocol << L" packet" << std::endl;
 
 		if (connection != NULL) {
 			request = libhttp::json_request(connection, clients_uri_method, clients_uri, NULL,
@@ -151,12 +137,7 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 
 			if (helper::read_bool_value(&clients_response, "success") == true) {
 
-				if (!HTTPS_CONNECTION) {
-					std::wcout << "[HTTP] " << "Transmission succeeded" << std::endl;
-				}
-				else {
-					std::wcout << "[HTTPS] " << "Transmission succeeded" << std::endl;
-				}
+				std::wcout << L"[" << protocol << L"] " << L"Transmission succeeded" << std::endl;
 
 				if (clients_response.HasMember("data") && clients_response["data"].IsArray()) {
 					const rapidjson::Value& a = clients_response["data"].GetArray();
@@ -166,7 +147,7 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 								if (itr->name != NULL) {
 									std::string val(itr->name.GetString());
 									if (val == "data" && itr->value != NULL) {
-										handle_data(itr->value.GetString(), aespassword, HTTPS_CONNECTION);
+										handle_data(itr->value.GetString(), aespassword, protocol);
 									}
 								}
 							}
@@ -177,12 +158,7 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 			}
 			else {
 
-				if (!HTTPS_CONNECTION) {
-					std::wcout << "[HTTP] " << "Transmission failed" << std::endl;
-				}
-				else {
-					std::wcout << "[HTTPS] " << "Transmission failed" << std::endl;
-				}
+				std::wcout << "[" << protocol << "] " << "Transmission failed" << std::endl;
 			}
 		}
 
@@ -208,6 +184,36 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 	}
 }
 
-void test_gmail_protocol(void) {
+void libreporter::test_gmail_protocol(std::string gmail_imap, std::string gmail_imap_inbox_obj, std::string gmail_username, std::string gmail_password, std::string gmail_name,
+	std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD) {
 
+	int total = 0;
+	int i = 0;
+	MimeMessage *m = 0;
+	std::vector<int> ids;
+
+	libcurl::init();
+
+	std::wstring useragent = pick_random_useragent(uagents, L"GMAIL");
+
+	std::wcout << "[GMAIL] " << "Connecting to GMAIL SMTP server" << std::endl;
+
+	std::wcout << "[GMAIL] " << "Sending data with GMAIL packet" << std::endl;
+
+	std::string uagent(useragent.begin(), useragent.end());
+
+	std::wcout << "[GMAIL] " << "Retrieving emails IDs" << std::endl;
+
+	ids = libcurl::get_emails_ids(gmail_username, gmail_password, gmail_imap, "UID SEARCH (SUBJECT '" + PoC_KEYWORD + "')", uagent);
+
+	std::wcout << "[GMAIL] " << "Retrieving emails" << std::endl;
+
+	for (i = 0; i < ids.size(); i++) {
+		if (libcurl::receive_email(&m, ids[i], gmail_imap_inbox_obj, gmail_username, gmail_password, uagent)) {
+
+		}
+	}
+
+	libcurl::finalize();
 }
+

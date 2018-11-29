@@ -25,6 +25,7 @@
     <ClInclude Include="libencode.h" />
     <ClInclude Include="libhash.h" />
     <ClInclude Include="libhttp.h" />
+    <ClInclude Include="libmime.h" />
     <ClInclude Include="libsysteminfo.h" />
   </ItemGroup>
   <ItemGroup>
@@ -34,6 +35,7 @@
     <ClCompile Include="libencode.cpp" />
     <ClCompile Include="libhash.cpp" />
     <ClCompile Include="libhttp.cpp" />
+    <ClCompile Include="libmime.cpp" />
     <ClCompile Include="libsysteminfo.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
