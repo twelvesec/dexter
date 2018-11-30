@@ -98,13 +98,25 @@ computername=maldevel_pc&os=Windows_10_amd64&username=maldevel_user
 **Using curl**
 
 ```
-
+curl -i -s -k  -X $'GET' \
+    -H $'Host: example.com' -H $'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:62.0) Gecko/20100101 Firefox/62.0' -H $'Accept: */*' -H $'Content-Length: 160' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Authorization: Bearer [token]' -H $'Connection: close' \
+    --data-binary $'grant_type=password&client_id=1&client_secret=aaaaaaabbbbbbbbbcccccccccdddddddeeeeeeee&username=dexteruser@example.com&password=dexter_user_password&scope=*' \
+    $'http://example.com/api/computers?protocol=HTTPS'
 ```
 
 **Raw request**
 
 ```
+GET /api/computers?protocol=HTTPS HTTP/1.1
+Host: 192.168.79.154
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:62.0) Gecko/20100101 Firefox/62.0
+Accept: */*
+Content-Length: 160
+Content-Type: application/x-www-form-urlencoded
+Authorization: Bearer [token]
+Connection: close
 
+grant_type=password&client_id=1&client_secret=6LryJJiBmHIO2IIQnRcxq5hgbvQYvoonLNBS0bor&username=dexteruser@example.com&password=dexter_user_password&scope=*
 ```
 
 ---

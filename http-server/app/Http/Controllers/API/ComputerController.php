@@ -21,8 +21,6 @@ class ComputerController extends BaseController
 
         $computers = Computer::where('protocol', $protocol)->get();
 
-        //$computers = $filtered->all();
-
         return $this->sendResponse($computers->toArray(), 'Computers retrieved successfully.');
     }
 
