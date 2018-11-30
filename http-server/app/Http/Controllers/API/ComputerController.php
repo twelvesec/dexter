@@ -19,7 +19,7 @@ class ComputerController extends BaseController
     {
         $protocol = $request->input('protocol');
 
-        $computers = Computer::where('protocol', $protocol);
+        $computers = Computer::where('protocol', $protocol)->get();
 
         //$computers = $filtered->all();
 
