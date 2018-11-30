@@ -214,12 +214,14 @@ std::string libcrypt::decrypt(std::string password, std::string ciphertext) {
 		success = false;
 	}
 
-	if (CryptDecrypt(key, 0, TRUE, 0, ivandcipher, &ivandciphersize) == FALSE) {
+	if (success && CryptDecrypt(key, 0, TRUE, 0, ivandcipher, &ivandciphersize) == FALSE) {
 		success = false;
 	}
 
-	ivandcipher[ivandciphersize] = 0;
-	plaintext = std::string((char*)ivandcipher);
+	if (success) {
+		ivandcipher[ivandciphersize] = 0;
+		plaintext = std::string((char*)ivandcipher);
+	}
 
 	if (iv) {
 		HeapFree(GetProcessHeap(), 0, iv);

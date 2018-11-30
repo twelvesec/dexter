@@ -34,4 +34,5 @@ namespace libencode {
 	std::string base64_decode(std::string encodedtext);
 	DWORD base64_decode(BYTE **plaintext, std::string encodedtext);
 	std::string url_encode(std::string uri);
+	std::string url_decode(std::string uri);
 }

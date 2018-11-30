@@ -27,6 +27,7 @@ class ComputerController extends BaseController
         $input = $request->all();
 
         $validator = Validator::make($input, [
+            'protocol' => 'required',
             'data' => 'required'
         ]);
 
@@ -36,6 +37,7 @@ class ComputerController extends BaseController
         }
 
         $computer = Computer::create([
+            'protocol' => $request->protocol,
             'data' => $request->data,
             'user_id' => $request->user()->id
           ]);

@@ -46,25 +46,25 @@ static std::wstring pick_random_useragent(std::set<std::wstring> uagents, std::w
 }
 
 static void handle_data(std::string data, std::string password, std::wstring Protocol) {
-	//char **details = { 0 };
-	//int splitted = 0;
+
+	//data = libencode::url_decode(data);
+
 	std::string decrypted_data = libcrypt::decrypt(password, data);
 	std::vector<std::string> details;
 
-	std::wcout << "[" << Protocol << "] " << "Received " << Protocol << " packet. Details: ";
-
-	//if ((splitted = helper::split_string(decrypted_data.c_str(), (DWORD)decrypted_data.length(), "&", &details)) != -1) {
 	details = helper::split_string(decrypted_data.c_str(), '\n');
-	//if ((splitted = helper::split_string(decrypted_data.c_str(), (DWORD)decrypted_data.length(), "&", &details)) != -1) {
-	for (int i = 0; i < details.size(); i++) {
-		if (i == details.size() - 1) {
-			std::cout << details[i];
+	if (details.size() > 0) {
+		std::wcout << "[" << Protocol << "] " << "Received " << Protocol << " packet. Details: ";
+		for (int i = 0; i < details.size(); i++) {
+			if (i == details.size() - 1) {
+				std::cout << details[i];
+			}
+			else {
+				std::cout << details[i] << ", ";
+			}
 		}
-		else {
-			std::cout << details[i] << ", ";
-		}
+		std::cout << std::endl;
 	}
-	std::cout << std::endl;
 }
 
 void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring token_uri_method, std::wstring clients_uri_method, std::wstring tokenuri,
@@ -211,6 +211,17 @@ void libreporter::test_gmail_protocol(std::string gmail_imap, std::string gmail_
 	for (i = 0; i < ids.size(); i++) {
 		if (libcurl::receive_email(&m, ids[i], gmail_imap_inbox_obj, gmail_username, gmail_password, uagent)) {
 
+			std::string value(m->body);
+			std::string tosearch = "protocol=GMAIL&data=";
+			std::string replace = "";
+			size_t pos = value.find(tosearch);
+			while (pos != std::string::npos)
+			{
+				value.replace(pos, tosearch.size(), replace);
+				pos = value.find(tosearch, pos + tosearch.size());
+			}
+
+			handle_data(value, aespassword, L"GMAIL");
 		}
 	}
 

@@ -148,7 +148,6 @@ std::string libencode::url_encode(std::string uri) {
 	}
 
 	if ((result = UrlEscapeA(uri.c_str(), tmp, &len, URL_ESCAPE_SEGMENT_ONLY | URL_ESCAPE_PERCENT)) != S_OK && result != E_POINTER) {
-		int error = GetLastError();
 		HeapFree(GetProcessHeap(), 0, tmp);
 		tmp = NULL;
 		return "";
@@ -182,4 +181,50 @@ std::string libencode::url_encode(std::string uri) {
 	}
 
 	return encoded;
+}
+
+std::string libencode::url_decode(std::string uri) {
+	std::string decoded;
+	DWORD len = (DWORD)uri.length();
+	char *tmp;
+	HRESULT result;
+
+	std::string tosearch = "%2b";
+	std::string replace = "+";
+	size_t pos = uri.find(tosearch);
+	while (pos != std::string::npos)
+	{
+		uri.replace(pos, tosearch.size(), replace);
+		pos = uri.find(tosearch, pos + tosearch.size());
+	}
+
+	if ((tmp = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 1)) == NULL) {
+		return "";
+	}
+
+	if ((result = UrlUnescapeA((char*)uri.c_str(), tmp, &len, 0)) != S_OK && result != E_POINTER) {
+		HeapFree(GetProcessHeap(), 0, tmp);
+		tmp = NULL;
+		return "";
+	}
+
+	HeapFree(GetProcessHeap(), 0, tmp);
+	tmp = NULL;
+
+	if ((tmp = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, len + 1)) == NULL) {
+		return "";
+	}
+
+	if ((result = UrlUnescapeA((char*)uri.c_str(), tmp, &len, 0)) != S_OK && result != E_POINTER) {
+		HeapFree(GetProcessHeap(), 0, tmp);
+		tmp = NULL;
+		return "";
+	}
+
+	tmp[len] = 0;
+	decoded = std::string(tmp);
+	HeapFree(GetProcessHeap(), 0, tmp);
+	tmp = NULL;
+
+	return decoded;
 }

@@ -61,15 +61,15 @@ static std::string generate_data(std::string PoC_KEYWORD, std::string aespasswor
 
 	std::string proto(Protocol.begin(), Protocol.end());
 
-	std::string encrypted_data = "data=" + libcrypt::encrypt(aespassword, "UID=" + uid + "&ComputerName=" + computername +
+	return "protocol=" + proto + "&data=" + libcrypt::encrypt(aespassword, "UID=" + uid + "&ComputerName=" + computername +
 		"&OS=" + osversion + "&Username=" + username +
 		"&LocalIPAddress=" + ipaddress + "&PhysicalAddress=" + macaddress +
 		"&PoCKEYWORD=" + PoC_KEYWORD + "&Protocol=" + proto);
 
-	std::string encoded = libencode::url_encode(encrypted_data);
-	encrypted_data = "";
+	//std::string encoded = libencode::url_encode(encrypted_data);
+	//encrypted_data = "";
 
-	return encoded;
+	//return encoded;
 }
 
 void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring token_uri_method, std::wstring logclient_uri_method,
@@ -192,7 +192,6 @@ void libagent::test_gmail_protocol(std::string gmail_smtp, std::string gmail_use
 
 	std::string uagent(useragent.begin(), useragent.end());
 
-	;
 
 	if (libcurl::send_email(gmail_username, gmail_password, gmail_smtp, gmail_name, PoC_KEYWORD, encoded, uagent)) {
 		std::wcout << "[GMAIL] " << "Transmission succeeded" << std::endl;

@@ -14,6 +14,7 @@ class AddIndices extends Migration
     public function up()
     {
         Schema::table('computers', function (Blueprint $table) {
+            $table->index('protocol');
             $table->index('data');
         });
     }
@@ -26,6 +27,7 @@ class AddIndices extends Migration
     public function down()
     {
         Schema::table('computers', function (Blueprint $table) {
+            $table->dropIndex('protocol');
             $table->dropIndex('data');
         });
     }
