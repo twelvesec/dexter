@@ -61,15 +61,21 @@ static std::string generate_data(std::string PoC_KEYWORD, std::string aespasswor
 
 	std::string proto(Protocol.begin(), Protocol.end());
 
-	return "protocol=" + proto + "&data=" + libcrypt::encrypt(aespassword, "UID=" + uid + "&ComputerName=" + computername +
+	std::string data = "protocol=" + proto + "&data=" + libcrypt::encrypt(aespassword, "UID=" + uid + "&ComputerName=" + computername +
 		"&OS=" + osversion + "&Username=" + username +
 		"&LocalIPAddress=" + ipaddress + "&PhysicalAddress=" + macaddress +
 		"&PoCKEYWORD=" + PoC_KEYWORD + "&Protocol=" + proto);
 
-	//std::string encoded = libencode::url_encode(encrypted_data);
-	//encrypted_data = "";
+	std::string tosearch = "+";
+	std::string replace = "%2b";
+	size_t pos = data.find(tosearch);
+	while (pos != std::string::npos)
+	{
+		data.replace(pos, tosearch.size(), replace);
+		pos = data.find(tosearch);
+	}
 
-	//return encoded;
+	return data;
 }
 
 void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring token_uri_method, std::wstring logclient_uri_method,

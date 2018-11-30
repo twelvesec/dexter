@@ -34,6 +34,8 @@
 #include "libmime.h"
 
 #include <iostream>
+#include <string>
+#include <algorithm>
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -47,7 +49,14 @@ static std::wstring pick_random_useragent(std::set<std::wstring> uagents, std::w
 
 static void handle_data(std::string data, std::string password, std::wstring Protocol) {
 
-	//data = libencode::url_decode(data);
+	std::string tosearch = "%2b";
+	std::string replace = "+";
+	size_t pos = data.find(tosearch);
+	while (pos != std::string::npos)
+	{
+		data.replace(pos, tosearch.size(), replace);
+		pos = data.find(tosearch);
+	}
 
 	std::string decrypted_data = libcrypt::decrypt(password, data);
 	std::vector<std::string> details;
