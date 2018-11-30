@@ -92,3 +92,19 @@ computername=maldevel_pc&os=Windows_10_amd64&username=maldevel_user
 ```
 
 ---
+
+### Get all clients
+
+**Using curl**
+
+```
+
+```
+
+**Raw request**
+
+```
+
+```
+
+---

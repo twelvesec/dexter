@@ -19,7 +19,9 @@ class ComputerController extends BaseController
     {
         $protocol = $request->input('protocol');
 
-        $computers = Computer::where('protocol', $protocol)->all();
+        $computers = Computer::where('protocol', $protocol);
+
+        //$computers = $filtered->all();
 
         return $this->sendResponse($computers->toArray(), 'Computers retrieved successfully.');
     }
@@ -34,7 +36,8 @@ class ComputerController extends BaseController
         ]);
 
 
-        if($validator->fails()){
+        if($validator->fails())
+        {
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
