@@ -15,9 +15,11 @@ class ComputerController extends BaseController
         parent::__construct();
     }*/
 
-    public function index()
+    public function index(Request $request)
     {
-        $computers = Computer::all();
+        $protocol = $request->input('protocol');
+
+        $computers = Computer::where('protocol', $protocol)->all();
 
         return $this->sendResponse($computers->toArray(), 'Computers retrieved successfully.');
     }
