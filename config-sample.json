@@ -38,5 +38,19 @@
 		"username": "xxxxxxxxxxxxxxx@gmail.com",
 		"password": "xxxxxxxxxxxxxxxxxxxxx",
 		"name": "PenTester"
+	},
+	"FTP": {
+		"host": "192.168.1.1",
+		"port": 21,
+		"username": "user",
+		"password": "xxxxxxxxxxxxxxxxxxxxx",
+		"working_dir": "/home/user/"
+	},
+	"FTPS": {
+		"host": "192.168.1.1",
+		"port": 21,
+		"username": "user",
+		"password": "xxxxxxxxxxxxxxxxxxxxx",
+		"working_dir": "/home/user"
 	}
 }
