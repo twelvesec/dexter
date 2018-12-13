@@ -31,6 +31,7 @@
 #include "libcrypt.h"
 #include "libencode.h"
 #include "libcurl.h"
+#include "libftp.h"
 
 #include <iostream>
 
@@ -82,14 +83,14 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring tok
 	std::wstring tokenuri,
 	std::wstring logclienturi, std::set<std::wstring> uagents, WORD clientid, std::string secret, std::string username,
 	std::string password, std::string aespassword, std::string PoC_KEYWORD, bool IGNORE_CERT_UNKNOWN_CA,
-	bool IGNORE_CERT_DATE_INVALID, bool HTTPS_CONNECTION) {
+	bool IGNORE_CERT_DATE_INVALID, bool TLS_CONNECTION) {
 
 	char *downloaded = 0;
 	HINTERNET internet = NULL, connection = NULL, request = NULL;
 	const WCHAR *token_headers = L"Accept: application/json\r\nContent-Type: application/x-www-form-urlencoded\r\nConnection: close\r\n";
 	bool result = false;
 
-	std::wstring protocol = (HTTPS_CONNECTION ? L"HTTPS" : L"HTTP");
+	std::wstring protocol = (TLS_CONNECTION ? L"HTTPS" : L"HTTP");
 
 	std::wstring useragent = pick_random_useragent(uagents, protocol);
 
@@ -104,15 +105,15 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring tok
 		connection = libhttp::connect(internet, host, port);
 	}
 
-	if (!HTTPS_CONNECTION) {
-		std::wcout << "[HTTP] " << "Warning! Transmitting unencrypted data over HTTP" << std::endl;
+	if (!TLS_CONNECTION) {
+		std::wcout << "[" << protocol << "] " << "Warning! Transmitting unencrypted data over " << protocol << std::endl;
 	}
 
 	std::wcout << L"[" << protocol << "] " << L"Requesting API token with " << protocol << L" packet" << std::endl;
 
 	if (connection != NULL) {
 		request = libhttp::json_request(connection, token_uri_method, tokenuri, (char*)token_data.c_str(), token_headers, IGNORE_CERT_UNKNOWN_CA,
-			IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
+			IGNORE_CERT_DATE_INVALID, TLS_CONNECTION);
 	}
 
 	if (request != NULL) {
@@ -131,16 +132,16 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring tok
 		std::wstring logclient_headers = L"Accept: application/json\r\nContent-Type: application/x-www-form-urlencoded\r\nAuthorization: Bearer " +
 			access_token + L"\r\nConnection: close\r\n";
 
-		std::string encoded = generate_data(PoC_KEYWORD, aespassword, HTTPS_CONNECTION ? L"HTTPS" : L"HTTP");
+		std::string data = generate_data(PoC_KEYWORD, aespassword, protocol);
 
 		std::wcout << L"[" << protocol << L"] " << L"Sending data with " << protocol << L" packet" << std::endl;
 
 		if (connection != NULL) {
-			request = libhttp::json_request(connection, logclient_uri_method, logclienturi, (char*)encoded.c_str(),
-				logclient_headers.c_str(), IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
+			request = libhttp::json_request(connection, logclient_uri_method, logclienturi, (char*)data.c_str(),
+				logclient_headers.c_str(), IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, TLS_CONNECTION);
 		}
 
-		encoded = "";
+		data = "";
 
 		if (request != NULL) {
 			result = libhttp::retrieve_data(request, &downloaded);
@@ -207,4 +208,52 @@ void libagent::test_gmail_protocol(std::string gmail_smtp, std::string gmail_use
 	}
 
 	libcurl::finalize();
+}
+
+void libagent::test_ftp_protocol(std::wstring host, WORD port, std::wstring username, std::wstring password, std::set<std::wstring> uagents, std::string aespassword,
+	std::wstring directory, std::string PoC_KEYWORD, bool TLS_CONNECTION) {
+
+	HINTERNET internet = NULL, connection = NULL;
+	std::wstring protocol = (TLS_CONNECTION ? L"FTPS" : L"FTP");
+	std::wstring useragent = pick_random_useragent(uagents, protocol);
+	std::wcout << L"[" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
+
+	bool result = false;
+
+	internet = libftp::open(useragent);
+
+	if (internet != NULL) {
+		connection = libftp::connect(internet, host, port, username, password);
+	}
+
+	if (!TLS_CONNECTION) {
+		std::wcout << "[" << protocol << "] " << "Warning! Transmitting unencrypted data over " << protocol << std::endl;
+	}
+
+	std::wcout << L"[" << protocol << L"] " << L"Setting working directory" << std::endl;
+
+	if (connection != NULL) {
+		result = libftp::set_current_dir(connection, directory.c_str());
+	}
+
+	std::string data = generate_data(PoC_KEYWORD, aespassword, protocol);
+
+	std::wcout << L"[" << protocol << L"] " << L"Writing file" << std::endl;
+
+	if (result) {
+		std::wstring filename(PoC_KEYWORD.begin(), PoC_KEYWORD.end());
+		result = libftp::write_file(connection, filename + L".txt", data);
+	}
+
+	data = "";
+
+	if (connection) {
+		InternetCloseHandle(connection);
+		connection = NULL;
+	}
+
+	if (internet) {
+		InternetCloseHandle(internet);
+		internet = NULL;
+	}
 }

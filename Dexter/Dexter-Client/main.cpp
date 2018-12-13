@@ -105,6 +105,13 @@ int main(int argc, char *argv[]) {
 	std::string Gmail_password = helper::read_object_string_value_ascii(&d, "GMAIL", "password");
 	std::string Gmail_name = helper::read_object_string_value_ascii(&d, "GMAIL", "name");
 
+	//ftp
+	std::wstring FTP_host = helper::read_object_string_value(&d, "FTP", "host");
+	WORD FTP_port = helper::read_object_word_value(&d, "FTP", "port");
+	std::wstring FTP_username = helper::read_object_string_value(&d, "FTP", "username");
+	std::wstring FTP_password = helper::read_object_string_value(&d, "FTP", "password");
+	std::wstring FTP_workingdir = helper::read_object_string_value(&d, "FTP", "working_dir");
+
 	std::set<std::wstring> useragents = helper::load_useragent_strings(USER_AGENTS);
 
 	// HTTP
@@ -145,6 +152,32 @@ int main(int argc, char *argv[]) {
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
 
 		libagent::test_gmail_protocol(Gmail_smtp, Gmail_username, Gmail_password, Gmail_name, useragents, AES_PASSWORD, PoC_KEYWORD);
+
+		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
+	}
+
+	Sleep(1000);
+
+	// FTP
+	if (PROTOCOL == L"FTP" || PROTOCOL == L"ALL") {
+		std::cout << "-------------------------------------------" << std::endl;
+		std::cout << "  Using FTP as transport method" << std::endl;
+		std::cout << "-------------------------------------------" << std::endl << std::endl;
+
+		libagent::test_ftp_protocol(FTP_host, FTP_port, FTP_username, FTP_password, useragents, AES_PASSWORD, FTP_workingdir, PoC_KEYWORD, false);
+
+		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
+	}
+
+	Sleep(1000);
+
+	// FTPS
+	if (PROTOCOL == L"FTPS" || PROTOCOL == L"ALL") {
+		std::cout << "-------------------------------------------" << std::endl;
+		std::cout << "  Using FTPs as transport method" << std::endl;
+		std::cout << "-------------------------------------------" << std::endl << std::endl;
+
+		libagent::test_ftp_protocol(FTP_host, FTP_port, FTP_username, FTP_password, useragents, AES_PASSWORD, FTP_workingdir, PoC_KEYWORD, true);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 	}

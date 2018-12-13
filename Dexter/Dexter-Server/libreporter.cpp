@@ -32,6 +32,7 @@
 #include "libencode.h"
 #include "libcurl.h"
 #include "libmime.h"
+#include "libftp.h"
 
 #include <iostream>
 #include <string>
@@ -79,14 +80,14 @@ static void handle_data(std::string data, std::string password, std::wstring Pro
 void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring token_uri_method, std::wstring clients_uri_method, std::wstring tokenuri,
 	std::wstring clients_uri, std::set<std::wstring> uagents, WORD clientid, std::string secret, std::string username,
 	std::string password, std::string aespassword, std::string PoC_KEYWORD, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID,
-	bool HTTPS_CONNECTION) {
+	bool TLS_CONNECTION) {
 
 	char *downloaded = 0;
 	HINTERNET internet = NULL, connection = NULL, request = NULL;
 	const WCHAR *token_headers = L"Accept: application/json\r\nContent-Type: application/x-www-form-urlencoded\r\nConnection: close\r\n";
 	bool result = false;
 
-	std::wstring protocol = (HTTPS_CONNECTION ? L"HTTPS" : L"HTTP");
+	std::wstring protocol = (TLS_CONNECTION ? L"HTTPS" : L"HTTP");
 
 	std::wstring useragent = helper::pick_random_useragent_fromfile(uagents);
 	std::wcout << L"[" << protocol << L"] " << L"User-Agent: " << useragent << std::endl;
@@ -102,7 +103,7 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 		connection = libhttp::connect(internet, host, port);
 	}
 
-	if (!HTTPS_CONNECTION) {
+	if (!TLS_CONNECTION) {
 		std::wcout << "[HTTP] " << "Warning! Transmitting unencrypted data over HTTP" << std::endl;
 	}
 
@@ -110,7 +111,7 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 
 	if (connection != NULL) {
 		request = libhttp::json_request(connection, token_uri_method, tokenuri, (char*)token_data.c_str(), token_headers, IGNORE_CERT_UNKNOWN_CA,
-			IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
+			IGNORE_CERT_DATE_INVALID, TLS_CONNECTION);
 	}
 
 	if (request != NULL) {
@@ -133,7 +134,7 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 
 		if (connection != NULL) {
 			request = libhttp::json_request(connection, clients_uri_method, clients_uri, NULL,
-				clients_headers.c_str(), IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, HTTPS_CONNECTION);
+				clients_headers.c_str(), IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, TLS_CONNECTION);
 		}
 
 		if (request != NULL) {
@@ -237,3 +238,7 @@ void libreporter::test_gmail_protocol(std::string gmail_imap, std::string gmail_
 	libcurl::finalize();
 }
 
+void libreporter::test_ftp_protocol(std::wstring host, WORD port, std::string username, std::string password, std::set<std::wstring> uagents, std::string aespassword, std::wstring directory,
+	std::string PoC_KEYWORD, bool TLS_CONNECTION) {
+
+}

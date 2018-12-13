@@ -23,6 +23,7 @@
     <ClInclude Include="libcrypt.h" />
     <ClInclude Include="libcurl.h" />
     <ClInclude Include="libencode.h" />
+    <ClInclude Include="libftp.h" />
     <ClInclude Include="libhash.h" />
     <ClInclude Include="libhttp.h" />
     <ClInclude Include="libmime.h" />
@@ -33,6 +34,7 @@
     <ClCompile Include="libcrypt.cpp" />
     <ClCompile Include="libcurl.cpp" />
     <ClCompile Include="libencode.cpp" />
+    <ClCompile Include="libftp.cpp" />
     <ClCompile Include="libhash.cpp" />
     <ClCompile Include="libhttp.cpp" />
     <ClCompile Include="libmime.cpp" />

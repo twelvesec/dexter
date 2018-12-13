@@ -30,11 +30,11 @@
 
 namespace libagent {
 	void test_http_protocol(std::wstring host, WORD port, std::wstring token_uri_method, std::wstring logclient_uri_method,
-		std::wstring tokenuri,
-		std::wstring logclienturi, std::set<std::wstring> uagents, WORD clientid, std::string secret, std::string username,
-		std::string password, std::string aespassword, std::string PoC_KEYWORD, bool IGNORE_CERT_UNKNOWN_CA,
-		bool IGNORE_CERT_DATE_INVALID,
-		bool HTTPS_CONNECTION);
+		std::wstring tokenuri, std::wstring logclienturi, std::set<std::wstring> uagents, WORD clientid, std::string secret, std::string username,
+		std::string password, std::string aespassword, std::string PoC_KEYWORD, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID,
+		bool TLS_CONNECTION);
 	void test_gmail_protocol(std::string gmail_smtp, std::string gmail_username, std::string gmail_password, std::string gmail_name,
 		std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD);
+	void test_ftp_protocol(std::wstring host, WORD port, std::wstring username, std::wstring password, std::set<std::wstring> uagents, std::string aespassword,
+		std::wstring directory, std::string PoC_KEYWORD, bool TLS_CONNECTION);
 }
