@@ -117,8 +117,8 @@ int main(int argc, char *argv[])
 	//ftp
 	std::wstring FTP_host = helper::read_object_string_value(&d, "FTP", "host");
 	WORD FTP_port = helper::read_object_word_value(&d, "FTP", "port");
-	std::string FTP_username = helper::read_object_string_value_ascii(&d, "FTP", "username");
-	std::string FTP_password = helper::read_object_string_value_ascii(&d, "FTP", "password");
+	std::wstring FTP_username = helper::read_object_string_value(&d, "FTP", "username");
+	std::wstring FTP_password = helper::read_object_string_value(&d, "FTP", "password");
 	std::wstring FTP_workingdir = helper::read_object_string_value(&d, "FTP", "working_dir");
 
 	std::set<std::wstring> useragents = helper::load_useragent_strings(USER_AGENTS);

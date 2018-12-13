@@ -34,4 +34,5 @@ namespace libftp {
 	HINTERNET connect(HINTERNET internet, std::wstring host, WORD port, std::wstring username, std::wstring password);
 	bool set_current_dir(HINTERNET connection, std::wstring directory);
 	bool write_file(HINTERNET connection, std::wstring filename, std::string data);
+	std::string read_file(HINTERNET connection, std::wstring filename);
 }

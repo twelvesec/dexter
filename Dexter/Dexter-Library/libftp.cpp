@@ -57,10 +57,33 @@ bool libftp::write_file(HINTERNET connection, std::wstring filename, std::string
 
 	DWORD bytes = 0;
 
-	bool result = InternetWriteFile(file, data.c_str(), data.length(), &bytes);
+	bool result = InternetWriteFile(file, data.c_str(), (DWORD)data.length(), &bytes);
 
 	InternetCloseHandle(file);
 	file = NULL;
 
 	return result;
+}
+
+std::string libftp::read_file(HINTERNET connection, std::wstring filename) {
+
+	HINTERNET file = FtpOpenFileW(connection, filename.c_str(), GENERIC_READ, FTP_TRANSFER_TYPE_ASCII, 0);
+	if (!file) {
+		return false;
+	}
+
+	bool result = false;
+	DWORD bytesread = 0;
+	char bytes[2048];
+	std::string data = "";
+
+	do {
+		InternetReadFile(file, bytes, 2048, &bytesread);
+		data += std::string(bytes);
+	} while (result == false && bytesread != 0);
+
+	InternetCloseHandle(file);
+	file = NULL;
+
+	return data;
 }
