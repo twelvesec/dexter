@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
 		std::cout << "  Using FTP as transport method" << std::endl;
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
 
-		libagent::test_ftp_protocol(FTP_host, FTP_port, FTP_username, FTP_password, useragents, AES_PASSWORD, FTP_workingdir, PoC_KEYWORD, false);
+		libagent::test_ftp_protocol(FTP_host, FTP_port, FTP_username, FTP_password, useragents, AES_PASSWORD, FTP_workingdir, PoC_KEYWORD);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 	}
@@ -177,7 +177,7 @@ int main(int argc, char *argv[]) {
 		std::cout << "  Using FTPs as transport method" << std::endl;
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
 
-		libagent::test_ftp_protocol(FTP_host, FTP_port, FTP_username, FTP_password, useragents, AES_PASSWORD, FTP_workingdir, PoC_KEYWORD, true);
+		libagent::test_ftps_protocol(FTP_host, FTP_port, FTP_username, FTP_password, useragents, AES_PASSWORD, FTP_workingdir, PoC_KEYWORD);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 	}

@@ -36,5 +36,7 @@ namespace libagent {
 	void test_gmail_protocol(std::string gmail_smtp, std::string gmail_username, std::string gmail_password, std::string gmail_name,
 		std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD);
 	void test_ftp_protocol(std::wstring host, WORD port, std::wstring username, std::wstring password, std::set<std::wstring> uagents, std::string aespassword,
-		std::wstring directory, std::string PoC_KEYWORD, bool TLS_CONNECTION);
+		std::wstring directory, std::string PoC_KEYWORD);
+	void test_ftps_protocol(std::wstring host, WORD port, std::wstring username, std::wstring password, std::set<std::wstring> uagents, std::string aespassword,
+		std::wstring directory, std::string PoC_KEYWORD);
 }

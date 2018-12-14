@@ -211,10 +211,10 @@ void libagent::test_gmail_protocol(std::string gmail_smtp, std::string gmail_use
 }
 
 void libagent::test_ftp_protocol(std::wstring host, WORD port, std::wstring username, std::wstring password, std::set<std::wstring> uagents, std::string aespassword,
-	std::wstring directory, std::string PoC_KEYWORD, bool TLS_CONNECTION) {
+	std::wstring directory, std::string PoC_KEYWORD) {
 
 	HINTERNET internet = NULL, connection = NULL;
-	std::wstring protocol = (TLS_CONNECTION ? L"FTPS" : L"FTP");
+	std::wstring protocol = L"FTP";
 	std::wstring useragent = pick_random_useragent(uagents, protocol);
 	std::wcout << L"[" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
 
@@ -226,8 +226,50 @@ void libagent::test_ftp_protocol(std::wstring host, WORD port, std::wstring user
 		connection = libftp::connect(internet, host, port, username, password);
 	}
 
-	if (!TLS_CONNECTION) {
-		std::wcout << "[" << protocol << "] " << "Warning! Transmitting unencrypted data over " << protocol << std::endl;
+	std::wcout << "[" << protocol << "] " << "Warning! Transmitting unencrypted data over " << protocol << std::endl;
+
+	std::wcout << L"[" << protocol << L"] " << L"Setting working directory" << std::endl;
+
+	if (connection != NULL) {
+		result = libftp::set_current_dir(connection, directory.c_str());
+	}
+
+	std::string data = generate_data(PoC_KEYWORD, aespassword, protocol);
+
+	std::wcout << L"[" << protocol << L"] " << L"Writing file" << std::endl;
+
+	if (result) {
+		std::wstring filename(PoC_KEYWORD.begin(), PoC_KEYWORD.end());
+		result = libftp::write_file(connection, filename + L".txt", data);
+	}
+
+	data = "";
+
+	if (connection) {
+		InternetCloseHandle(connection);
+		connection = NULL;
+	}
+
+	if (internet) {
+		InternetCloseHandle(internet);
+		internet = NULL;
+	}
+}
+
+void libagent::test_ftps_protocol(std::wstring host, WORD port, std::wstring username, std::wstring password, std::set<std::wstring> uagents, std::string aespassword,
+	std::wstring directory, std::string PoC_KEYWORD) {
+
+	HINTERNET internet = NULL, connection = NULL;
+	std::wstring protocol = L"FTPS";
+	std::wstring useragent = pick_random_useragent(uagents, protocol);
+	std::wcout << L"[" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
+
+	bool result = false;
+
+	internet = libftp::open(useragent);
+
+	if (internet != NULL) {
+		connection = libftp::connect(internet, host, port, username, password);
 	}
 
 	std::wcout << L"[" << protocol << L"] " << L"Setting working directory" << std::endl;
