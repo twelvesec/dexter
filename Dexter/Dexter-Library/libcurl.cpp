@@ -340,6 +340,27 @@ static std::string _buildMessage(std::string username, std::string name, std::st
 	return message;
 }
 
+static size_t _ftp_read_function_callback(void *ptr, size_t size, size_t nmemb, void *userp)
+{
+	struct WriteThis *upload = (struct WriteThis *)userp;
+	size_t max = size * nmemb;
+
+	if (max < 1)
+		return 0;
+
+	if (upload->sizeleft) {
+		size_t copylen = max;
+		if (copylen > upload->sizeleft)
+			copylen = upload->sizeleft;
+		memcpy(ptr, upload->readptr, copylen);
+		upload->readptr += copylen;
+		upload->sizeleft -= copylen;
+		return copylen;
+	}
+
+	return 0;                          /* no more data left to deliver */
+}
+
 static size_t _read_function_callback(void *ptr, size_t size, size_t nmemb, void *userp)
 {
 	data_size *upload_ctx = (data_size *)userp;
@@ -448,8 +469,7 @@ bool libcurl::send_email(std::string username, std::string password, std::string
 	upload_ctx.data = (char*)message.c_str();
 	upload_ctx.size = message.length();
 
-	if ((curl = curl_easy_init()))
-	{
+	if ((curl = curl_easy_init())) {
 		curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
 		curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
 		curl_easy_setopt(curl, CURLOPT_URL, smtp.c_str());
@@ -485,8 +505,7 @@ std::vector<int> libcurl::get_emails_ids(std::string username, std::string passw
 	download_ctx.data = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 1);
 	download_ctx.size = 0;
 
-	if ((curl = curl_easy_init()))
-	{
+	if ((curl = curl_easy_init())) {
 		curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
 		curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
 		curl_easy_setopt(curl, CURLOPT_URL, imap.c_str());
@@ -519,8 +538,7 @@ bool libcurl::receive_email(MimeMessage **mm, int uid, std::string imap_inbox_ob
 
 	std::string url = _buildString(imap_inbox_obj.c_str(), uid);
 
-	if ((curl = curl_easy_init()))
-	{
+	if ((curl = curl_easy_init())) {
 		curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
 		curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
@@ -541,6 +559,43 @@ bool libcurl::receive_email(MimeMessage **mm, int uid, std::string imap_inbox_ob
 
 		HeapFree(GetProcessHeap(), 0, download_ctx.data);
 		download_ctx.data = NULL;
+	}
+
+	return success;
+}
+
+bool libcurl::ftps_upload(std::string directory, std::string filename, std::string username, std::string password, std::string host, WORD port, std::string uagent, std::string data) {
+
+	CURL *curl;
+	CURLcode res = CURLE_OK;
+	bool success = false;
+	struct WriteThis upload;
+
+	upload.readptr = data.c_str();
+	upload.sizeleft = data.length();
+
+	if ((curl = curl_easy_init())) {
+
+		std::string url = "ftp://" + host + "/" + filename;
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
+		curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
+		curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+		curl_easy_setopt(curl, CURLOPT_READFUNCTION, _ftp_read_function_callback);
+		curl_easy_setopt(curl, CURLOPT_READDATA, &upload);
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L); //debug, turn it off on production
+		curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)upload.sizeleft);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, uagent.c_str());
+		curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
+		curl_easy_setopt(curl, CURLOPT_PORT, port);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+		if ((res = curl_easy_perform(curl)) == CURLE_OK)
+		{
+			success = true;
+		}
+
+		curl_easy_cleanup(curl);
 	}
 
 	return success;

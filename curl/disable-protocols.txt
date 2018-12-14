@@ -6,7 +6,7 @@ Edit lib/config-win32.h
 /* ---------------------------------------------------------------- */
 
 //#define HTTP_ONLY
-#define CURL_DISABLE_FTP disables FTP
+//#define CURL_DISABLE_FTP disables FTP
 #define CURL_DISABLE_LDAP disables LDAP
 #define CURL_DISABLE_TELNET disables TELNET
 #define CURL_DISABLE_DICT disables DICT

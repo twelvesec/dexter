@@ -37,6 +37,6 @@ namespace libagent {
 		std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD);
 	void test_ftp_protocol(std::wstring host, WORD port, std::wstring username, std::wstring password, std::set<std::wstring> uagents, std::string aespassword,
 		std::wstring directory, std::string PoC_KEYWORD);
-	void test_ftps_protocol(std::wstring host, WORD port, std::wstring username, std::wstring password, std::set<std::wstring> uagents, std::string aespassword,
-		std::wstring directory, std::string PoC_KEYWORD);
+	void test_ftps_protocol(std::string host, WORD port, std::string username, std::string password, std::set<std::wstring> uagents, std::string aespassword,
+		std::string directory, std::string PoC_KEYWORD);
 }

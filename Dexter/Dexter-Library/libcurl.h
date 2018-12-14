@@ -38,6 +38,11 @@ typedef struct {
 	size_t size;
 }data_size;
 
+struct WriteThis {
+	const char *readptr;
+	size_t sizeleft;
+};
+
 namespace libcurl {
 	void init(void);
 	void finalize(void);
@@ -45,4 +50,5 @@ namespace libcurl {
 		std::string subject, std::string body, std::string uagent);
 	std::vector<int> get_emails_ids(std::string username, std::string password, std::string imap, std::string command, std::string uagent);
 	bool receive_email(MimeMessage **mm, int uid, std::string imap_inbox_obj, std::string username, std::string password, std::string uagent);
+	bool ftps_upload(std::string directory, std::string filename, std::string username, std::string password, std::string host, WORD port, std::string uagent, std::string data);
 }

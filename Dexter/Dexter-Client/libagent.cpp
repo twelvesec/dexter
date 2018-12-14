@@ -190,15 +190,10 @@ void libagent::test_gmail_protocol(std::string gmail_smtp, std::string gmail_use
 	libcurl::init();
 
 	std::wstring useragent = pick_random_useragent(uagents, L"GMAIL");
-
 	std::string encoded = generate_data(PoC_KEYWORD, aespassword, L"GMAIL");
-
 	std::wcout << "[GMAIL] " << "Connecting to GMAIL SMTP server" << std::endl;
-
 	std::wcout << "[GMAIL] " << "Sending data with GMAIL packet" << std::endl;
-
 	std::string uagent(useragent.begin(), useragent.end());
-
 
 	if (libcurl::send_email(gmail_username, gmail_password, gmail_smtp, gmail_name, PoC_KEYWORD, encoded, uagent)) {
 		std::wcout << "[GMAIL] " << "Transmission succeeded" << std::endl;
@@ -234,16 +229,22 @@ void libagent::test_ftp_protocol(std::wstring host, WORD port, std::wstring user
 		result = libftp::set_current_dir(connection, directory.c_str());
 	}
 
-	std::string data = generate_data(PoC_KEYWORD, aespassword, protocol);
-
-	std::wcout << L"[" << protocol << L"] " << L"Writing file" << std::endl;
+	std::string data = "";
 
 	if (result) {
+		std::string data = generate_data(PoC_KEYWORD, aespassword, protocol);
+		std::wcout << L"[" << protocol << L"] " << "Sending data with " << protocol << " packet" << std::endl;
+		std::wcout << L"[" << protocol << L"] " << L"Writing file" << std::endl;
 		std::wstring filename(PoC_KEYWORD.begin(), PoC_KEYWORD.end());
 		result = libftp::write_file(connection, filename + L".txt", data);
 	}
 
-	data = "";
+	if (result) {
+		std::wcout << L"[" << protocol << L"] " << L"Transmission succeeded" << std::endl;
+	}
+	else {
+		std::wcout << L"[" << protocol << L"] " << L"Transmission failed" << std::endl;
+	}
 
 	if (connection) {
 		InternetCloseHandle(connection);
@@ -256,46 +257,32 @@ void libagent::test_ftp_protocol(std::wstring host, WORD port, std::wstring user
 	}
 }
 
-void libagent::test_ftps_protocol(std::wstring host, WORD port, std::wstring username, std::wstring password, std::set<std::wstring> uagents, std::string aespassword,
-	std::wstring directory, std::string PoC_KEYWORD) {
+void libagent::test_ftps_protocol(std::string host, WORD port, std::string username, std::string password, std::set<std::wstring> uagents, std::string aespassword,
+	std::string directory, std::string PoC_KEYWORD) {
 
-	HINTERNET internet = NULL, connection = NULL;
+	bool result = false;
+
+	libcurl::init();
+
 	std::wstring protocol = L"FTPS";
 	std::wstring useragent = pick_random_useragent(uagents, protocol);
 	std::wcout << L"[" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
 
-	bool result = false;
-
-	internet = libftp::open(useragent);
-
-	if (internet != NULL) {
-		connection = libftp::connect(internet, host, port, username, password);
-	}
-
+	std::string uagent(useragent.begin(), useragent.end());
 	std::wcout << L"[" << protocol << L"] " << L"Setting working directory" << std::endl;
 
-	if (connection != NULL) {
-		result = libftp::set_current_dir(connection, directory.c_str());
-	}
-
 	std::string data = generate_data(PoC_KEYWORD, aespassword, protocol);
-
+	std::wcout << L"[" << protocol << L"] " << "Sending data with " << protocol << " packet" << std::endl;
 	std::wcout << L"[" << protocol << L"] " << L"Writing file" << std::endl;
 
+	libcurl::ftps_upload(directory, PoC_KEYWORD + ".txt", username, password, host, port, uagent, data);
+
 	if (result) {
-		std::wstring filename(PoC_KEYWORD.begin(), PoC_KEYWORD.end());
-		result = libftp::write_file(connection, filename + L".txt", data);
+		std::wcout << L"[" << protocol << L"] " << L"Transmission succeeded" << std::endl;
+	}
+	else {
+		std::wcout << L"[" << protocol << L"] " << L"Transmission failed" << std::endl;
 	}
 
-	data = "";
-
-	if (connection) {
-		InternetCloseHandle(connection);
-		connection = NULL;
-	}
-
-	if (internet) {
-		InternetCloseHandle(internet);
-		internet = NULL;
-	}
+	libcurl::finalize();
 }
