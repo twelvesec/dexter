@@ -51,6 +51,6 @@
 		"port": 21,
 		"username": "user",
 		"password": "xxxxxxxxxxxxxxxxxxxxx",
-		"working_dir": "/home/user"
+		"working_dir": ""
 	}
 }

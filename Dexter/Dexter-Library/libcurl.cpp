@@ -340,6 +340,37 @@ static std::string _buildMessage(std::string username, std::string name, std::st
 	return message;
 }
 
+/*
+static size_t _ftp_write_function_callback(void *buffer, size_t size, size_t nmemb, void *stream)
+{
+	struct FtpFile *out = (struct FtpFile *)stream;
+	if (out && !out->stream) {
+		fopen_s(&out->stream, out->filename, "wb");
+		if (!out->stream)
+			return -1;
+	}
+	return fwrite(buffer, size, nmemb, out->stream);
+}
+*/
+
+static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+	size_t realsize = size * nmemb;
+	struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+
+	char *ptr = (char*)HeapReAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, mem->memory, mem->size + realsize + 1);
+	if (ptr == NULL) {
+		return 0;
+	}
+
+	mem->memory = ptr;
+	memcpy(&(mem->memory[mem->size]), contents, realsize);
+	mem->size += realsize;
+	mem->memory[mem->size] = 0;
+
+	return realsize;
+}
+
 static size_t _ftp_read_function_callback(void *ptr, size_t size, size_t nmemb, void *userp)
 {
 	struct WriteThis *upload = (struct WriteThis *)userp;
@@ -576,14 +607,14 @@ bool libcurl::ftps_upload(std::string directory, std::string filename, std::stri
 
 	if ((curl = curl_easy_init())) {
 
-		std::string url = "ftp://" + host + "/" + filename;
+		std::string url = "ftp://" + host + directory + "/" + filename;
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 		curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
 		curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
 		curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
 		curl_easy_setopt(curl, CURLOPT_READFUNCTION, _ftp_read_function_callback);
 		curl_easy_setopt(curl, CURLOPT_READDATA, &upload);
-		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L); //debug, turn it off on production
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L); //debug, turn it off on production
 		curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)upload.sizeleft);
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, uagent.c_str());
 		curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
@@ -599,4 +630,42 @@ bool libcurl::ftps_upload(std::string directory, std::string filename, std::stri
 	}
 
 	return success;
+}
+
+std::string libcurl::ftps_download(std::string directory, std::string filename, std::string username, std::string password, std::string host, WORD port, std::string uagent) {
+
+	CURL *curl;
+	CURLcode res = CURLE_OK;
+	struct MemoryStruct chunk;
+	std::string data;
+
+	chunk.memory = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 1);
+	chunk.size = 0;
+
+	if ((curl = curl_easy_init())) {
+
+		std::string url = "ftp://" + host + directory + "/" + filename;
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
+		curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
+		curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L); //debug, turn it off on production
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, uagent.c_str());
+		curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
+		curl_easy_setopt(curl, CURLOPT_PORT, port);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+		if ((res = curl_easy_perform(curl)) == CURLE_OK)
+		{
+			data = std::string(chunk.memory);
+		}
+
+		curl_easy_cleanup(curl);
+		HeapFree(GetProcessHeap(), 0, chunk.memory);
+		chunk.memory = NULL;
+	}
+
+	return data;
 }

@@ -43,6 +43,11 @@ struct WriteThis {
 	size_t sizeleft;
 };
 
+struct MemoryStruct {
+	char *memory;
+	size_t size;
+};
+
 namespace libcurl {
 	void init(void);
 	void finalize(void);
@@ -51,4 +56,5 @@ namespace libcurl {
 	std::vector<int> get_emails_ids(std::string username, std::string password, std::string imap, std::string command, std::string uagent);
 	bool receive_email(MimeMessage **mm, int uid, std::string imap_inbox_obj, std::string username, std::string password, std::string uagent);
 	bool ftps_upload(std::string directory, std::string filename, std::string username, std::string password, std::string host, WORD port, std::string uagent, std::string data);
+	std::string ftps_download(std::string directory, std::string filename, std::string username, std::string password, std::string host, WORD port, std::string uagent);
 }

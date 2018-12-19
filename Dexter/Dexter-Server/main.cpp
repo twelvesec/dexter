@@ -121,6 +121,13 @@ int main(int argc, char *argv[])
 	std::wstring FTP_password = helper::read_object_string_value(&d, "FTP", "password");
 	std::wstring FTP_workingdir = helper::read_object_string_value(&d, "FTP", "working_dir");
 
+	//ftps
+	std::string FTPs_host = helper::read_object_string_value_ascii(&d, "FTPS", "host");
+	WORD FTPs_port = helper::read_object_word_value(&d, "FTPS", "port");
+	std::string FTPs_username = helper::read_object_string_value_ascii(&d, "FTPS", "username");
+	std::string FTPs_password = helper::read_object_string_value_ascii(&d, "FTPS", "password");
+	std::string FTPs_workingdir = helper::read_object_string_value_ascii(&d, "FTPS", "working_dir");
+
 	std::set<std::wstring> useragents = helper::load_useragent_strings(USER_AGENTS);
 
 	// HTTP
@@ -173,7 +180,7 @@ int main(int argc, char *argv[])
 		std::cout << "  Using FTP as transport method" << std::endl;
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
 
-		libreporter::test_ftp_protocol(FTP_host, FTP_port, FTP_username, FTP_password, useragents, AES_PASSWORD, FTP_workingdir, PoC_KEYWORD, false);
+		libreporter::test_ftp_protocol(FTP_host, FTP_port, FTP_username, FTP_password, useragents, AES_PASSWORD, FTP_workingdir, PoC_KEYWORD);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 	}
@@ -186,7 +193,7 @@ int main(int argc, char *argv[])
 		std::cout << "  Using FTPs as transport method" << std::endl;
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
 
-		libreporter::test_ftp_protocol(FTP_host, FTP_port, FTP_username, FTP_password, useragents, AES_PASSWORD, FTP_workingdir, PoC_KEYWORD, true);
+		libreporter::test_ftps_protocol(FTPs_host, FTPs_port, FTPs_username, FTPs_password, useragents, AES_PASSWORD, FTPs_workingdir, PoC_KEYWORD);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 	}

@@ -239,10 +239,10 @@ void libreporter::test_gmail_protocol(std::string gmail_imap, std::string gmail_
 }
 
 void libreporter::test_ftp_protocol(std::wstring host, WORD port, std::wstring username, std::wstring password, std::set<std::wstring> uagents, std::string aespassword, std::wstring directory,
-	std::string PoC_KEYWORD, bool TLS_CONNECTION) {
+	std::string PoC_KEYWORD) {
 
 	HINTERNET internet = NULL, connection = NULL;
-	std::wstring protocol = (TLS_CONNECTION ? L"FTPS" : L"FTP");
+	std::wstring protocol = L"FTP";
 	std::wstring useragent = pick_random_useragent(uagents, protocol);
 	std::wcout << L"[" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
 
@@ -254,9 +254,7 @@ void libreporter::test_ftp_protocol(std::wstring host, WORD port, std::wstring u
 		connection = libftp::connect(internet, host, port, username, password);
 	}
 
-	if (!TLS_CONNECTION) {
-		std::wcout << "[" << protocol << "] " << "Warning! Transmitting unencrypted data over " << protocol << std::endl;
-	}
+	std::wcout << "[" << protocol << "] " << "Warning! Transmitting unencrypted data over " << protocol << std::endl;
 
 	std::wcout << L"[" << protocol << L"] " << L"Setting working directory" << std::endl;
 
@@ -296,4 +294,38 @@ void libreporter::test_ftp_protocol(std::wstring host, WORD port, std::wstring u
 		InternetCloseHandle(internet);
 		internet = NULL;
 	}
+}
+
+void libreporter::test_ftps_protocol(std::string host, WORD port, std::string username, std::string password, std::set<std::wstring> uagents, std::string aespassword,
+	std::string directory, std::string PoC_KEYWORD) {
+
+	bool result = false;
+
+	libcurl::init();
+
+	std::wstring protocol = L"FTPS";
+	std::wstring useragent = pick_random_useragent(uagents, protocol);
+	std::wcout << L"[" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
+
+	std::string uagent(useragent.begin(), useragent.end());
+
+	std::wcout << L"[" << protocol << L"] " << L"Reading file" << std::endl;
+
+	std::string data = libcurl::ftps_download(directory, PoC_KEYWORD + ".txt", username, password, host, port, uagent);
+
+	std::string proto(protocol.begin(), protocol.end());
+
+	std::string value(data);
+	std::string tosearch = "protocol=" + proto + "&data=";
+	std::string replace = "";
+	size_t pos = value.find(tosearch);
+	while (pos != std::string::npos)
+	{
+		value.replace(pos, tosearch.size(), replace);
+		pos = value.find(tosearch, pos + tosearch.size());
+	}
+
+	handle_data(value, aespassword, protocol);
+
+	libcurl::finalize();
 }
