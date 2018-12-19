@@ -195,7 +195,7 @@ void libagent::test_gmail_protocol(std::string gmail_smtp, std::string gmail_use
 	std::wcout << "[GMAIL] " << "Sending data with GMAIL packet" << std::endl;
 	std::string uagent(useragent.begin(), useragent.end());
 
-	if (libcurl::send_email(gmail_username, gmail_password, gmail_smtp, gmail_name, PoC_KEYWORD, encoded, uagent)) {
+	if (libcurl::send_email(gmail_username, gmail_password, gmail_smtp, gmail_name, PoC_KEYWORD, encoded, uagent, true, false)) {
 		std::wcout << "[GMAIL] " << "Transmission succeeded" << std::endl;
 	}
 	else {
@@ -258,7 +258,7 @@ void libagent::test_ftp_protocol(std::wstring host, WORD port, std::wstring user
 }
 
 void libagent::test_ftps_protocol(std::string host, WORD port, std::string username, std::string password, std::set<std::wstring> uagents, std::string aespassword,
-	std::string directory, std::string PoC_KEYWORD) {
+	std::string directory, std::string PoC_KEYWORD, bool ignore_unknown_ca) {
 
 	bool result = false;
 
@@ -275,13 +275,38 @@ void libagent::test_ftps_protocol(std::string host, WORD port, std::string usern
 	std::wcout << L"[" << protocol << L"] " << "Sending data with " << protocol << " packet" << std::endl;
 	std::wcout << L"[" << protocol << L"] " << L"Writing file" << std::endl;
 
-	libcurl::ftps_upload(directory, PoC_KEYWORD + ".txt", username, password, host, port, uagent, data);
+	libcurl::ftps_upload(directory, PoC_KEYWORD + ".txt", username, password, host, port, uagent, data, ignore_unknown_ca);
 
 	if (result) {
 		std::wcout << L"[" << protocol << L"] " << L"Transmission succeeded" << std::endl;
 	}
 	else {
 		std::wcout << L"[" << protocol << L"] " << L"Transmission failed" << std::endl;
+	}
+
+	libcurl::finalize();
+}
+
+void libagent::test_smtp_protocol(std::string host, std::string username, std::string password, std::string name,
+	std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD, bool OverTls, bool ignore_unknown_ca) {
+
+	libcurl::init();
+	std::wstring protocol = (OverTls ? L"SMTPS" : L"SMTP");
+
+	std::wstring useragent = pick_random_useragent(uagents, protocol);
+	std::string encoded = generate_data(PoC_KEYWORD, aespassword, protocol);
+	std::wcout << "[" << protocol << "] " << "Connecting to " << protocol << " server" << std::endl;
+	if (!OverTls) {
+		std::wcout << "[" << protocol << "] " << "Warning! Transmitting unencrypted data over " << protocol << std::endl;
+	}
+	std::wcout << "[" << protocol << "] " << "Sending data with " << protocol << " packet" << std::endl;
+	std::string uagent(useragent.begin(), useragent.end());
+
+	if (libcurl::send_email(username, password, host, name, PoC_KEYWORD, encoded, uagent, OverTls, ignore_unknown_ca)) {
+		std::wcout << "[" << protocol << "] " << "Transmission succeeded" << std::endl;
+	}
+	else {
+		std::wcout << "[" << protocol << "] " << "Transmission failed" << std::endl;
 	}
 
 	libcurl::finalize();

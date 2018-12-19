@@ -128,6 +128,22 @@ int main(int argc, char *argv[])
 	std::string FTPs_password = helper::read_object_string_value_ascii(&d, "FTPS", "password");
 	std::string FTPs_workingdir = helper::read_object_string_value_ascii(&d, "FTPS", "working_dir");
 
+	//smtp
+	std::string SMTP_smtp = helper::read_object_string_value_ascii(&d, "SMTP", "smtp");
+	std::string SMTP_imap = helper::read_object_string_value_ascii(&d, "SMTP", "imap_inbox");
+	std::string SMTP_imap_inbox_obj = helper::read_object_string_value_ascii(&d, "SMTP", "imap_inbox_mail");
+	std::string SMTP_username = helper::read_object_string_value_ascii(&d, "SMTP", "username");
+	std::string SMTP_password = helper::read_object_string_value_ascii(&d, "SMTP", "password");
+	std::string SMTP_name = helper::read_object_string_value_ascii(&d, "SMTP", "name");
+
+	//smtps
+	std::string SMTPs_smtp = helper::read_object_string_value_ascii(&d, "SMTPS", "smtp");
+	std::string SMTPs_imap = helper::read_object_string_value_ascii(&d, "SMTPS", "imap_inbox");
+	std::string SMTPs_imap_inbox_obj = helper::read_object_string_value_ascii(&d, "SMTPS", "imap_inbox_mail");
+	std::string SMTPs_username = helper::read_object_string_value_ascii(&d, "SMTPS", "username");
+	std::string SMTPs_password = helper::read_object_string_value_ascii(&d, "SMTPS", "password");
+	std::string SMTPs_name = helper::read_object_string_value_ascii(&d, "SMTPS", "name");
+
 	std::set<std::wstring> useragents = helper::load_useragent_strings(USER_AGENTS);
 
 	// HTTP
@@ -193,7 +209,33 @@ int main(int argc, char *argv[])
 		std::cout << "  Using FTPs as transport method" << std::endl;
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
 
-		libreporter::test_ftps_protocol(FTPs_host, FTPs_port, FTPs_username, FTPs_password, useragents, AES_PASSWORD, FTPs_workingdir, PoC_KEYWORD);
+		libreporter::test_ftps_protocol(FTPs_host, FTPs_port, FTPs_username, FTPs_password, useragents, AES_PASSWORD, FTPs_workingdir, PoC_KEYWORD, IGNORE_CERT_UNKNOWN_CA);
+
+		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
+	}
+
+	Sleep(1000);
+
+	// SMTP
+	if (PROTOCOL == L"SMTP" || PROTOCOL == L"ALL") {
+		std::cout << "-------------------------------------------" << std::endl;
+		std::cout << "  Using SMTP as transport method" << std::endl;
+		std::cout << "-------------------------------------------" << std::endl << std::endl;
+
+		libreporter::test_smtp_protocol(SMTP_imap, SMTP_imap_inbox_obj, SMTP_username, SMTP_password, SMTP_name, useragents, AES_PASSWORD, PoC_KEYWORD, false, IGNORE_CERT_UNKNOWN_CA);
+
+		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
+	}
+
+	Sleep(1000);
+
+	// SMTPS
+	if (PROTOCOL == L"SMTPS" || PROTOCOL == L"ALL") {
+		std::cout << "-------------------------------------------" << std::endl;
+		std::cout << "  Using SMTPs as transport method" << std::endl;
+		std::cout << "-------------------------------------------" << std::endl << std::endl;
+
+		libreporter::test_smtp_protocol(SMTPs_imap, SMTPs_imap_inbox_obj, SMTPs_username, SMTPs_password, SMTPs_name, useragents, AES_PASSWORD, PoC_KEYWORD, true, IGNORE_CERT_UNKNOWN_CA);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 	}

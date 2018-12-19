@@ -439,31 +439,18 @@ static size_t _write_function_callback(void *contents, size_t size, size_t nmemb
 }
 
 static std::vector<int> _extractEmailsIds(const char *downloadData) {
-	//char **splittedString = { 0 };
 	size_t carriageReturnIndex = 0;
 	char *data = 0;
-	//size_t total = -1;
 	int i = 0;
-	//int splitted = 0;
-	//int j = 0;
 	std::vector<std::string> tokens;
 	std::vector<int> ids;
 
-	//remove carriage return
 	carriageReturnIndex = strcspn(downloadData, "\r\n");
 	if (carriageReturnIndex > 0 && ((data = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, carriageReturnIndex + 1)) != NULL)) {
 
 		if (strncpy_s(data, carriageReturnIndex + 1, downloadData, carriageReturnIndex) == 0) {
-
-			//split string to get email ids
-			//if ((splittedString = helper::split_string(&splitted, data, (DWORD)carriageReturnIndex, " ")) != NULL) {
 			tokens = helper::split_string(std::string(data), ' ');
-			//if ((splitted = helper::split_string(data, (DWORD)carriageReturnIndex, " ", &splittedString)) != -1) {
-
 			if (tokens.size() > 2) {
-				//total = tokens.size() - 2;
-				//get ids
-					//ignore "* SEARCH"
 				for (i = 2; i < tokens.size(); i++) {
 					ids.push_back(atoi(tokens[i].c_str()));
 				}
@@ -487,7 +474,7 @@ void libcurl::finalize(void) {
 }
 
 bool libcurl::send_email(std::string username, std::string password, std::string smtp, std::string name,
-	std::string subject, std::string body, std::string uagent) {
+	std::string subject, std::string body, std::string uagent, bool OverTls, bool ignore_unknown_ca) {
 	std::string message;
 	CURL *curl;
 	CURLcode res = CURLE_OK;
@@ -504,7 +491,9 @@ bool libcurl::send_email(std::string username, std::string password, std::string
 		curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
 		curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
 		curl_easy_setopt(curl, CURLOPT_URL, smtp.c_str());
-		curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
+		if (OverTls) {
+			curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
+		}
 		curl_easy_setopt(curl, CURLOPT_MAIL_FROM, username.c_str());
 		recipients = curl_slist_append(recipients, username.c_str());
 		curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
@@ -513,6 +502,10 @@ bool libcurl::send_email(std::string username, std::string password, std::string
 		curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L); //debug, turn it off on production
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, uagent.c_str());
+		if (ignore_unknown_ca) {
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+		}
 
 		if ((res = curl_easy_perform(curl)) == CURLE_OK)
 		{
@@ -526,7 +519,7 @@ bool libcurl::send_email(std::string username, std::string password, std::string
 	return success;
 }
 
-std::vector<int> libcurl::get_emails_ids(std::string username, std::string password, std::string imap, std::string command, std::string uagent) {
+std::vector<int> libcurl::get_emails_ids(std::string username, std::string password, std::string imap, std::string command, std::string uagent, bool ignore_unknown_ca) {
 
 	CURL *curl;
 	CURLcode res = CURLE_OK;
@@ -545,6 +538,10 @@ std::vector<int> libcurl::get_emails_ids(std::string username, std::string passw
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, _write_function_callback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &download_ctx);
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, uagent.c_str());
+		if (ignore_unknown_ca) {
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+		}
 
 		if ((res = curl_easy_perform(curl)) == CURLE_OK)
 		{
@@ -557,7 +554,7 @@ std::vector<int> libcurl::get_emails_ids(std::string username, std::string passw
 	return ids;
 }
 
-bool libcurl::receive_email(MimeMessage **mm, int uid, std::string imap_inbox_obj, std::string username, std::string password, std::string uagent) {
+bool libcurl::receive_email(MimeMessage **mm, int uid, std::string imap_inbox_obj, std::string username, std::string password, std::string uagent, bool ignore_unknown_ca) {
 	bool success = false;
 
 	CURL *curl;
@@ -577,6 +574,10 @@ bool libcurl::receive_email(MimeMessage **mm, int uid, std::string imap_inbox_ob
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, _write_function_callback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &download_ctx);
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, uagent.c_str());
+		if (ignore_unknown_ca) {
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+		}
 
 		if ((res = curl_easy_perform(curl)) == CURLE_OK)
 		{
@@ -595,7 +596,8 @@ bool libcurl::receive_email(MimeMessage **mm, int uid, std::string imap_inbox_ob
 	return success;
 }
 
-bool libcurl::ftps_upload(std::string directory, std::string filename, std::string username, std::string password, std::string host, WORD port, std::string uagent, std::string data) {
+bool libcurl::ftps_upload(std::string directory, std::string filename, std::string username, std::string password, std::string host,
+	WORD port, std::string uagent, std::string data, bool ignore_unknown_ca) {
 
 	CURL *curl;
 	CURLcode res = CURLE_OK;
@@ -619,7 +621,10 @@ bool libcurl::ftps_upload(std::string directory, std::string filename, std::stri
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, uagent.c_str());
 		curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
 		curl_easy_setopt(curl, CURLOPT_PORT, port);
-		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+		if (ignore_unknown_ca) {
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+		}
 
 		if ((res = curl_easy_perform(curl)) == CURLE_OK)
 		{
@@ -632,7 +637,8 @@ bool libcurl::ftps_upload(std::string directory, std::string filename, std::stri
 	return success;
 }
 
-std::string libcurl::ftps_download(std::string directory, std::string filename, std::string username, std::string password, std::string host, WORD port, std::string uagent) {
+std::string libcurl::ftps_download(std::string directory, std::string filename, std::string username, std::string password, std::string host,
+	WORD port, std::string uagent, bool ignore_unknown_ca) {
 
 	CURL *curl;
 	CURLcode res = CURLE_OK;
@@ -655,7 +661,10 @@ std::string libcurl::ftps_download(std::string directory, std::string filename, 
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, uagent.c_str());
 		curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
 		curl_easy_setopt(curl, CURLOPT_PORT, port);
-		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+		if (ignore_unknown_ca) {
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+		}
 
 		if ((res = curl_easy_perform(curl)) == CURLE_OK)
 		{

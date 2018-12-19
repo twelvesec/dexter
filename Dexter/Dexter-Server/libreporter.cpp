@@ -214,12 +214,12 @@ void libreporter::test_gmail_protocol(std::string gmail_imap, std::string gmail_
 
 	std::wcout << "[GMAIL] " << "Retrieving emails IDs" << std::endl;
 
-	ids = libcurl::get_emails_ids(gmail_username, gmail_password, gmail_imap, "UID SEARCH (SUBJECT '" + PoC_KEYWORD + "')", uagent);
+	ids = libcurl::get_emails_ids(gmail_username, gmail_password, gmail_imap, "UID SEARCH (SUBJECT '" + PoC_KEYWORD + "')", uagent, false);
 
 	std::wcout << "[GMAIL] " << "Retrieving emails" << std::endl;
 
 	for (i = 0; i < ids.size(); i++) {
-		if (libcurl::receive_email(&m, ids[i], gmail_imap_inbox_obj, gmail_username, gmail_password, uagent)) {
+		if (libcurl::receive_email(&m, ids[i], gmail_imap_inbox_obj, gmail_username, gmail_password, uagent, false)) {
 
 			std::string value(m->body);
 			std::string tosearch = "protocol=GMAIL&data=";
@@ -297,7 +297,7 @@ void libreporter::test_ftp_protocol(std::wstring host, WORD port, std::wstring u
 }
 
 void libreporter::test_ftps_protocol(std::string host, WORD port, std::string username, std::string password, std::set<std::wstring> uagents, std::string aespassword,
-	std::string directory, std::string PoC_KEYWORD) {
+	std::string directory, std::string PoC_KEYWORD, bool ignore_unknown_ca) {
 
 	bool result = false;
 
@@ -311,7 +311,7 @@ void libreporter::test_ftps_protocol(std::string host, WORD port, std::string us
 
 	std::wcout << L"[" << protocol << L"] " << L"Reading file" << std::endl;
 
-	std::string data = libcurl::ftps_download(directory, PoC_KEYWORD + ".txt", username, password, host, port, uagent);
+	std::string data = libcurl::ftps_download(directory, PoC_KEYWORD + ".txt", username, password, host, port, uagent, ignore_unknown_ca);
 
 	std::string proto(protocol.begin(), protocol.end());
 
@@ -326,6 +326,56 @@ void libreporter::test_ftps_protocol(std::string host, WORD port, std::string us
 	}
 
 	handle_data(value, aespassword, protocol);
+
+	libcurl::finalize();
+}
+
+void libreporter::test_smtp_protocol(std::string imap, std::string imap_inbox_obj, std::string username, std::string password, std::string name,
+	std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD, bool OverTls, bool ignore_unknown_ca) {
+
+	int total = 0;
+	int i = 0;
+	MimeMessage *m = 0;
+	std::vector<int> ids;
+
+	libcurl::init();
+	std::wstring protocol = (OverTls ? L"SMTPS" : L"SMTP");
+
+	std::wstring useragent = pick_random_useragent(uagents, protocol);
+
+	std::wcout << "[" << protocol << "] " << "Connecting to " << protocol << " server" << std::endl;
+
+	std::wcout << "[" << protocol << "] " << "Sending data with " << protocol << " packet" << std::endl;
+
+	std::string uagent(useragent.begin(), useragent.end());
+
+	std::wcout << "[" << protocol << "] " << "Retrieving emails IDs" << std::endl;
+
+	ids = libcurl::get_emails_ids(username, password, imap, "UID SEARCH SUBJECT \"" + PoC_KEYWORD + "\"", uagent, ignore_unknown_ca);
+
+	std::wcout << "[" << protocol << "] " << "Retrieving emails" << std::endl;
+
+	bool found = false;
+	for (i = 0; i < ids.size(); i++) {
+		if (libcurl::receive_email(&m, ids[i], imap_inbox_obj, username, password, uagent, ignore_unknown_ca)) {
+
+			std::string value(m->body);
+			std::string proto(protocol.begin(), protocol.end());
+			std::string tosearch = "protocol=" + proto + "&data=";
+			std::string replace = "";
+			size_t pos = value.find(tosearch);
+			while (pos != std::string::npos)
+			{
+				found = true;
+				value.replace(pos, tosearch.size(), replace);
+				pos = value.find(tosearch, pos + tosearch.size());
+			}
+
+			if (found) {
+				handle_data(value, aespassword, protocol);
+			}
+		}
+	}
 
 	libcurl::finalize();
 }
