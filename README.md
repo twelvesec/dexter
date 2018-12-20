@@ -17,15 +17,17 @@ Written by:
 * Windows 10 x64
 * Microsoft Visual C++ 2017 Redistributable (x64)
 * [libcurl x64](https://curl.haxx.se/libcurl/)
+* [libgit x64](https://libgit2.org/)
 
 ---
 
-### Protocols - Servers
+### Transport Methods - Protocols - Servers
 
 * HTTP/s - LAMP + Laravel [more..](http-server/README.md)
 * SMTPs - GMAIL server
 * FTP/s - vsftpd [more..](ftp-server/README.md)
 * SMTP/s - Postfix server
+* Github - libgit [more..](libgit/README.md)
 
 ---
 
