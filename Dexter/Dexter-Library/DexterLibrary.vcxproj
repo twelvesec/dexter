@@ -24,6 +24,7 @@
     <ClInclude Include="libcurl.h" />
     <ClInclude Include="libencode.h" />
     <ClInclude Include="libftp.h" />
+    <ClInclude Include="libgit.h" />
     <ClInclude Include="libhash.h" />
     <ClInclude Include="libhttp.h" />
     <ClInclude Include="libmime.h" />
@@ -35,6 +36,7 @@
     <ClCompile Include="libcurl.cpp" />
     <ClCompile Include="libencode.cpp" />
     <ClCompile Include="libftp.cpp" />
+    <ClCompile Include="libgit.cpp" />
     <ClCompile Include="libhash.cpp" />
     <ClCompile Include="libhttp.cpp" />
     <ClCompile Include="libmime.cpp" />
@@ -113,15 +115,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\curl\libcurl-vc15-x64-debug-static-sspi-winssl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\curl\libcurl-vc15-x64-debug-static-sspi-winssl\include;$(SolutionDir)..\libgit2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>libcurl_a_debug.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\curl\libcurl-vc15-x64-debug-static-sspi-winssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcurl_a_debug.lib;git2.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\curl\libcurl-vc15-x64-debug-static-sspi-winssl\lib;$(SolutionDir)..\libgit2\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -174,7 +176,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\curl\libcurl-vc15-x64-release-static-sspi-winssl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\libgit2\include;$(SolutionDir)..\curl\libcurl-vc15-x64-release-static-sspi-winssl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -183,8 +185,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>libcurl_a.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\curl\libcurl-vc15-x64-release-static-sspi-winssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcurl_a.lib;git2.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\curl\libcurl-vc15-x64-release-static-sspi-winssl\lib;$(SolutionDir)..\libgit2\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
