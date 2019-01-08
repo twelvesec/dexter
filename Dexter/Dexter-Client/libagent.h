@@ -41,4 +41,5 @@ namespace libagent {
 		std::string directory, std::string PoC_KEYWORD, bool ignore_unknown_ca);
 	void test_smtp_protocol(std::string smtp, std::string username, std::string password, std::string name,
 		std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD, bool OverTls, bool ignore_unknown_ca);
+	void test_git_protocol(std::string host, std::string username, std::string password, std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD);
 }

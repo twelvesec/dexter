@@ -340,19 +340,6 @@ static std::string _buildMessage(std::string username, std::string name, std::st
 	return message;
 }
 
-/*
-static size_t _ftp_write_function_callback(void *buffer, size_t size, size_t nmemb, void *stream)
-{
-	struct FtpFile *out = (struct FtpFile *)stream;
-	if (out && !out->stream) {
-		fopen_s(&out->stream, out->filename, "wb");
-		if (!out->stream)
-			return -1;
-	}
-	return fwrite(buffer, size, nmemb, out->stream);
-}
-*/
-
 static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
 	size_t realsize = size * nmemb;

@@ -131,6 +131,12 @@ int main(int argc, char *argv[]) {
 	std::string SMTPs_password = helper::read_object_string_value_ascii(&d, "SMTPS", "password");
 	std::string SMTPs_name = helper::read_object_string_value_ascii(&d, "SMTPS", "name");
 
+
+	//git
+	std::string GIT_host = helper::read_object_string_value_ascii(&d, "GIT", "host");
+	std::string GIT_username = helper::read_object_string_value_ascii(&d, "GIT", "username");
+	std::string GIT_password = helper::read_object_string_value_ascii(&d, "GIT", "password");
+
 	std::set<std::wstring> useragents = helper::load_useragent_strings(USER_AGENTS);
 
 	// HTTP
@@ -144,10 +150,9 @@ int main(int argc, char *argv[]) {
 			PoC_KEYWORD, IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, false);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
+
+		Sleep(1000);
 	}
-
-	Sleep(1000);
-
 
 	// HTTPS
 	if (PROTOCOL == L"HTTPS" || PROTOCOL == L"ALL") {
@@ -160,9 +165,9 @@ int main(int argc, char *argv[]) {
 			IGNORE_CERT_UNKNOWN_CA, IGNORE_CERT_DATE_INVALID, true);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
-	}
 
-	Sleep(1000);
+		Sleep(1000);
+	}
 
 	// SMTPS - GMAIL
 	if (PROTOCOL == L"GMAIL" || PROTOCOL == L"ALL") {
@@ -173,9 +178,9 @@ int main(int argc, char *argv[]) {
 		libagent::test_gmail_protocol(Gmail_smtp, Gmail_username, Gmail_password, Gmail_name, useragents, AES_PASSWORD, PoC_KEYWORD);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
-	}
 
-	Sleep(1000);
+		Sleep(1000);
+	}
 
 	// FTP
 	if (PROTOCOL == L"FTP" || PROTOCOL == L"ALL") {
@@ -186,9 +191,9 @@ int main(int argc, char *argv[]) {
 		libagent::test_ftp_protocol(FTP_host, FTP_port, FTP_username, FTP_password, useragents, AES_PASSWORD, FTP_workingdir, PoC_KEYWORD);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
-	}
 
-	Sleep(1000);
+		Sleep(1000);
+	}
 
 	// FTPS
 	if (PROTOCOL == L"FTPS" || PROTOCOL == L"ALL") {
@@ -199,9 +204,9 @@ int main(int argc, char *argv[]) {
 		libagent::test_ftps_protocol(FTPs_host, FTPs_port, FTPs_username, FTPs_password, useragents, AES_PASSWORD, FTPs_workingdir, PoC_KEYWORD, IGNORE_CERT_UNKNOWN_CA);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
-	}
 
-	Sleep(1000);
+		Sleep(1000);
+	}
 
 	// SMTP
 	if (PROTOCOL == L"SMTP" || PROTOCOL == L"ALL") {
@@ -212,9 +217,9 @@ int main(int argc, char *argv[]) {
 		libagent::test_smtp_protocol(SMTP_host, SMTP_username, SMTP_password, SMTP_name, useragents, AES_PASSWORD, PoC_KEYWORD, false, IGNORE_CERT_UNKNOWN_CA);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
-	}
 
-	Sleep(1000);
+		Sleep(1000);
+	}
 
 	// SMTPS
 	if (PROTOCOL == L"SMTPS" || PROTOCOL == L"ALL") {
@@ -223,6 +228,19 @@ int main(int argc, char *argv[]) {
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
 
 		libagent::test_smtp_protocol(SMTPs_host, SMTPs_username, SMTPs_password, SMTPs_name, useragents, AES_PASSWORD, PoC_KEYWORD, true, IGNORE_CERT_UNKNOWN_CA);
+
+		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
+
+		Sleep(1000);
+	}
+
+	// git
+	if (PROTOCOL == L"GIT" || PROTOCOL == L"ALL") {
+		std::cout << "-------------------------------------------" << std::endl;
+		std::cout << "  Using Git as transport method" << std::endl;
+		std::cout << "-------------------------------------------" << std::endl << std::endl;
+
+		libagent::test_git_protocol(GIT_host, GIT_username, GIT_password, useragents, AES_PASSWORD, PoC_KEYWORD);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 	}

@@ -23,4 +23,15 @@
 //For more see the file 'LICENSE' for copying permission.
 
 #include "libgit.h"
+#include <git2.h>
 
+#pragma comment (lib, "winhttp.lib")
+#pragma comment (lib, "Rpcrt4.lib")
+
+void libgit::init(void) {
+	git_libgit2_init();
+}
+
+void libgit::finalize(void) {
+	git_libgit2_shutdown();
+}

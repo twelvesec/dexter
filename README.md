@@ -27,7 +27,7 @@ Written by:
 * SMTPs - GMAIL server
 * FTP/s - vsftpd [more..](ftp-server/README.md)
 * SMTP/s - Postfix server
-* Github - libgit [more..](libgit2/README.md)
+* Git - libgit [more..](libgit2/README.md)
 
 ---
 

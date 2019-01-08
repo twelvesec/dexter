@@ -24,3 +24,7 @@
 
 #pragma once
 
+namespace libgit {
+	void init(void);
+	void finalize(void);
+}

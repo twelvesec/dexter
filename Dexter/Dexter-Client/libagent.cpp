@@ -22,6 +22,8 @@
 
 //For more see the file 'LICENSE' for copying permission.
 
+
+#include "libgit.h"
 #include "libagent.h"
 #include "libhttp.h"
 #include "libHash.h"
@@ -310,4 +312,11 @@ void libagent::test_smtp_protocol(std::string host, std::string username, std::s
 	}
 
 	libcurl::finalize();
+}
+
+void libagent::test_git_protocol(std::string host, std::string username, std::string password, std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD) {
+
+	libgit::init();
+
+	libgit::finalize();
 }
