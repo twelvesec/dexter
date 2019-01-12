@@ -314,9 +314,24 @@ void libagent::test_smtp_protocol(std::string host, std::string username, std::s
 	libcurl::finalize();
 }
 
-void libagent::test_git_protocol(std::string host, std::string username, std::string password, std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD) {
+void libagent::test_git_protocol(std::string host, std::string username, std::string password, std::string email, std::string folder, std::string aespassword, std::string PoC_KEYWORD) {
 
 	libgit::init();
+
+	std::wstring protocol = L"GIT";
+
+	std::string encoded = generate_data(PoC_KEYWORD, aespassword, protocol);
+
+	std::wcout << "[" << protocol << "] " << "Connecting to " << protocol << " server" << std::endl;
+
+	std::wcout << "[" << protocol << "] " << "Sending data with " << protocol << " packet" << std::endl;
+
+	if (libgit::commit(username, password, email, host, folder, PoC_KEYWORD, encoded)) {
+		std::wcout << "[" << protocol << "] " << "Transmission succeeded" << std::endl;
+	}
+	else {
+		std::wcout << "[" << protocol << "] " << "Transmission failed" << std::endl;
+	}
 
 	libgit::finalize();
 }

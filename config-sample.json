@@ -68,5 +68,12 @@
 		"username": "testing@example.com",
 		"password": "xxxxxxxxxxxxxxx",
 		"name": "Tester"
+	},
+	"GIT": {
+		"host": "192.168.1.1:/~/myrepo.git",
+		"username": "user",
+		"password": "xxxxxxxxxxxxxxxxxxxx",
+		"email": "user@example.com",
+		"workingdir": "dexter"
 	}
 }
