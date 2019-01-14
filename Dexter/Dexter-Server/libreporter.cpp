@@ -22,6 +22,7 @@
 
 //For more see the file 'LICENSE' for copying permission.
 
+#include "libgit.h"
 #include "libreporter.h"
 #include "libhttp.h"
 #include "rapidjson/document.h"
@@ -378,4 +379,12 @@ void libreporter::test_smtp_protocol(std::string imap, std::string imap_inbox_ob
 	}
 
 	libcurl::finalize();
+}
+
+void libreporter::test_git_protocol(std::string host, std::string username, std::string password, std::string email, std::string folder, std::string aespassword, std::string PoC_KEYWORD) {
+
+	libgit::init();
+
+
+	libgit::finalize();
 }
