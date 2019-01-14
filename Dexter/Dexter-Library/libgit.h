@@ -30,5 +30,5 @@
 namespace libgit {
 	void init(void);
 	void finalize(void);
-	bool commit(std::string username, std::string password, std::string email, std::string host, std::string folder, std::string PoC_KEYWORD, std::string data);
+	bool commit(std::string username, std::string password, std::string email, std::string url, std::string folder, std::string PoC_KEYWORD, std::string data);
 }
