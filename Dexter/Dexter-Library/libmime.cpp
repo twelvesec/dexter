@@ -56,7 +56,6 @@ bool libmime::parse_mime(MimeMessage *msg, const char *raw_data, size_t rawDataS
 			//read till boundary
 			while (strstr(data[i].c_str(), boundary) == NULL && i < data.size()) {
 
-				//ignore empty lines
 				if (strcmp(data[i].c_str(), "\r") != 0) {
 
 					if (msg->body == NULL)
