@@ -24,7 +24,6 @@
 
 #include "libgit.h"
 #include <git2.h>
-#include <vector>
 
 #pragma comment (lib, "winhttp.lib")
 #pragma comment (lib, "Rpcrt4.lib")
@@ -32,121 +31,30 @@
 char *user;
 char *pass;
 
-//int match_cb(const char *path, const char *spec, void *payload)
-//{
-//	return 0;
-//}
+struct fetch_payload {
+	char branch[100];
+	git_oid branch_oid;
+};
 
-//unsigned long long
-//last_write_time(const std::string& path)
-//{
-//	wchar_t* wpath = new wchar_t[path.length() + 1]();
-//
-//	MultiByteToWideChar(CP_OEMCP, MB_PRECOMPOSED,
-//		path.c_str(), path.length(),
-//		wpath, path.length());
-//
-//	HANDLE file_handle = CreateFile(wpath,
-//		GENERIC_READ,
-//		FILE_SHARE_READ,
-//		NULL,
-//		OPEN_EXISTING,
-//		FILE_ATTRIBUTE_NORMAL,
-//		NULL);
-//
-//	delete[] wpath;
-//	if (GetLastError() == ERROR_FILE_NOT_FOUND)
-//	{
-//		CloseHandle(file_handle);
-//		return 0ull - 1ull;
-//	}
-//
-//	FILETIME last_write_time;
-//	if (!GetFileTime(file_handle, NULL, NULL, &last_write_time))
-//	{
-//		CloseHandle(file_handle);
-//		return 0ull - 1ull;
-//	}
-//	CloseHandle(file_handle);
-//
-//	ULARGE_INTEGER result;
-//	result.HighPart = last_write_time.dwHighDateTime;
-//	result.LowPart = last_write_time.dwLowDateTime;
-//
-//	return result.QuadPart;
-//}
-//
-//void
-//index_entry_free(git_index_entry* entry)
-//{
-//	delete[] entry->path;
-//	delete entry;
-//}
-//
-//void
-//index_entry_copy(git_index_entry* destination, const git_index_entry* source)
-//{
-//	*destination = *source;
-//
-//	size_t path_length = strlen(source->path) + 1;
-//	char* buffer = new char[path_length];
-//	memcpy_s(buffer, path_length, source->path, path_length);
-//	destination->path = buffer;
-//}
-//
-//void
-//merge_conflict_resolve(git_index* index, std::string& ours_root, std::string& theirs_root)
-//{
-//	git_index_conflict_iterator*	conflict_ite;
-//	git_index_conflict_iterator_new(&conflict_ite, index);
-//
-//	std::vector<git_index_entry*> unconflicted_entries;
-//
-//	const git_index_entry *ancestor, *ours, *theirs;
-//	while (git_index_conflict_next(&ancestor, &ours, &theirs,
-//		conflict_ite) != GIT_ITEROVER)
-//	{
-//		unsigned long long ours_time, theirs_time;
-//		ours_time = last_write_time(ours_root + ours->path);
-//		theirs_time = last_write_time(theirs_root + theirs->path);
-//
-//		git_index_entry* resolution = new git_index_entry;
-//		if (ours_time > theirs_time)
-//			index_entry_copy(resolution, ours);
-//		else
-//			index_entry_copy(resolution, theirs);
-//
-//		GIT_IDXENTRY_STAGE_SET(resolution, GIT_INDEX_STAGE_NORMAL);
-//		if (!(resolution->flags & GIT_IDXENTRY_VALID))
-//			resolution->flags |= GIT_IDXENTRY_VALID;
-//
-//		unconflicted_entries.push_back(resolution);
-//	}
-//
-//
-//	for (auto ite = unconflicted_entries.begin();
-//		ite != unconflicted_entries.end(); ite++)
-//	{
-//		git_index_add(index, (*ite));
-//
-//		git_index_conflict_remove(index, (*ite)->path);
-//
-//		index_entry_free(*ite);
-//	}
-//
-//	git_index_conflict_iterator_free(conflict_ite);
-//}
+static int fetchhead_ref_cb(const char* name, const char* url, const git_oid* oid, unsigned int is_merge, void* payload_v) {
+	struct fetch_payload* payload = (struct fetch_payload*) payload_v;
+	if (is_merge) {
+		strncpy_s(payload->branch, 100, name, _TRUNCATE);
+		memcpy_s(&payload->branch_oid, sizeof(git_oid), oid, sizeof(git_oid));
+	}
+	return 0;
+}
 
-int get_credentials(git_cred** cred, const char* url, const char* username_from_url, unsigned int allowed_types, void* payload) {
+static int get_credentials(git_cred** cred, const char* url, const char* username_from_url, unsigned int allowed_types, void* payload) {
 	git_cred_userpass_plaintext_new(cred, user, pass);
 	return 0;
 }
 
-void print_git_error(int error) {
-	const git_error *err = giterr_last();
-	if (err) printf("ERROR %d: %s\n", err->klass, err->message);
-	else printf("ERROR %d: no detailed info\n", error);
-}
+//static void print_git_error(int error) {
+//	const git_error *err = giterr_last();
+//	if (err) printf("ERROR %d: %s\n", err->klass, err->message);
+//	else printf("ERROR %d: no detailed info\n", error);
+//}
 
 void libgit::init(void) {
 	git_libgit2_init();
@@ -160,37 +68,46 @@ bool libgit::commit(std::string username, std::string password, std::string emai
 
 	git_repository *repo = NULL;
 	git_remote* remote = NULL;
+	git_index *index = NULL;
 
 	git_clone_options clone_options = GIT_CLONE_OPTIONS_INIT;
 	git_checkout_options checkout_options = GIT_CHECKOUT_OPTIONS_INIT;
 	git_fetch_options fetch_options = GIT_FETCH_OPTIONS_INIT;
-	git_merge_options merge_options = GIT_MERGE_OPTIONS_INIT;
+	git_push_options push_options = GIT_PUSH_OPTIONS_INIT;
 
-	git_index *merge_index = NULL;
-	//git_oid head_id;
-	git_commit *head_commit = NULL;
-	//git_oid fetch_head_oid;
-	git_commit *remote_commit = NULL;
-	//git_oid merge_tree_id;
-	//git_tree *merge_tree = NULL;
-	//git_signature* signature = NULL;
+	git_merge_analysis_t merge_analysis_t;
+	git_merge_preference_t merge_preference_t;
+	struct fetch_payload payload;
+	git_annotated_commit* heads[1];
 
+	git_reference *target_ref = NULL;
+	git_reference *new_target_ref = NULL;
+	git_object *target = NULL;
+
+	git_oid tree_oid, commit_oid;
+	git_signature *signature = NULL;
+	git_tree *tree = NULL;
+	git_buf buffer;
+	git_object *obj = NULL;
+	git_object *curr_commit_obj = NULL;
+	git_commit *curr_commit = NULL;
+
+	char *ref_str = new char[37];
 	char temp[MAX_PATH];
 	GetTempPathA(MAX_PATH, temp);
 	std::string temp_path = std::string(temp) + folder;
 	bool success = true;
-	int error = 0;
+	//int error = 0;
+	std::string filename_to_add = "test.txt";
+	std::string temp_file = std::string(temp) + folder + "\\" + filename_to_add;
 
-	//git_index *index = NULL;
-	//git_strarray paths = { nullptr, 0 };
-	//paths.count = 1;
-	//git_oid tree_oid, commit_oid;
-	//const char *f = "*";
-	//git_signature *signature = NULL;
-	//git_tree *tree = NULL;
-	//git_buf buffer;
-	//
-	//git_push_options options;
+	SecureZeroMemory(&buffer, sizeof(git_buf));
+
+	if (success && strncpy_s(ref_str, 37, "refs/heads/master:refs/heads/master", _TRUNCATE) != 0) {
+		success = false;
+	}
+
+	const git_strarray refs = { &ref_str, 1 };
 
 	if (success && (user = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, username.size() + 1)) == NULL) {
 		success = false;
@@ -216,52 +133,38 @@ bool libgit::commit(std::string username, std::string password, std::string emai
 
 		fetch_options.callbacks.credentials = get_credentials;
 
-		if (success && git_remote_fetch(remote, NULL, &fetch_options, "pull") != 0) {
+		if (success && git_remote_fetch(remote, NULL, &fetch_options, "fetch") != 0) {
 			success = false;
 		}
-		/*if (success && git_reference_name_to_id(&head_id, repo, "HEAD") != 0) {
+
+		if (success && git_repository_fetchhead_foreach(repo, fetchhead_ref_cb, &payload) != 0) {
 			success = false;
 		}
-		if (success && git_commit_lookup(&head_commit, repo, &head_id) != 0) {
+
+		if (success && git_annotated_commit_lookup(&heads[0], repo, &payload.branch_oid) != 0) {
 			success = false;
 		}
-		if (success && git_reference_name_to_id(&fetch_head_oid, repo, "FETCH_HEAD") != 0) {
+
+		if (success && git_merge_analysis(&merge_analysis_t, &merge_preference_t, repo, (const git_annotated_commit**)&heads[0], 1) != 0) {
 			success = false;
 		}
-		if (success && git_commit_lookup(&remote_commit, repo, &fetch_head_oid) != 0) {
+
+		if (success && git_repository_head(&target_ref, repo) != 0) {
 			success = false;
 		}
-		if (success && git_merge_commits(&merge_index, repo, head_commit, remote_commit, &merge_options) != 0) {
-			success = false;
-		}*/
 
-		/*if (git_index_has_conflicts(merge_index))
-		{
-			std::string satellite_path(git_repository_workdir(repo));
-			std::string remote_path(git_remote_url(remote) + std::string("/"));
-			merge_conflict_resolve(merge_index, satellite_path, remote_path);
-		}*/
+		if (success && git_object_lookup(&target, repo, &payload.branch_oid, GIT_OBJ_COMMIT) != 0) {
+			success = false;
+		}
 
-		/*if (success && git_index_write_tree_to(&merge_tree_id, merge_index, repo) != 0) {
+		checkout_options.checkout_strategy = GIT_CHECKOUT_SAFE;
+		if (success && git_checkout_tree(repo, target, &checkout_options) != 0) {
 			success = false;
-		}*/
+		}
 
-		/*if (success && git_tree_lookup(&merge_tree, repo, &merge_tree_id) != 0) {
+		if (success && git_reference_set_target(&new_target_ref, target_ref, &payload.branch_oid, NULL) != 0) {
 			success = false;
-		}*/
-
-		/*checkout_options.checkout_strategy = GIT_CHECKOUT_SAFE;
-
-		if (success && git_checkout_index(repo, merge_index, &checkout_options) != 0) {
-			print_git_error(error);
-			success = false;
-		}*/
-		/*if (success && git_signature_now(&signature, username.c_str(), email.c_str()) != 0) {
-			success = false;
-		}*/
-		/*if (success && git_repository_state_cleanup(repo) != 0) {
-			success = false;
-		}*/
+		}
 	}
 	else {
 
@@ -269,38 +172,37 @@ bool libgit::commit(std::string username, std::string password, std::string emai
 		clone_options.checkout_opts = checkout_options;
 		clone_options.fetch_opts.callbacks.credentials = get_credentials;
 
-		if (success && (error = git_clone(&repo, url.c_str(), temp_path.c_str(), &clone_options)) != 0) {
-			print_git_error(error);
+		if (success && git_clone(&repo, url.c_str(), temp_path.c_str(), &clone_options) != 0) {
 			success = false;
 		}
 	}
 
-
-	/*if (success && (paths.strings = (char**)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(char*) * paths.count)) == NULL) {
+	if (success && git_revparse_single(&curr_commit_obj, repo, "HEAD") != 0) {
 		success = false;
 	}
 
-	if (success && (paths.strings[0] = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 4)) == NULL) {
+	if (success && git_commit_lookup(&curr_commit, repo, git_object_id(curr_commit_obj)) != 0) {
 		success = false;
 	}
 
-	if (success && strncpy_s(paths.strings[0], 4, f, _TRUNCATE) != 0) {
-		success = false;
-	}*/
-
-	/*if (success && git_repository_init(&repo, temp_path.c_str(), FALSE) != 0) {
+	if (success && git_commit_tree(&tree, curr_commit) != 0) {
 		success = false;
 	}
 
 	if (success && git_repository_index(&index, repo) != 0) {
 		success = false;
-	}*/
+	}
 
-	/*if (success && git_index_add_all(index, &paths, GIT_INDEX_ADD_DEFAULT, NULL, NULL) != 0) {
+	if (success && git_index_read_tree(index, tree) != 0) {
 		success = false;
-	}*/
+	}
 
-	/*if (success && git_index_write(index) != 0) {
+	if (success && !CloseHandle(CreateFileA(temp_file.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL))) {
+		success = false;
+	}
+
+	if (success && /*(error = */git_index_add_bypath(index, filename_to_add.c_str())/*)*/ != 0) {
+		//print_git_error(error);
 		success = false;
 	}
 
@@ -312,89 +214,78 @@ bool libgit::commit(std::string username, std::string password, std::string emai
 		success = false;
 	}
 
-	if (success && git_tree_lookup(&tree, repo, &tree_oid) != 0) {
+	if (success && git_message_prettify(&buffer, data.c_str(), 0, '#') != 0) {
 		success = false;
 	}
 
-	SecureZeroMemory(&buffer, sizeof(git_buf));
+	const git_commit *parent[] = { curr_commit };
 
-	if (success && git_message_prettify(&buffer, "Initial commit", 0, '#') != 0) {
+	if (success && /*(error = */git_tree_lookup(&tree, repo, &tree_oid)/*)*/ != 0) {
+		//print_git_error(error);
 		success = false;
 	}
 
-	if (success && git_commit_create_v(&commit_oid, repo, "HEAD", signature, signature, NULL, buffer.ptr, tree, 0) != 0) {
-		success = false;
-	}*/
-
-	/*if (success && git_remote_create(&remote, repo, "origin", host.c_str()) != 0) {
-		success = false;
-	}*/
-
-	/*if (success && git_remote_lookup(&remote, repo, "origin") != 0) {
-		success = false;
-	}*/
-
-	//pull/fetch??
-
-	/*char *ref_str = new char[37];
-	strncpy_s(ref_str, 37, "refs/heads/master:refs/heads/master", _TRUNCATE);
-	const git_strarray refs = { &ref_str, 1 };
-	git_push_init_options(&options, GIT_PUSH_OPTIONS_VERSION);
-	git_remote_init_callbacks(&options.callbacks, GIT_REMOTE_CALLBACKS_VERSION);
-	options.callbacks.credentials = get_credentials;
-	git_remote_push(remote, &refs, &options);*/
-
-	/*if (success && git_remote_connect(remote, GIT_DIRECTION_PUSH, &callbacks, NULL, NULL) != 0) {
+	if (success && /*(error = */git_commit_create(&commit_oid, repo, "HEAD", signature, signature, "UTF-8", buffer.ptr, tree, 1, parent)/*)*/ != 0) {
+		//print_git_error(error);
 		success = false;
 	}
 
-	if (success && git_remote_add_push(repo, git_remote_name(remote), "refs/heads/master:refs/heads/master") != 0) {
+	if (remote == NULL) {
+		if (success && git_remote_lookup(&remote, repo, "origin") != 0) {
+			success = false;
+		}
+	}
+
+	if (success && git_remote_init_callbacks(&push_options.callbacks, GIT_REMOTE_CALLBACKS_VERSION) != 0) {
 		success = false;
 	}
 
-	if (success && git_push_init_options(&options, GIT_PUSH_OPTIONS_VERSION) != 0) {
+	push_options.callbacks.credentials = get_credentials;
+
+	if (success && git_remote_push(remote, &refs, &push_options) != 0) {
 		success = false;
 	}
 
-	if (success && git_remote_upload(remote, NULL, &options) != 0) {
-		success = false;
-	}*/
-
-	/*if (paths.strings[0]) {
-		HeapFree(GetProcessHeap(), 0, paths.strings[0]);
-		paths.strings[0] = NULL;
+	if (tree) {
+		git_tree_free(tree);
+		tree = NULL;
 	}
 
-	if (paths.strings) {
-		HeapFree(GetProcessHeap(), 0, paths.strings);
-		paths.strings = NULL;
-	}*/
+	git_buf_dispose(&buffer);
 
-	//git_buf_dispose(&buffer);
-
-	/*if (signature) {
+	if (signature) {
 		git_signature_free(signature);
 		signature = NULL;
 	}
 
-	if (merge_tree) {
-		git_tree_free(merge_tree);
-		merge_tree = NULL;
-	}*/
-
-	if (merge_index) {
-		git_index_free(merge_index);
-		merge_index = NULL;
+	if (index) {
+		git_index_free(index);
+		index = NULL;
 	}
 
-	if (remote_commit) {
-		git_commit_free(remote_commit);
-		remote_commit = NULL;
+	if (curr_commit) {
+		git_commit_free(curr_commit);
+		curr_commit = NULL;
 	}
 
-	if (head_commit) {
-		git_commit_free(head_commit);
-		head_commit = NULL;
+	if (curr_commit_obj) {
+		git_object_free(curr_commit_obj);
+		curr_commit_obj = NULL;
+	}
+
+	if (target) {
+		git_object_free(target);
+		target = NULL;
+	}
+
+	if (target_ref) {
+		git_reference_free(target_ref);
+		target_ref = NULL;
+	}
+
+	if (new_target_ref) {
+		git_reference_free(new_target_ref);
+		new_target_ref = NULL;
 	}
 
 	if (remote) {
@@ -407,16 +298,16 @@ bool libgit::commit(std::string username, std::string password, std::string emai
 		repo = NULL;
 	}
 
-	if (user) {
-		SecureZeroMemory(user, sizeof(user));
-		HeapFree(GetProcessHeap(), 0, user);
-		user = NULL;
-	}
-
 	if (pass) {
 		SecureZeroMemory(pass, sizeof(pass));
 		HeapFree(GetProcessHeap(), 0, pass);
 		pass = NULL;
+	}
+
+	if (user) {
+		SecureZeroMemory(user, sizeof(user));
+		HeapFree(GetProcessHeap(), 0, user);
+		user = NULL;
 	}
 
 	return success;
