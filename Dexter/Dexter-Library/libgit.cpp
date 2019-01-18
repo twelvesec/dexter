@@ -64,7 +64,7 @@ void libgit::finalize(void) {
 	git_libgit2_shutdown();
 }
 
-bool libgit::commit(std::string username, std::string password, std::string email, std::string url, std::string folder, std::string PoC_KEYWORD, std::string data) {
+bool libgit::commit(std::string username, std::string password, std::string email, std::string url, std::string folder, std::string data) {
 
 	git_repository *repo = NULL;
 	git_remote* remote = NULL;
@@ -311,4 +311,10 @@ bool libgit::commit(std::string username, std::string password, std::string emai
 	}
 
 	return success;
+}
+
+std::vector<std::string> libgit::commit_messages(std::string username, std::string password, std::string url, std::string folder) {
+	std::vector<std::string> messages;
+
+	return messages;
 }

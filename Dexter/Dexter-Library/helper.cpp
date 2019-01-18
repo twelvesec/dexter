@@ -163,9 +163,7 @@ std::vector<std::string> helper::split_string(std::string str, char delimeter) {
 
 	std::string intermediate;
 
-	// Tokenizing w.r.t. space ' ' 
-	while (std::getline(check1, intermediate, delimeter))
-	{
+	while (std::getline(check1, intermediate, delimeter)) {
 		tokens.push_back(intermediate);
 	}
 
