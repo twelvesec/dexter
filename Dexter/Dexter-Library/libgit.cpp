@@ -408,5 +408,42 @@ bool libgit::clone_or_pull(std::string username, std::string password, std::stri
 		}
 	}
 
+	if (target) {
+		git_object_free(target);
+		target = NULL;
+	}
+
+	if (target_ref) {
+		git_reference_free(target_ref);
+		target_ref = NULL;
+	}
+
+	if (new_target_ref) {
+		git_reference_free(new_target_ref);
+		new_target_ref = NULL;
+	}
+
+	if (remote) {
+		git_remote_free(remote);
+		remote = NULL;
+	}
+
+	if (repo) {
+		git_repository_free(repo);
+		repo = NULL;
+	}
+
+	if (pass) {
+		SecureZeroMemory(pass, sizeof(pass));
+		HeapFree(GetProcessHeap(), 0, pass);
+		pass = NULL;
+	}
+
+	if (user) {
+		SecureZeroMemory(user, sizeof(user));
+		HeapFree(GetProcessHeap(), 0, user);
+		user = NULL;
+	}
+
 	return success;
 }
