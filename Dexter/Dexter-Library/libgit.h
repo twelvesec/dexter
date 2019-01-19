@@ -27,11 +27,12 @@
 #include <Windows.h>
 #include <string>
 #include <vector>
+#include <git2.h>
 
 namespace libgit {
 	void init(void);
 	void finalize(void);
-	bool commit(std::string username, std::string password, std::string email, std::string url, std::string folder, std::string data);
+	bool add_and_commit(std::string username, std::string password, std::string email, std::string url, std::string folder, std::string data);
 	std::vector<std::string> commit_messages(std::string username, std::string password, std::string url, std::string folder);
-	bool clone_or_pull(std::string username, std::string password, std::string url, std::string folder);
+	bool clone_or_pull(git_repository **repo, git_remote **remote, char *username, char *password, std::string url, std::string folder);
 }

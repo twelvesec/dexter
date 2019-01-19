@@ -23,7 +23,6 @@
 //For more see the file 'LICENSE' for copying permission.
 
 #include "libgit.h"
-#include <git2.h>
 
 #pragma comment (lib, "winhttp.lib")
 #pragma comment (lib, "Rpcrt4.lib")
@@ -64,25 +63,13 @@ void libgit::finalize(void) {
 	git_libgit2_shutdown();
 }
 
-bool libgit::commit(std::string username, std::string password, std::string email, std::string url, std::string folder, std::string data) {
+bool libgit::add_and_commit(std::string username, std::string password, std::string email, std::string url, std::string folder, std::string data) {
 
-	git_repository *repo = NULL;
-	git_remote* remote = NULL;
 	git_index *index = NULL;
+	git_repository *repo = NULL;
+	git_remote *remote = NULL;
 
-	git_clone_options clone_options = GIT_CLONE_OPTIONS_INIT;
-	git_checkout_options checkout_options = GIT_CHECKOUT_OPTIONS_INIT;
-	git_fetch_options fetch_options = GIT_FETCH_OPTIONS_INIT;
 	git_push_options push_options = GIT_PUSH_OPTIONS_INIT;
-
-	git_merge_analysis_t merge_analysis_t;
-	git_merge_preference_t merge_preference_t;
-	struct fetch_payload payload;
-	git_annotated_commit* heads[1];
-
-	git_reference *target_ref = NULL;
-	git_reference *new_target_ref = NULL;
-	git_object *target = NULL;
 
 	git_oid tree_oid, commit_oid;
 	git_signature *signature = NULL;
@@ -125,57 +112,7 @@ bool libgit::commit(std::string username, std::string password, std::string emai
 		success = false;
 	}
 
-	if (git_repository_open(&repo, temp_path.c_str()) == 0) {
-
-		if (success && git_remote_lookup(&remote, repo, "origin") != 0) {
-			success = false;
-		}
-
-		fetch_options.callbacks.credentials = get_credentials;
-
-		if (success && git_remote_fetch(remote, NULL, &fetch_options, "fetch") != 0) {
-			success = false;
-		}
-
-		if (success && git_repository_fetchhead_foreach(repo, fetchhead_ref_cb, &payload) != 0) {
-			success = false;
-		}
-
-		if (success && git_annotated_commit_lookup(&heads[0], repo, &payload.branch_oid) != 0) {
-			success = false;
-		}
-
-		if (success && git_merge_analysis(&merge_analysis_t, &merge_preference_t, repo, (const git_annotated_commit**)&heads[0], 1) != 0) {
-			success = false;
-		}
-
-		if (success && git_repository_head(&target_ref, repo) != 0) {
-			success = false;
-		}
-
-		if (success && git_object_lookup(&target, repo, &payload.branch_oid, GIT_OBJ_COMMIT) != 0) {
-			success = false;
-		}
-
-		checkout_options.checkout_strategy = GIT_CHECKOUT_SAFE;
-		if (success && git_checkout_tree(repo, target, &checkout_options) != 0) {
-			success = false;
-		}
-
-		if (success && git_reference_set_target(&new_target_ref, target_ref, &payload.branch_oid, NULL) != 0) {
-			success = false;
-		}
-	}
-	else {
-
-		checkout_options.checkout_strategy = GIT_CHECKOUT_SAFE;
-		clone_options.checkout_opts = checkout_options;
-		clone_options.fetch_opts.callbacks.credentials = get_credentials;
-
-		if (success && git_clone(&repo, url.c_str(), temp_path.c_str(), &clone_options) != 0) {
-			success = false;
-		}
-	}
+	clone_or_pull(&repo, &remote, user, pass, url, folder);
 
 	if (success && git_revparse_single(&curr_commit_obj, repo, "HEAD") != 0) {
 		success = false;
@@ -273,21 +210,6 @@ bool libgit::commit(std::string username, std::string password, std::string emai
 		curr_commit_obj = NULL;
 	}
 
-	if (target) {
-		git_object_free(target);
-		target = NULL;
-	}
-
-	if (target_ref) {
-		git_reference_free(target_ref);
-		target_ref = NULL;
-	}
-
-	if (new_target_ref) {
-		git_reference_free(new_target_ref);
-		new_target_ref = NULL;
-	}
-
 	if (remote) {
 		git_remote_free(remote);
 		remote = NULL;
@@ -316,29 +238,11 @@ bool libgit::commit(std::string username, std::string password, std::string emai
 std::vector<std::string> libgit::commit_messages(std::string username, std::string password, std::string url, std::string folder) {
 	std::vector<std::string> messages;
 	bool success = true;
-
-	return messages;
-}
-
-bool libgit::clone_or_pull(std::string username, std::string password, std::string url, std::string folder) {
-	bool success = true;
-
 	git_repository *repo = NULL;
-	git_remote* remote = NULL;
-	git_fetch_options fetch_options = GIT_FETCH_OPTIONS_INIT;
-	struct fetch_payload payload;
-	git_annotated_commit* heads[1];
-	git_merge_analysis_t merge_analysis_t;
-	git_merge_preference_t merge_preference_t;
-	git_reference *target_ref = NULL;
-	git_reference *new_target_ref = NULL;
-	git_object *target = NULL;
-	git_checkout_options checkout_options = GIT_CHECKOUT_OPTIONS_INIT;
-	git_clone_options clone_options = GIT_CLONE_OPTIONS_INIT;
-
-	char temp[MAX_PATH];
-	GetTempPathA(MAX_PATH, temp);
-	std::string temp_path = std::string(temp) + folder;
+	git_remote *remote = NULL;
+	git_revwalk *walker=NULL;
+	git_oid oid;
+	git_commit *commit;
 
 	if (success && (user = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, username.size() + 1)) == NULL) {
 		success = false;
@@ -356,71 +260,36 @@ bool libgit::clone_or_pull(std::string username, std::string password, std::stri
 		success = false;
 	}
 
-	if (git_repository_open(&repo, temp_path.c_str()) == 0) {
+	clone_or_pull(&repo, &remote, user, pass, url, folder);
 
-		if (success && git_remote_lookup(&remote, repo, "origin") != 0) {
-			success = false;
-		}
-
-		fetch_options.callbacks.credentials = get_credentials;
-
-		if (success && git_remote_fetch(remote, NULL, &fetch_options, "fetch") != 0) {
-			success = false;
-		}
-
-		if (success && git_repository_fetchhead_foreach(repo, fetchhead_ref_cb, &payload) != 0) {
-			success = false;
-		}
-
-		if (success && git_annotated_commit_lookup(&heads[0], repo, &payload.branch_oid) != 0) {
-			success = false;
-		}
-
-		if (success && git_merge_analysis(&merge_analysis_t, &merge_preference_t, repo, (const git_annotated_commit**)&heads[0], 1) != 0) {
-			success = false;
-		}
-
-		if (success && git_repository_head(&target_ref, repo) != 0) {
-			success = false;
-		}
-
-		if (success && git_object_lookup(&target, repo, &payload.branch_oid, GIT_OBJ_COMMIT) != 0) {
-			success = false;
-		}
-
-		checkout_options.checkout_strategy = GIT_CHECKOUT_SAFE;
-		if (success && git_checkout_tree(repo, target, &checkout_options) != 0) {
-			success = false;
-		}
-
-		if (success && git_reference_set_target(&new_target_ref, target_ref, &payload.branch_oid, NULL) != 0) {
-			success = false;
-		}
-	}
-	else {
-
-		checkout_options.checkout_strategy = GIT_CHECKOUT_SAFE;
-		clone_options.checkout_opts = checkout_options;
-		clone_options.fetch_opts.callbacks.credentials = get_credentials;
-
-		if (success && git_clone(&repo, url.c_str(), temp_path.c_str(), &clone_options) != 0) {
-			success = false;
-		}
+	if (success && git_revwalk_new(&walker, repo) != 0) {
+		success = false;
 	}
 
-	if (target) {
-		git_object_free(target);
-		target = NULL;
+	if (success) {
+		git_revwalk_sorting(walker, GIT_SORT_TOPOLOGICAL);
 	}
 
-	if (target_ref) {
-		git_reference_free(target_ref);
-		target_ref = NULL;
+	if (success && git_revwalk_push_head(walker) != 0) {
+		success = false;
 	}
 
-	if (new_target_ref) {
-		git_reference_free(new_target_ref);
-		new_target_ref = NULL;
+	while (git_revwalk_next(&oid, walker) == 0) {
+		if (git_commit_lookup(&commit, repo, &oid)) {
+			break;
+		}
+
+		std::string message = std::string(git_commit_message(commit));
+		message = message.substr(0, message.size() - 1);
+
+		messages.push_back(message);
+
+		git_commit_free(commit);
+	}
+
+	if (walker) {
+		git_revwalk_free(walker);
+		walker = NULL;
 	}
 
 	if (remote) {
@@ -443,6 +312,94 @@ bool libgit::clone_or_pull(std::string username, std::string password, std::stri
 		SecureZeroMemory(user, sizeof(user));
 		HeapFree(GetProcessHeap(), 0, user);
 		user = NULL;
+	}
+
+	return messages;
+}
+
+bool libgit::clone_or_pull(git_repository **repo, git_remote **remote, char *username, char *password, std::string url, std::string folder) {
+	bool success = true;
+
+	git_fetch_options fetch_options = GIT_FETCH_OPTIONS_INIT;
+	struct fetch_payload payload;
+	git_annotated_commit* heads[1];
+	git_merge_analysis_t merge_analysis_t;
+	git_merge_preference_t merge_preference_t;
+	git_reference *target_ref = NULL;
+	git_reference *new_target_ref = NULL;
+	git_object *target = NULL;
+	git_checkout_options checkout_options = GIT_CHECKOUT_OPTIONS_INIT;
+	git_clone_options clone_options = GIT_CLONE_OPTIONS_INIT;
+
+	char temp[MAX_PATH];
+	GetTempPathA(MAX_PATH, temp);
+	std::string temp_path = std::string(temp) + folder;
+
+	if (git_repository_open(repo, temp_path.c_str()) == 0) {
+
+		if (success && git_remote_lookup(remote, *repo, "origin") != 0) {
+			success = false;
+		}
+
+		fetch_options.callbacks.credentials = get_credentials;
+
+		if (success && git_remote_fetch(*remote, NULL, &fetch_options, "fetch") != 0) {
+			success = false;
+		}
+
+		if (success && git_repository_fetchhead_foreach(*repo, fetchhead_ref_cb, &payload) != 0) {
+			success = false;
+		}
+
+		if (success && git_annotated_commit_lookup(&heads[0], *repo, &payload.branch_oid) != 0) {
+			success = false;
+		}
+
+		if (success && git_merge_analysis(&merge_analysis_t, &merge_preference_t, *repo, (const git_annotated_commit**)&heads[0], 1) != 0) {
+			success = false;
+		}
+
+		if (success && git_repository_head(&target_ref, *repo) != 0) {
+			success = false;
+		}
+
+		if (success && git_object_lookup(&target, *repo, &payload.branch_oid, GIT_OBJ_COMMIT) != 0) {
+			success = false;
+		}
+
+		checkout_options.checkout_strategy = GIT_CHECKOUT_SAFE;
+		if (success && git_checkout_tree(*repo, target, &checkout_options) != 0) {
+			success = false;
+		}
+
+		if (success && git_reference_set_target(&new_target_ref, target_ref, &payload.branch_oid, NULL) != 0) {
+			success = false;
+		}
+	}
+	else {
+
+		checkout_options.checkout_strategy = GIT_CHECKOUT_SAFE;
+		clone_options.checkout_opts = checkout_options;
+		clone_options.fetch_opts.callbacks.credentials = get_credentials;
+
+		if (success && git_clone(repo, url.c_str(), temp_path.c_str(), &clone_options) != 0) {
+			success = false;
+		}
+	}
+
+	if (target) {
+		git_object_free(target);
+		target = NULL;
+	}
+
+	if (target_ref) {
+		git_reference_free(target_ref);
+		target_ref = NULL;
+	}
+
+	if (new_target_ref) {
+		git_reference_free(new_target_ref);
+		new_target_ref = NULL;
 	}
 
 	return success;

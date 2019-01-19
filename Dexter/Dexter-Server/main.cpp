@@ -144,6 +144,13 @@ int main(int argc, char *argv[])
 	std::string SMTPs_password = helper::read_object_string_value_ascii(&d, "SMTPS", "password");
 	std::string SMTPs_name = helper::read_object_string_value_ascii(&d, "SMTPS", "name");
 
+	//git
+	std::string GIT_url = helper::read_object_string_value_ascii(&d, "GIT", "url");
+	std::string GIT_username = helper::read_object_string_value_ascii(&d, "GIT", "username");
+	std::string GIT_password = helper::read_object_string_value_ascii(&d, "GIT", "password");
+	std::string GIT_email = helper::read_object_string_value_ascii(&d, "GIT", "email");
+	std::string GIT_workingdir = helper::read_object_string_value_ascii(&d, "GIT", "workingdir");
+
 	std::set<std::wstring> useragents = helper::load_useragent_strings(USER_AGENTS);
 
 	// HTTP
@@ -235,6 +242,19 @@ int main(int argc, char *argv[])
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
 
 		libreporter::test_smtp_protocol(SMTPs_imap, SMTPs_imap_inbox_obj, SMTPs_username, SMTPs_password, SMTPs_name, useragents, AES_PASSWORD, PoC_KEYWORD, true, IGNORE_CERT_UNKNOWN_CA);
+
+		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
+
+		Sleep(1000);
+	}
+
+	// SMTPS
+	if (PROTOCOL == L"GIT" || PROTOCOL == L"ALL") {
+		std::cout << "-------------------------------------------" << std::endl;
+		std::cout << "  Using Git as transport method" << std::endl;
+		std::cout << "-------------------------------------------" << std::endl << std::endl;
+
+		libreporter::test_git_protocol(GIT_url, GIT_username, GIT_password, GIT_email, GIT_workingdir, AES_PASSWORD, PoC_KEYWORD);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 

@@ -326,7 +326,7 @@ void libagent::test_git_protocol(std::string host, std::string username, std::st
 
 	std::wcout << "[" << protocol << "] " << "Sending data with " << protocol << " packet" << std::endl;
 
-	if (libgit::commit(username, password, email, host, folder, encoded)) {
+	if (libgit::add_and_commit(username, password, email, host, folder, encoded)) {
 		std::wcout << "[" << protocol << "] " << "Transmission succeeded" << std::endl;
 	}
 	else {
