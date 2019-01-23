@@ -41,5 +41,6 @@ namespace libreporter {
 		std::string directory, std::string PoC_KEYWORD, bool ignore_unknown_ca);
 	void test_smtp_protocol(std::string imap, std::string imap_inbox_obj, std::string username, std::string password, std::string name,
 		std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD, bool OverTls, bool ignore_unknown_ca);
-	void test_git_protocol(std::string url, std::string username, std::string password, std::string email, std::string folder, std::string aespassword, std::string PoC_KEYWORD);
+	void test_git_over_ssh_protocol(std::string url, std::string username, std::string password, std::string email, std::string folder, std::string aespassword, std::string PoC_KEYWORD);
+	void test_tcp_protocol(int port, std::string aespassword, std::string PoC_KEYWORD);
 }

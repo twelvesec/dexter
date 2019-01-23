@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
 		std::cout << "  Using Git as transport method" << std::endl;
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
 
-		libreporter::test_git_protocol(GIT_url, GIT_username, GIT_password, GIT_email, GIT_workingdir, AES_PASSWORD, PoC_KEYWORD);
+		libreporter::test_git_over_ssh_protocol(GIT_url, GIT_username, GIT_password, GIT_email, GIT_workingdir, AES_PASSWORD, PoC_KEYWORD);
 
 		std::cout << std::endl << "-------------------------------------------" << std::endl << std::endl;
 

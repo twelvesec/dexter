@@ -34,6 +34,7 @@
 #include "libencode.h"
 #include "libcurl.h"
 #include "libftp.h"
+#include "libtcp.h"
 
 #include <iostream>
 
@@ -314,7 +315,7 @@ void libagent::test_smtp_protocol(std::string host, std::string username, std::s
 	libcurl::finalize();
 }
 
-void libagent::test_git_protocol(std::string host, std::string username, std::string password, std::string email, std::string folder, std::string aespassword, std::string PoC_KEYWORD) {
+void libagent::test_git_over_ssh_protocol(std::string host, std::string username, std::string password, std::string email, std::string folder, std::string aespassword, std::string PoC_KEYWORD) {
 
 	libgit::init();
 

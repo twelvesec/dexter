@@ -34,6 +34,7 @@
 #include "libcurl.h"
 #include "libmime.h"
 #include "libftp.h"
+#include "libtcp.h"
 
 #include <iostream>
 #include <string>
@@ -382,7 +383,7 @@ void libreporter::test_smtp_protocol(std::string imap, std::string imap_inbox_ob
 	libcurl::finalize();
 }
 
-void libreporter::test_git_protocol(std::string url, std::string username, std::string password, std::string email, std::string folder, std::string aespassword, std::string PoC_KEYWORD) {
+void libreporter::test_git_over_ssh_protocol(std::string url, std::string username, std::string password, std::string email, std::string folder, std::string aespassword, std::string PoC_KEYWORD) {
 
 	libgit::init();
 	std::wstring protocol = L"GIT";
@@ -417,4 +418,8 @@ void libreporter::test_git_protocol(std::string url, std::string username, std::
 	}
 
 	libgit::finalize();
+}
+
+void libreporter::test_tcp_protocol(int port, std::string aespassword, std::string PoC_KEYWORD) {
+
 }

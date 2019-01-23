@@ -90,7 +90,7 @@ HINTERNET libhttp::json_request(HINTERNET connection, std::wstring requestMethod
 
 	if (data == NULL) {
 		if (!HttpSendRequestW(request, headers, (DWORD)wcslen(headers), NULL, 0)) {
-			std::cout << GetLastError() << std::endl;
+			//std::cout << GetLastError() << std::endl;
 
 			InternetCloseHandle(request);
 			request = NULL;
@@ -99,7 +99,7 @@ HINTERNET libhttp::json_request(HINTERNET connection, std::wstring requestMethod
 	}
 	else {
 		if (!HttpSendRequestW(request, headers, (DWORD)wcslen(headers), data, (DWORD)strlen(data))) {
-			std::cout << GetLastError() << std::endl;
+			//std::cout << GetLastError() << std::endl;
 
 			InternetCloseHandle(request);
 			request = NULL;

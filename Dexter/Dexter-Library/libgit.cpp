@@ -112,7 +112,9 @@ bool libgit::add_and_commit(std::string username, std::string password, std::str
 		success = false;
 	}
 
-	clone_or_pull(&repo, &remote, user, pass, url, folder);
+	if (success && !clone_or_pull(&repo, &remote, user, pass, url, folder)) {
+		success = false;
+	}
 
 	if (success && git_revparse_single(&curr_commit_obj, repo, "HEAD") != 0) {
 		success = false;
@@ -240,7 +242,7 @@ std::vector<std::string> libgit::commit_messages(std::string username, std::stri
 	bool success = true;
 	git_repository *repo = NULL;
 	git_remote *remote = NULL;
-	git_revwalk *walker=NULL;
+	git_revwalk *walker = NULL;
 	git_oid oid;
 	git_commit *commit;
 
@@ -260,7 +262,9 @@ std::vector<std::string> libgit::commit_messages(std::string username, std::stri
 		success = false;
 	}
 
-	clone_or_pull(&repo, &remote, user, pass, url, folder);
+	if (success && !clone_or_pull(&repo, &remote, user, pass, url, folder)) {
+		success = false;
+	}
 
 	if (success && git_revwalk_new(&walker, repo) != 0) {
 		success = false;
@@ -274,17 +278,17 @@ std::vector<std::string> libgit::commit_messages(std::string username, std::stri
 		success = false;
 	}
 
-	while (git_revwalk_next(&oid, walker) == 0) {
-		if (git_commit_lookup(&commit, repo, &oid)) {
-			break;
+	if (success) {
+		while (git_revwalk_next(&oid, walker) == 0) {
+			if (git_commit_lookup(&commit, repo, &oid)) {
+				break;
+			}
+
+			std::string message = std::string(git_commit_message(commit));
+			message = message.substr(0, message.size() - 1);
+			messages.push_back(message);
+			git_commit_free(commit);
 		}
-
-		std::string message = std::string(git_commit_message(commit));
-		message = message.substr(0, message.size() - 1);
-
-		messages.push_back(message);
-
-		git_commit_free(commit);
 	}
 
 	if (walker) {
