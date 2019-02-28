@@ -76,85 +76,22 @@ int main(int argc, char *argv[])
 	bool IGNORE_CERT_UNKNOWN_CA = helper::read_bool_value(&d, "IGNORE_CERT_UNKNOWN_CA");
 	bool IGNORE_CERT_DATE_INVALID = helper::read_bool_value(&d, "IGNORE_CERT_DATE_INVALID");
 
-	//http
-	std::wstring HTTP_host = helper::read_object_string_value(&d, "HTTP", "host");
-	WORD HTTP_port = helper::read_object_word_value(&d, "HTTP", "port");
-
-	WORD HTTP_clientid = helper::read_object_word_value(&d, "HTTP", "clientid");
-	std::string HTTP_secret = helper::read_object_string_value_ascii(&d, "HTTP", "secret");
-	std::string HTTP_username = helper::read_object_string_value_ascii(&d, "HTTP", "username");
-	std::string HTTP_password = helper::read_object_string_value_ascii(&d, "HTTP", "password");
-
-	std::wstring HTTP_token_uri_method = helper::read_object_string_value(&d, "HTTP", "token_uri_method");
-	std::wstring HTTP_clients_uri_method = helper::read_object_string_value(&d, "HTTP", "clients_uri_method");
-
-	std::wstring HTTP_token_uri = helper::read_object_string_value(&d, "HTTP", "token_uri");
-	std::wstring HTTP_clients_uri = helper::read_object_string_value(&d, "HTTP", "clients_uri");
-
-	//https
-	std::wstring HTTPs_host = helper::read_object_string_value(&d, "HTTPS", "host");
-	WORD HTTPs_port = helper::read_object_word_value(&d, "HTTPS", "port");
-
-	WORD HTTPs_clientid = helper::read_object_word_value(&d, "HTTPS", "clientid");
-	std::string HTTPs_secret = helper::read_object_string_value_ascii(&d, "HTTPS", "secret");
-	std::string HTTPs_username = helper::read_object_string_value_ascii(&d, "HTTPS", "username");
-	std::string HTTPs_password = helper::read_object_string_value_ascii(&d, "HTTPS", "password");
-
-	std::wstring HTTPs_token_uri_method = helper::read_object_string_value(&d, "HTTPS", "token_uri_method");
-	std::wstring HTTPs_clients_uri_method = helper::read_object_string_value(&d, "HTTPS", "clients_uri_method");
-
-	std::wstring HTTPs_token_uri = helper::read_object_string_value(&d, "HTTPS", "token_uri");
-	std::wstring HTTPs_clients_uri = helper::read_object_string_value(&d, "HTTPS", "clients_uri");
-
-	//gmail
-	std::string Gmail_smtp = helper::read_object_string_value_ascii(&d, "GMAIL", "smtp");
-	std::string Gmail_imap = helper::read_object_string_value_ascii(&d, "GMAIL", "imap_inbox");
-	std::string Gmail_imap_inbox_obj = helper::read_object_string_value_ascii(&d, "GMAIL", "imap_inbox_mail");
-	std::string Gmail_username = helper::read_object_string_value_ascii(&d, "GMAIL", "username");
-	std::string Gmail_password = helper::read_object_string_value_ascii(&d, "GMAIL", "password");
-	std::string Gmail_name = helper::read_object_string_value_ascii(&d, "GMAIL", "name");
-
-	//ftp
-	std::wstring FTP_host = helper::read_object_string_value(&d, "FTP", "host");
-	WORD FTP_port = helper::read_object_word_value(&d, "FTP", "port");
-	std::wstring FTP_username = helper::read_object_string_value(&d, "FTP", "username");
-	std::wstring FTP_password = helper::read_object_string_value(&d, "FTP", "password");
-	std::wstring FTP_workingdir = helper::read_object_string_value(&d, "FTP", "working_dir");
-
-	//ftps
-	std::string FTPs_host = helper::read_object_string_value_ascii(&d, "FTPS", "host");
-	WORD FTPs_port = helper::read_object_word_value(&d, "FTPS", "port");
-	std::string FTPs_username = helper::read_object_string_value_ascii(&d, "FTPS", "username");
-	std::string FTPs_password = helper::read_object_string_value_ascii(&d, "FTPS", "password");
-	std::string FTPs_workingdir = helper::read_object_string_value_ascii(&d, "FTPS", "working_dir");
-
-	//smtp
-	std::string SMTP_smtp = helper::read_object_string_value_ascii(&d, "SMTP", "smtp");
-	std::string SMTP_imap = helper::read_object_string_value_ascii(&d, "SMTP", "imap_inbox");
-	std::string SMTP_imap_inbox_obj = helper::read_object_string_value_ascii(&d, "SMTP", "imap_inbox_mail");
-	std::string SMTP_username = helper::read_object_string_value_ascii(&d, "SMTP", "username");
-	std::string SMTP_password = helper::read_object_string_value_ascii(&d, "SMTP", "password");
-	std::string SMTP_name = helper::read_object_string_value_ascii(&d, "SMTP", "name");
-
-	//smtps
-	std::string SMTPs_smtp = helper::read_object_string_value_ascii(&d, "SMTPS", "smtp");
-	std::string SMTPs_imap = helper::read_object_string_value_ascii(&d, "SMTPS", "imap_inbox");
-	std::string SMTPs_imap_inbox_obj = helper::read_object_string_value_ascii(&d, "SMTPS", "imap_inbox_mail");
-	std::string SMTPs_username = helper::read_object_string_value_ascii(&d, "SMTPS", "username");
-	std::string SMTPs_password = helper::read_object_string_value_ascii(&d, "SMTPS", "password");
-	std::string SMTPs_name = helper::read_object_string_value_ascii(&d, "SMTPS", "name");
-
-	//git
-	std::string GIT_url = helper::read_object_string_value_ascii(&d, "GIT", "url");
-	std::string GIT_username = helper::read_object_string_value_ascii(&d, "GIT", "username");
-	std::string GIT_password = helper::read_object_string_value_ascii(&d, "GIT", "password");
-	std::string GIT_email = helper::read_object_string_value_ascii(&d, "GIT", "email");
-	std::string GIT_workingdir = helper::read_object_string_value_ascii(&d, "GIT", "workingdir");
-
 	std::set<std::wstring> useragents = helper::load_useragent_strings(USER_AGENTS);
 
 	// HTTP
 	if (PROTOCOL == L"HTTP" || PROTOCOL == L"ALL") {
+
+		std::wstring HTTP_host = helper::read_object_string_value(&d, "HTTP", "host");
+		WORD HTTP_port = helper::read_object_word_value(&d, "HTTP", "port");
+		WORD HTTP_clientid = helper::read_object_word_value(&d, "HTTP", "clientid");
+		std::string HTTP_secret = helper::read_object_string_value_ascii(&d, "HTTP", "secret");
+		std::string HTTP_username = helper::read_object_string_value_ascii(&d, "HTTP", "username");
+		std::string HTTP_password = helper::read_object_string_value_ascii(&d, "HTTP", "password");
+		std::wstring HTTP_token_uri_method = helper::read_object_string_value(&d, "HTTP", "token_uri_method");
+		std::wstring HTTP_clients_uri_method = helper::read_object_string_value(&d, "HTTP", "clients_uri_method");
+		std::wstring HTTP_token_uri = helper::read_object_string_value(&d, "HTTP", "token_uri");
+		std::wstring HTTP_clients_uri = helper::read_object_string_value(&d, "HTTP", "clients_uri");
+
 		std::cout << "----------------------------------" << std::endl;
 		std::cout << "  Using HTTP as transport method" << std::endl;
 		std::cout << "----------------------------------" << std::endl << std::endl;
@@ -170,6 +107,18 @@ int main(int argc, char *argv[])
 
 	// HTTPS
 	if (PROTOCOL == L"HTTPS" || PROTOCOL == L"ALL") {
+
+		std::wstring HTTPs_host = helper::read_object_string_value(&d, "HTTPS", "host");
+		WORD HTTPs_port = helper::read_object_word_value(&d, "HTTPS", "port");
+		WORD HTTPs_clientid = helper::read_object_word_value(&d, "HTTPS", "clientid");
+		std::string HTTPs_secret = helper::read_object_string_value_ascii(&d, "HTTPS", "secret");
+		std::string HTTPs_username = helper::read_object_string_value_ascii(&d, "HTTPS", "username");
+		std::string HTTPs_password = helper::read_object_string_value_ascii(&d, "HTTPS", "password");
+		std::wstring HTTPs_token_uri_method = helper::read_object_string_value(&d, "HTTPS", "token_uri_method");
+		std::wstring HTTPs_clients_uri_method = helper::read_object_string_value(&d, "HTTPS", "clients_uri_method");
+		std::wstring HTTPs_token_uri = helper::read_object_string_value(&d, "HTTPS", "token_uri");
+		std::wstring HTTPs_clients_uri = helper::read_object_string_value(&d, "HTTPS", "clients_uri");
+
 		std::cout << "----------------------------------" << std::endl;
 		std::cout << "  Using HTTPs as transport method" << std::endl;
 		std::cout << "----------------------------------" << std::endl << std::endl;
@@ -185,6 +134,14 @@ int main(int argc, char *argv[])
 
 	// SMTPS - GMAIL
 	if (PROTOCOL == L"GMAIL" || PROTOCOL == L"ALL") {
+
+		std::string Gmail_smtp = helper::read_object_string_value_ascii(&d, "GMAIL", "smtp");
+		std::string Gmail_imap = helper::read_object_string_value_ascii(&d, "GMAIL", "imap_inbox");
+		std::string Gmail_imap_inbox_obj = helper::read_object_string_value_ascii(&d, "GMAIL", "imap_inbox_mail");
+		std::string Gmail_username = helper::read_object_string_value_ascii(&d, "GMAIL", "username");
+		std::string Gmail_password = helper::read_object_string_value_ascii(&d, "GMAIL", "password");
+		std::string Gmail_name = helper::read_object_string_value_ascii(&d, "GMAIL", "name");
+
 		std::cout << "-------------------------------------------" << std::endl;
 		std::cout << "  Using SMTPS (GMAIL) as transport method" << std::endl;
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
@@ -198,6 +155,13 @@ int main(int argc, char *argv[])
 
 	// FTP
 	if (PROTOCOL == L"FTP" || PROTOCOL == L"ALL") {
+
+		std::wstring FTP_host = helper::read_object_string_value(&d, "FTP", "host");
+		WORD FTP_port = helper::read_object_word_value(&d, "FTP", "port");
+		std::wstring FTP_username = helper::read_object_string_value(&d, "FTP", "username");
+		std::wstring FTP_password = helper::read_object_string_value(&d, "FTP", "password");
+		std::wstring FTP_workingdir = helper::read_object_string_value(&d, "FTP", "working_dir");
+
 		std::cout << "-------------------------------------------" << std::endl;
 		std::cout << "  Using FTP as transport method" << std::endl;
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
@@ -211,6 +175,13 @@ int main(int argc, char *argv[])
 
 	// FTPS
 	if (PROTOCOL == L"FTPS" || PROTOCOL == L"ALL") {
+
+		std::string FTPs_host = helper::read_object_string_value_ascii(&d, "FTPS", "host");
+		WORD FTPs_port = helper::read_object_word_value(&d, "FTPS", "port");
+		std::string FTPs_username = helper::read_object_string_value_ascii(&d, "FTPS", "username");
+		std::string FTPs_password = helper::read_object_string_value_ascii(&d, "FTPS", "password");
+		std::string FTPs_workingdir = helper::read_object_string_value_ascii(&d, "FTPS", "working_dir");
+
 		std::cout << "-------------------------------------------" << std::endl;
 		std::cout << "  Using FTPs as transport method" << std::endl;
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
@@ -224,6 +195,14 @@ int main(int argc, char *argv[])
 
 	// SMTP
 	if (PROTOCOL == L"SMTP" || PROTOCOL == L"ALL") {
+
+		std::string SMTP_smtp = helper::read_object_string_value_ascii(&d, "SMTP", "smtp");
+		std::string SMTP_imap = helper::read_object_string_value_ascii(&d, "SMTP", "imap_inbox");
+		std::string SMTP_imap_inbox_obj = helper::read_object_string_value_ascii(&d, "SMTP", "imap_inbox_mail");
+		std::string SMTP_username = helper::read_object_string_value_ascii(&d, "SMTP", "username");
+		std::string SMTP_password = helper::read_object_string_value_ascii(&d, "SMTP", "password");
+		std::string SMTP_name = helper::read_object_string_value_ascii(&d, "SMTP", "name");
+
 		std::cout << "-------------------------------------------" << std::endl;
 		std::cout << "  Using SMTP as transport method" << std::endl;
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
@@ -237,6 +216,14 @@ int main(int argc, char *argv[])
 
 	// SMTPS
 	if (PROTOCOL == L"SMTPS" || PROTOCOL == L"ALL") {
+
+		std::string SMTPs_smtp = helper::read_object_string_value_ascii(&d, "SMTPS", "smtp");
+		std::string SMTPs_imap = helper::read_object_string_value_ascii(&d, "SMTPS", "imap_inbox");
+		std::string SMTPs_imap_inbox_obj = helper::read_object_string_value_ascii(&d, "SMTPS", "imap_inbox_mail");
+		std::string SMTPs_username = helper::read_object_string_value_ascii(&d, "SMTPS", "username");
+		std::string SMTPs_password = helper::read_object_string_value_ascii(&d, "SMTPS", "password");
+		std::string SMTPs_name = helper::read_object_string_value_ascii(&d, "SMTPS", "name");
+
 		std::cout << "-------------------------------------------" << std::endl;
 		std::cout << "  Using SMTPs as transport method" << std::endl;
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
@@ -248,8 +235,15 @@ int main(int argc, char *argv[])
 		Sleep(1000);
 	}
 
-	// SMTPS
+	// GIT
 	if (PROTOCOL == L"GIT" || PROTOCOL == L"ALL") {
+
+		std::string GIT_url = helper::read_object_string_value_ascii(&d, "GIT", "url");
+		std::string GIT_username = helper::read_object_string_value_ascii(&d, "GIT", "username");
+		std::string GIT_password = helper::read_object_string_value_ascii(&d, "GIT", "password");
+		std::string GIT_email = helper::read_object_string_value_ascii(&d, "GIT", "email");
+		std::string GIT_workingdir = helper::read_object_string_value_ascii(&d, "GIT", "workingdir");
+
 		std::cout << "-------------------------------------------" << std::endl;
 		std::cout << "  Using Git as transport method" << std::endl;
 		std::cout << "-------------------------------------------" << std::endl << std::endl;
