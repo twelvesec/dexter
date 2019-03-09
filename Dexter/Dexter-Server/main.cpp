@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
 		std::string GIT_email = helper::read_object_string_value_ascii(&d, "GIT", "email");
 		std::string GIT_workingdir = helper::read_object_string_value_ascii(&d, "GIT", "workingdir");
 
-		std::cout << " Using Git as transport method" << std::endl;
+		std::cout << "[DEXTER]" << " Using Git as transport method" << std::endl;
 
 		libreporter::test_git_over_ssh_protocol(GIT_host, GIT_port, GIT_url, GIT_username, GIT_password, GIT_email, GIT_workingdir, AES_PASSWORD, PoC_KEYWORD);
 

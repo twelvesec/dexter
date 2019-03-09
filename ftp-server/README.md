@@ -1,4 +1,4 @@
-## FTP & FTPs Server
+## FTP Server
 
 ### Install the server
 
@@ -17,6 +17,10 @@ write_enable=YES
 ```
 sudo systemctl restart vsftpd.service
 ```
+
+---
+
+## FTPs Server
 
 ### To configure FTPS, edit `/etc/vsftpd.conf` and at the bottom add
 

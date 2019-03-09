@@ -30,6 +30,8 @@
 
 #define SimpleEmailHeaderLines	12
 
+static bool _INITIALIZED_ = false;
+
 const char *_simpleEmailHeader[] = {
 	"Date: %s\r\n",
 	"To: %s (%s)\r\n",
@@ -406,7 +408,6 @@ static size_t _read_function_callback(void *ptr, size_t size, size_t nmemb, void
 	return 0;
 }
 
-//libcurl email write callback
 static size_t _write_function_callback(void *contents, size_t size, size_t nmemb, void *userp)
 {
 	size_t realsize = size * nmemb;
@@ -454,14 +455,21 @@ static std::vector<int> _extractEmailsIds(const char *downloadData) {
 
 void libcurl::init(void) {
 	curl_global_init(CURL_GLOBAL_ALL);
+	_INITIALIZED_ = true;
 }
 
 void libcurl::finalize(void) {
 	curl_global_cleanup();
+	_INITIALIZED_ = false;
 }
 
 bool libcurl::send_email(std::string username, std::string password, std::string smtp, std::string name,
 	std::string subject, std::string body, std::string uagent, bool OverTls, bool ignore_unknown_ca) {
+
+	if (!_INITIALIZED_) {
+		return false;
+	}
+
 	std::string message;
 	CURL *curl;
 	CURLcode res = CURLE_OK;
@@ -508,10 +516,16 @@ bool libcurl::send_email(std::string username, std::string password, std::string
 
 std::vector<int> libcurl::get_emails_ids(std::string username, std::string password, std::string imap, std::string command, std::string uagent, bool ignore_unknown_ca) {
 
+	std::vector<int> ids;
+
+	if (!_INITIALIZED_) {
+		return ids;
+	}
+
 	CURL *curl;
 	CURLcode res = CURLE_OK;
 	data_size download_ctx;
-	std::vector<int> ids;
+	
 
 	download_ctx.data = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 1);
 	download_ctx.size = 0;
@@ -542,8 +556,12 @@ std::vector<int> libcurl::get_emails_ids(std::string username, std::string passw
 }
 
 bool libcurl::receive_email(MimeMessage **mm, int uid, std::string imap_inbox_obj, std::string username, std::string password, std::string uagent, bool ignore_unknown_ca) {
-	bool success = false;
 
+	if (!_INITIALIZED_) {
+		return false;
+	}
+
+	bool success = false;
 	CURL *curl;
 	CURLcode res = CURLE_OK;
 	data_size download_ctx;
@@ -586,6 +604,10 @@ bool libcurl::receive_email(MimeMessage **mm, int uid, std::string imap_inbox_ob
 bool libcurl::ftps_upload(std::string directory, std::string filename, std::string username, std::string password, std::string host,
 	WORD port, std::string uagent, std::string data, bool ignore_unknown_ca) {
 
+	if (!_INITIALIZED_) {
+		return false;
+	}
+
 	CURL *curl;
 	CURLcode res = CURLE_OK;
 	bool success = false;
@@ -627,10 +649,15 @@ bool libcurl::ftps_upload(std::string directory, std::string filename, std::stri
 std::string libcurl::ftps_download(std::string directory, std::string filename, std::string username, std::string password, std::string host,
 	WORD port, std::string uagent, bool ignore_unknown_ca) {
 
+	std::string data;
+
+	if (!_INITIALIZED_) {
+		return data;
+	}
+
 	CURL *curl;
 	CURLcode res = CURLE_OK;
 	struct MemoryStruct chunk;
-	std::string data;
 
 	chunk.memory = (char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 1);
 	chunk.size = 0;

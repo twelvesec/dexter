@@ -46,7 +46,7 @@
 static std::wstring pick_random_useragent(std::set<std::wstring> uagents, std::wstring Protocol) {
 
 	std::wstring useragent = helper::pick_random_useragent_fromfile(uagents);
-	std::wcout << L"[DEXTER][" << Protocol << L"] " << L"User-Agent: " << useragent << std::endl;
+	std::wcout << L"[DEXTER][" << Protocol << L"][User-Agent] " << useragent << std::endl;
 
 	return useragent;
 }
@@ -67,7 +67,7 @@ static void handle_data(std::string data, std::string password, std::wstring Pro
 
 	details = helper::split_string(decrypted_data.c_str(), '\n');
 	if (details.size() > 0) {
-		std::wcout << "[DEXTER][" << Protocol << "] " << "Received " << Protocol << " packet. Details: ";
+		std::wcout << "[DEXTER][" << Protocol << "]" << "[PACKET] ";
 		for (int i = 0; i < details.size(); i++) {
 			if (i == details.size() - 1) {
 				std::cout << details[i];
@@ -117,7 +117,7 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 	}
 
 	std::wstring useragent = helper::pick_random_useragent_fromfile(uagents);
-	std::wcout << L"[DEXTER][" << protocol << L"] " << L"User-Agent: " << useragent << std::endl;
+	std::wcout << L"[DEXTER][" << protocol << L"][User-Agent] " << useragent << std::endl;
 
 	std::string token_data = "grant_type=password&client_id=" + std::to_string(clientid) + "&client_secret=" +
 		secret + "&username=" + username + "&password=" + password + "&scope=*";
@@ -131,7 +131,7 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 	}
 
 	if (!TLS_CONNECTION) {
-		std::wcout << "[DEXTER][" << protocol << "] " << "Warning! Transmitting unencrypted data over HTTP" << std::endl;
+		std::wcout << "[DEXTER][" << protocol << "][WARNING] " << "Transmitting unencrypted data over HTTP" << std::endl;
 	}
 
 	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Requesting API token with " << protocol << L" packet" << std::endl;
@@ -294,7 +294,7 @@ void libreporter::test_ftp_protocol(std::wstring host, WORD port, std::wstring u
 		connection = libftp::connect(internet, host, port, username, password);
 	}
 
-	std::wcout << "[DEXTER][" << protocol << "] " << "Warning! Transmitting unencrypted data over " << protocol << std::endl;
+	std::wcout << "[DEXTER][" << protocol << "][WARNING] " << "Transmitting unencrypted data over " << protocol << std::endl;
 
 	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Setting working directory" << std::endl;
 

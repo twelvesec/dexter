@@ -42,7 +42,7 @@
 static std::wstring pick_random_useragent(std::set<std::wstring> uagents, std::wstring Protocol) {
 
 	std::wstring useragent = helper::pick_random_useragent_fromfile(uagents);
-	std::wcout << L"[DEXTER][" << Protocol << L"] " << L"User-Agent: " << useragent << std::endl;
+	std::wcout << L"[DEXTER][" << Protocol << L"][User-Agent] " << useragent << std::endl;
 
 	return useragent;
 }
@@ -129,11 +129,10 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring tok
 
 	if (internet != NULL) {
 		connection = libhttp::connect(internet, host, port);
-		std::wcout << GetLastError() << std::endl;
 	}
 
 	if (!TLS_CONNECTION) {
-		std::wcout << "[DEXTER][" << protocol << "] " << "Warning! Transmitting unencrypted data over " << protocol << std::endl;
+		std::wcout << "[DEXTER][" << protocol << "][WARNING] " << "Transmitting unencrypted data over " << protocol << std::endl;
 	}
 
 	std::wcout << L"[DEXTER][" << protocol << "] " << L"Requesting API token with " << protocol << L" packet" << std::endl;
@@ -262,7 +261,7 @@ void libagent::test_ftp_protocol(std::wstring host, WORD port, std::wstring user
 		connection = libftp::connect(internet, host, port, username, password);
 	}
 
-	std::wcout << "[DEXTER][" << protocol << "] " << "Warning! Transmitting unencrypted data over " << protocol << std::endl;
+	std::wcout << "[DEXTER][" << protocol << "][WARNING] " << "Transmitting unencrypted data over " << protocol << std::endl;
 
 	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Setting working directory" << std::endl;
 
@@ -323,7 +322,7 @@ void libagent::test_ftps_protocol(std::wstring host, WORD port, std::string user
 
 	std::string ftps_host(host.begin(), host.end());
 
-	libcurl::ftps_upload(directory, PoC_KEYWORD + ".txt", username, password, ftps_host, port, uagent, data, ignore_unknown_ca);
+	result = libcurl::ftps_upload(directory, PoC_KEYWORD + ".txt", username, password, ftps_host, port, uagent, data, ignore_unknown_ca);
 
 	if (result) {
 		std::wcout << L"[DEXTER][" << protocol << L"] " << L"Transmission succeeded" << std::endl;
@@ -350,7 +349,7 @@ void libagent::test_smtp_protocol(std::wstring host, WORD port, std::wstring smt
 	std::wcout << "[DEXTER][" << protocol << "] " << "Connecting to " << protocol << " server" << std::endl;
 
 	if (!OverTls) {
-		std::wcout << "[DEXTER][" << protocol << "] " << "Warning! Transmitting unencrypted data over " << protocol << std::endl;
+		std::wcout << "[DEXTER][" << protocol << "][WARNING] " << "Transmitting unencrypted data over " << protocol << std::endl;
 	}
 	std::wcout << "[DEXTER][" << protocol << "] " << "Sending data with " << protocol << " packet" << std::endl;
 	std::string uagent(useragent.begin(), useragent.end());
@@ -367,7 +366,8 @@ void libagent::test_smtp_protocol(std::wstring host, WORD port, std::wstring smt
 	libcurl::finalize();
 }
 
-void libagent::test_git_over_ssh_protocol(std::wstring host, WORD port, std::wstring git, std::string username, std::string password, std::string email, std::string folder, std::string aespassword, std::string PoC_KEYWORD) {
+void libagent::test_git_over_ssh_protocol(std::wstring host, WORD port, std::wstring git, std::string username,
+	std::string password, std::string email, std::string folder, std::string aespassword, std::string PoC_KEYWORD) {
 
 	std::wstring protocol = L"GIT";
 

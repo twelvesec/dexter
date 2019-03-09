@@ -30,6 +30,8 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
+static bool _INITIALIZED_ = false;
+
 bool libnet::init(void) {
 
 	WSADATA wsaData;
@@ -38,15 +40,22 @@ bool libnet::init(void) {
 		return false;
 	}
 
-	return true;
+	_INITIALIZED_ = true;
+
+	return _INITIALIZED_;
 }
 
 void libnet::finalize(void) {
 
 	WSACleanup();
+	_INITIALIZED_ = false;
 }
 
 bool libnet::is_ipv4_or_ipv6_address(std::wstring host) {
+
+	if (!_INITIALIZED_) {
+		return false;
+	}
 
 	struct sockaddr_in client;
 
@@ -62,6 +71,10 @@ bool libnet::is_ipv4_or_ipv6_address(std::wstring host) {
 }
 
 bool libnet::check_tcp_port_connectivity_byname(std::wstring hostname, unsigned short port) {
+
+	if (!_INITIALIZED_) {
+		return false;
+	}
 
 	ADDRINFOW hints;
 	ADDRINFOW *result = NULL;
@@ -99,6 +112,10 @@ bool libnet::check_tcp_port_connectivity_byname(std::wstring hostname, unsigned 
 }
 
 bool libnet::check_tcp_port_connectivity(std::wstring ip_address, unsigned short port) {
+
+	if (!_INITIALIZED_) {
+		return false;
+	}
 
 	SOCKET socket;
 	struct sockaddr_in client;

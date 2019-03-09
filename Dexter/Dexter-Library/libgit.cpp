@@ -27,6 +27,8 @@
 #pragma comment (lib, "winhttp.lib")
 #pragma comment (lib, "Rpcrt4.lib")
 
+static bool _INITIALIZED_ = false;
+
 char *user;
 char *pass;
 
@@ -57,13 +59,19 @@ static int get_credentials(git_cred** cred, const char* url, const char* usernam
 
 void libgit::init(void) {
 	git_libgit2_init();
+	_INITIALIZED_ = true;
 }
 
 void libgit::finalize(void) {
 	git_libgit2_shutdown();
+	_INITIALIZED_ = false;
 }
 
 bool libgit::add_and_commit(std::string username, std::string password, std::string email, std::string url, std::string folder, std::string data) {
+
+	if (!_INITIALIZED_) {
+		return false;
+	}
 
 	git_index *index = NULL;
 	git_repository *repo = NULL;
@@ -238,7 +246,13 @@ bool libgit::add_and_commit(std::string username, std::string password, std::str
 }
 
 std::vector<std::string> libgit::commit_messages(std::string username, std::string password, std::string url, std::string folder) {
+
 	std::vector<std::string> messages;
+
+	if (!_INITIALIZED_) {
+		return messages;
+	}
+	
 	bool success = true;
 	git_repository *repo = NULL;
 	git_remote *remote = NULL;
@@ -322,6 +336,11 @@ std::vector<std::string> libgit::commit_messages(std::string username, std::stri
 }
 
 bool libgit::clone_or_pull(git_repository **repo, git_remote **remote, char *username, char *password, std::string url, std::string folder) {
+
+	if (!_INITIALIZED_) {
+		return false;
+	}
+
 	bool success = true;
 
 	git_fetch_options fetch_options = GIT_FETCH_OPTIONS_INIT;
