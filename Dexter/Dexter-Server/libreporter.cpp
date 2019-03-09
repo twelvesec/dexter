@@ -35,6 +35,7 @@
 #include "libmime.h"
 #include "libftp.h"
 #include "libtcp.h"
+#include "libnet.h"
 
 #include <iostream>
 #include <string>
@@ -45,7 +46,7 @@
 static std::wstring pick_random_useragent(std::set<std::wstring> uagents, std::wstring Protocol) {
 
 	std::wstring useragent = helper::pick_random_useragent_fromfile(uagents);
-	std::wcout << L"[" << Protocol << L"] " << L"User-Agent: " << useragent << std::endl;
+	std::wcout << L"[DEXTER][" << Protocol << L"] " << L"User-Agent: " << useragent << std::endl;
 
 	return useragent;
 }
@@ -66,7 +67,7 @@ static void handle_data(std::string data, std::string password, std::wstring Pro
 
 	details = helper::split_string(decrypted_data.c_str(), '\n');
 	if (details.size() > 0) {
-		std::wcout << "[" << Protocol << "] " << "Received " << Protocol << " packet. Details: ";
+		std::wcout << "[DEXTER][" << Protocol << "] " << "Received " << Protocol << " packet. Details: ";
 		for (int i = 0; i < details.size(); i++) {
 			if (i == details.size() - 1) {
 				std::cout << details[i];
@@ -77,6 +78,26 @@ static void handle_data(std::string data, std::string password, std::wstring Pro
 		}
 		std::cout << std::endl;
 	}
+}
+
+static bool check_tcp_server_connectivity(std::wstring protocol, std::wstring host, WORD port) {
+
+	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Checking server connectivity (" << host << ", " << port << ")" << std::endl;
+
+	if (libnet::is_ipv4_or_ipv6_address(host)) {
+		if (!libnet::check_tcp_port_connectivity(host, port)) {
+			std::wcout << L"[DEXTER][" << protocol << L"] " << L"Unable to contact server" << std::endl;
+			return false;
+		}
+	}
+	else {
+		if (!libnet::check_tcp_port_connectivity_byname(host, port)) {
+			std::wcout << L"[DEXTER][" << protocol << L"] " << L"Unable to contact server" << std::endl;
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring token_uri_method, std::wstring clients_uri_method, std::wstring tokenuri,
@@ -91,13 +112,17 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 
 	std::wstring protocol = (TLS_CONNECTION ? L"HTTPS" : L"HTTP");
 
+	if (!check_tcp_server_connectivity(protocol, host, port)) {
+		return;
+	}
+
 	std::wstring useragent = helper::pick_random_useragent_fromfile(uagents);
-	std::wcout << L"[" << protocol << L"] " << L"User-Agent: " << useragent << std::endl;
+	std::wcout << L"[DEXTER][" << protocol << L"] " << L"User-Agent: " << useragent << std::endl;
 
 	std::string token_data = "grant_type=password&client_id=" + std::to_string(clientid) + "&client_secret=" +
 		secret + "&username=" + username + "&password=" + password + "&scope=*";
 
-	std::wcout << L"[" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
+	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
 
 	internet = libhttp::open(useragent);
 
@@ -106,10 +131,10 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 	}
 
 	if (!TLS_CONNECTION) {
-		std::wcout << "[HTTP] " << "Warning! Transmitting unencrypted data over HTTP" << std::endl;
+		std::wcout << "[DEXTER][" << protocol << "] " << "Warning! Transmitting unencrypted data over HTTP" << std::endl;
 	}
 
-	std::wcout << L"[" << protocol << L"] " << L"Requesting API token with " << protocol << L" packet" << std::endl;
+	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Requesting API token with " << protocol << L" packet" << std::endl;
 
 	if (connection != NULL) {
 		request = libhttp::json_request(connection, token_uri_method, tokenuri, (char*)token_data.c_str(), token_headers, IGNORE_CERT_UNKNOWN_CA,
@@ -132,7 +157,7 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 		std::wstring clients_headers = L"Accept: application/json\r\nContent-Type: application/x-www-form-urlencoded\r\nAuthorization: Bearer " +
 			access_token + L"\r\nConnection: close\r\n";
 
-		std::wcout << L"[" << protocol << L"] " << L"Sending data with " << protocol << L" packet" << std::endl;
+		std::wcout << L"[DEXTER][" << protocol << L"] " << L"Sending data with " << protocol << L" packet" << std::endl;
 
 		if (connection != NULL) {
 			request = libhttp::json_request(connection, clients_uri_method, clients_uri, NULL,
@@ -149,7 +174,7 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 
 			if (helper::read_bool_value(&clients_response, "success") == true) {
 
-				std::wcout << L"[" << protocol << L"] " << L"Transmission succeeded" << std::endl;
+				std::wcout << L"[DEXTER][" << protocol << L"] " << L"Transmission succeeded" << std::endl;
 
 				if (clients_response.HasMember("data") && clients_response["data"].IsArray()) {
 					const rapidjson::Value& a = clients_response["data"].GetArray();
@@ -170,7 +195,7 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 			}
 			else {
 
-				std::wcout << "[" << protocol << "] " << "Transmission failed" << std::endl;
+				std::wcout << "[DEXTER][" << protocol << "] " << "Transmission failed" << std::endl;
 			}
 		}
 
@@ -196,8 +221,8 @@ void libreporter::test_http_protocol(std::wstring host, WORD port, std::wstring 
 	}
 }
 
-void libreporter::test_gmail_protocol(std::string gmail_imap, std::string gmail_imap_inbox_obj, std::string gmail_username, std::string gmail_password, std::string gmail_name,
-	std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD) {
+void libreporter::test_gmail_protocol(std::wstring host, WORD port, std::wstring gmail_imap, std::string gmail_imap_inbox_obj, std::string gmail_username,
+	std::string gmail_password, std::string gmail_name, std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD) {
 
 	int total = 0;
 	int i = 0;
@@ -206,19 +231,27 @@ void libreporter::test_gmail_protocol(std::string gmail_imap, std::string gmail_
 
 	libcurl::init();
 
-	std::wstring useragent = pick_random_useragent(uagents, L"GMAIL");
+	std::wstring protocol = L"GMAIL";
 
-	std::wcout << "[GMAIL] " << "Connecting to GMAIL SMTP server" << std::endl;
+	if (!check_tcp_server_connectivity(protocol, host, port)) {
+		return;
+	}
 
-	std::wcout << "[GMAIL] " << "Sending data with GMAIL packet" << std::endl;
+	std::wstring useragent = pick_random_useragent(uagents, protocol);
+
+	std::wcout << "[DEXTER][" << protocol << "] " << "Connecting to " << protocol << " SMTP server" << std::endl;
+
+	std::wcout << "[DEXTER][" << protocol << "] " << "Sending data with " << protocol << " packet" << std::endl;
 
 	std::string uagent(useragent.begin(), useragent.end());
 
-	std::wcout << "[GMAIL] " << "Retrieving emails IDs" << std::endl;
+	std::wcout << "[DEXTER][" << protocol << "] " << "Retrieving emails IDs" << std::endl;
 
-	ids = libcurl::get_emails_ids(gmail_username, gmail_password, gmail_imap, "UID SEARCH (SUBJECT '" + PoC_KEYWORD + "')", uagent, false);
+	std::string gmail_smtp_host(gmail_imap.begin(), gmail_imap.end());
 
-	std::wcout << "[GMAIL] " << "Retrieving emails" << std::endl;
+	ids = libcurl::get_emails_ids(gmail_username, gmail_password, gmail_smtp_host, "UID SEARCH (SUBJECT '" + PoC_KEYWORD + "')", uagent, false);
+
+	std::wcout << "[DEXTER][" << protocol << "] " << "Retrieving emails" << std::endl;
 
 	for (i = 0; i < ids.size(); i++) {
 		if (libcurl::receive_email(&m, ids[i], gmail_imap_inbox_obj, gmail_username, gmail_password, uagent, false)) {
@@ -233,7 +266,7 @@ void libreporter::test_gmail_protocol(std::string gmail_imap, std::string gmail_
 				pos = value.find(tosearch, pos + tosearch.size());
 			}
 
-			handle_data(value, aespassword, L"GMAIL");
+			handle_data(value, aespassword, protocol);
 		}
 	}
 
@@ -245,8 +278,13 @@ void libreporter::test_ftp_protocol(std::wstring host, WORD port, std::wstring u
 
 	HINTERNET internet = NULL, connection = NULL;
 	std::wstring protocol = L"FTP";
+
+	if (!check_tcp_server_connectivity(protocol, host, port)) {
+		return;
+	}
+
 	std::wstring useragent = pick_random_useragent(uagents, protocol);
-	std::wcout << L"[" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
+	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
 
 	bool result = false;
 
@@ -256,15 +294,15 @@ void libreporter::test_ftp_protocol(std::wstring host, WORD port, std::wstring u
 		connection = libftp::connect(internet, host, port, username, password);
 	}
 
-	std::wcout << "[" << protocol << "] " << "Warning! Transmitting unencrypted data over " << protocol << std::endl;
+	std::wcout << "[DEXTER][" << protocol << "] " << "Warning! Transmitting unencrypted data over " << protocol << std::endl;
 
-	std::wcout << L"[" << protocol << L"] " << L"Setting working directory" << std::endl;
+	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Setting working directory" << std::endl;
 
 	if (connection != NULL) {
 		result = libftp::set_current_dir(connection, directory.c_str());
 	}
 
-	std::wcout << L"[" << protocol << L"] " << L"Reading file" << std::endl;
+	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Reading file" << std::endl;
 
 	std::string data = "";
 
@@ -298,22 +336,29 @@ void libreporter::test_ftp_protocol(std::wstring host, WORD port, std::wstring u
 	}
 }
 
-void libreporter::test_ftps_protocol(std::string host, WORD port, std::string username, std::string password, std::set<std::wstring> uagents, std::string aespassword,
+void libreporter::test_ftps_protocol(std::wstring host, WORD port, std::string username, std::string password, std::set<std::wstring> uagents, std::string aespassword,
 	std::string directory, std::string PoC_KEYWORD, bool ignore_unknown_ca) {
 
 	bool result = false;
 
+	std::wstring protocol = L"FTPS";
+
+	if (!check_tcp_server_connectivity(protocol, host, port)) {
+		return;
+	}
+
 	libcurl::init();
 
-	std::wstring protocol = L"FTPS";
 	std::wstring useragent = pick_random_useragent(uagents, protocol);
-	std::wcout << L"[" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
+	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
 
 	std::string uagent(useragent.begin(), useragent.end());
 
-	std::wcout << L"[" << protocol << L"] " << L"Reading file" << std::endl;
+	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Reading file" << std::endl;
 
-	std::string data = libcurl::ftps_download(directory, PoC_KEYWORD + ".txt", username, password, host, port, uagent, ignore_unknown_ca);
+	std::string ftps_host(host.begin(), host.end());
+
+	std::string data = libcurl::ftps_download(directory, PoC_KEYWORD + ".txt", username, password, ftps_host, port, uagent, ignore_unknown_ca);
 
 	std::string proto(protocol.begin(), protocol.end());
 
@@ -332,7 +377,7 @@ void libreporter::test_ftps_protocol(std::string host, WORD port, std::string us
 	libcurl::finalize();
 }
 
-void libreporter::test_smtp_protocol(std::string imap, std::string imap_inbox_obj, std::string username, std::string password, std::string name,
+void libreporter::test_smtp_protocol(std::wstring host, WORD port, std::wstring imap_host, std::string imap_inbox_obj, std::string username, std::string password, std::string name,
 	std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD, bool OverTls, bool ignore_unknown_ca) {
 
 	int total = 0;
@@ -340,22 +385,29 @@ void libreporter::test_smtp_protocol(std::string imap, std::string imap_inbox_ob
 	MimeMessage *m = 0;
 	std::vector<int> ids;
 
-	libcurl::init();
 	std::wstring protocol = (OverTls ? L"SMTPS" : L"SMTP");
+
+	if (!check_tcp_server_connectivity(protocol, host, port)) {
+		return;
+	}
+
+	libcurl::init();
 
 	std::wstring useragent = pick_random_useragent(uagents, protocol);
 
-	std::wcout << "[" << protocol << "] " << "Connecting to " << protocol << " server" << std::endl;
+	std::wcout << "[DEXTER][" << protocol << "] " << "Connecting to " << protocol << " server" << std::endl;
 
-	std::wcout << "[" << protocol << "] " << "Sending data with " << protocol << " packet" << std::endl;
+	std::wcout << "[DEXTER][" << protocol << "] " << "Sending data with " << protocol << " packet" << std::endl;
 
 	std::string uagent(useragent.begin(), useragent.end());
 
-	std::wcout << "[" << protocol << "] " << "Retrieving emails IDs" << std::endl;
+	std::wcout << "[DEXTER][" << protocol << "] " << "Retrieving emails IDs" << std::endl;
 
-	ids = libcurl::get_emails_ids(username, password, imap, "UID SEARCH SUBJECT \"" + PoC_KEYWORD + "\"", uagent, ignore_unknown_ca);
+	std::string my_imap_host(imap_host.begin(), imap_host.end());
 
-	std::wcout << "[" << protocol << "] " << "Retrieving emails" << std::endl;
+	ids = libcurl::get_emails_ids(username, password, my_imap_host, "UID SEARCH SUBJECT \"" + PoC_KEYWORD + "\"", uagent, ignore_unknown_ca);
+
+	std::wcout << "[DEXTER][" << protocol << "] " << "Retrieving emails" << std::endl;
 
 	bool found = false;
 	for (i = 0; i < ids.size(); i++) {
@@ -383,19 +435,28 @@ void libreporter::test_smtp_protocol(std::string imap, std::string imap_inbox_ob
 	libcurl::finalize();
 }
 
-void libreporter::test_git_over_ssh_protocol(std::string url, std::string username, std::string password, std::string email, std::string folder, std::string aespassword, std::string PoC_KEYWORD) {
+void libreporter::test_git_over_ssh_protocol(std::wstring host, WORD port, std::wstring url, std::string username, std::string password,
+	std::string email, std::string folder, std::string aespassword, std::string PoC_KEYWORD) {
+
+	std::wstring protocol = L"GIT";
+
+	if (!check_tcp_server_connectivity(protocol, host, port)) {
+		return;
+	}
 
 	libgit::init();
-	std::wstring protocol = L"GIT";
+
 	std::vector<std::string> messages;
 	bool found = false;
 
-	std::wcout << L"[" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
-	std::wcout << L"[" << protocol << L"] " << L"Sending data with " << protocol << L" packet" << std::endl;
-	std::wcout << L"[" << protocol << L"] " << L"Reading commits" << std::endl;
-	std::wcout << L"[" << protocol << L"] " << L"Retrieving commits messages" << std::endl;
+	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Connecting to " << protocol << L" server" << std::endl;
+	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Sending data with " << protocol << L" packet" << std::endl;
+	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Reading commits" << std::endl;
+	std::wcout << L"[DEXTER][" << protocol << L"] " << L"Retrieving commits messages" << std::endl;
 
-	messages = libgit::commit_messages(username, password, url, folder);
+	std::string git_url(url.begin(), url.end());
+
+	messages = libgit::commit_messages(username, password, git_url, folder);
 
 	for (int i = 0; i < messages.size(); i++) {
 
@@ -420,6 +481,6 @@ void libreporter::test_git_over_ssh_protocol(std::string url, std::string userna
 	libgit::finalize();
 }
 
-void libreporter::test_tcp_protocol(int port, std::string aespassword, std::string PoC_KEYWORD) {
+void libreporter::test_tcp_protocol(std::wstring host, int port, std::string aespassword, std::string PoC_KEYWORD) {
 
 }

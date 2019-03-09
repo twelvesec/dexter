@@ -31,8 +31,17 @@
 		"logclient_uri": "/api/computers",
 		"clients_uri": "/api/computers"
 	},
-	"GMAIL": {
+	"GMAILSMTP": {
+		"host": "smtp.gmail.com",
+		"port": 587,
 		"smtp": "smtp://smtp.gmail.com:587",
+		"username": "xxxxxxxxxxxxxxx@gmail.com",
+		"password": "xxxxxxxxxxxxxxxxxxxxx",
+		"name": "PenTester"
+	},
+	"GMAILIMAP": {
+		"host": "imap.gmail.com",
+		"port": 993,
 		"imap_inbox": "imaps://imap.gmail.com:993/INBOX",
 		"imap_inbox_mail": "imaps://imap.gmail.com:993/INBOX/;UID=%d",
 		"username": "xxxxxxxxxxxxxxx@gmail.com",
@@ -54,6 +63,8 @@
 		"working_dir": ""
 	},
 	"SMTP": {
+		"host": "mail.example.com",
+		"port": 25,
 		"smtp": "smtp://mail.example.com:25",
 		"imap_inbox": "imaps://mail.example.com:993/INBOX",
 		"imap_inbox_mail": "imaps://mail.example.com:993/INBOX/;UID=%d",
@@ -62,6 +73,8 @@
 		"name": "Tester"
 	},
 	"SMTPS": {
+		"host": "mail.example.com",
+		"port": 993,
 		"smtp": "smtps://mail.example.com",
 		"imap_inbox": "imaps://mail.example.com:993/INBOX",
 		"imap_inbox_mail": "imaps://mail.example.com:993/INBOX/;UID=%d",
@@ -70,10 +83,12 @@
 		"name": "Tester"
 	},
 	"GIT": {
-		"host": "192.168.1.1:/~/myrepo.git",
+		"host": "192.168.1.1",
+		"port": 22,
+		"url": "user@192.168.1.1:~/myrepo.git",
 		"username": "user",
-		"password": "xxxxxxxxxxxxxxxxxxxx",
+		"password": "xxxxxxxxxxxxxxx",
 		"email": "user@example.com",
-		"workingdir": "dexter"
+		"workingdir": "myrepo"
 	}
 }

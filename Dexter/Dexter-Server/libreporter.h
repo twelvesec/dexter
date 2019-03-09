@@ -33,14 +33,21 @@ namespace libreporter {
 		std::wstring clients_uri, std::set<std::wstring> uagents, WORD clientid, std::string secret, std::string username,
 		std::string password, std::string aespassword, std::string PoC_KEYWORD, bool IGNORE_CERT_UNKNOWN_CA, bool IGNORE_CERT_DATE_INVALID,
 		bool TLS_CONNECTION);
-	void test_gmail_protocol(std::string gmail_imap, std::string gmail_imap_inbox_obj, std::string gmail_username, std::string gmail_password, std::string gmail_name,
-		std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD);
+
+	void test_gmail_protocol(std::wstring host, WORD port, std::wstring gmail_imap, std::string gmail_imap_inbox_obj, std::string gmail_username,
+		std::string gmail_password, std::string gmail_name, std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD);
+
 	void test_ftp_protocol(std::wstring host, WORD port, std::wstring username, std::wstring password, std::set<std::wstring> uagents, std::string aespassword,
 		std::wstring directory, std::string PoC_KEYWORD);
-	void test_ftps_protocol(std::string host, WORD port, std::string username, std::string password, std::set<std::wstring> uagents, std::string aespassword,
+
+	void test_ftps_protocol(std::wstring host, WORD port, std::string username, std::string password, std::set<std::wstring> uagents, std::string aespassword,
 		std::string directory, std::string PoC_KEYWORD, bool ignore_unknown_ca);
-	void test_smtp_protocol(std::string imap, std::string imap_inbox_obj, std::string username, std::string password, std::string name,
+
+	void test_smtp_protocol(std::wstring host, WORD port, std::wstring imap, std::string imap_inbox_obj, std::string username, std::string password, std::string name,
 		std::set<std::wstring> uagents, std::string aespassword, std::string PoC_KEYWORD, bool OverTls, bool ignore_unknown_ca);
-	void test_git_over_ssh_protocol(std::string url, std::string username, std::string password, std::string email, std::string folder, std::string aespassword, std::string PoC_KEYWORD);
-	void test_tcp_protocol(int port, std::string aespassword, std::string PoC_KEYWORD);
+
+	void test_git_over_ssh_protocol(std::wstring host, WORD port, std::wstring url, std::string username, std::string password, std::string email,
+		std::string folder, std::string aespassword, std::string PoC_KEYWORD);
+
+	void test_tcp_protocol(std::wstring host, int port, std::string aespassword, std::string PoC_KEYWORD);
 }
