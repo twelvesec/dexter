@@ -66,18 +66,23 @@
 		"host": "mail.example.com",
 		"port": 25,
 		"smtp": "smtp://mail.example.com:25",
-		"imap_inbox": "imaps://mail.example.com:993/INBOX",
-		"imap_inbox_mail": "imaps://mail.example.com:993/INBOX/;UID=%d",
 		"username": "testing@example.com",
 		"password": "xxxxxxxxxxxxxx",
 		"name": "Tester"
 	},
 	"SMTPS": {
 		"host": "mail.example.com",
-		"port": 993,
+		"port": 465,
 		"smtp": "smtps://mail.example.com",
-		"imap_inbox": "imaps://mail.example.com:993/INBOX",
-		"imap_inbox_mail": "imaps://mail.example.com:993/INBOX/;UID=%d",
+		"username": "testing@example.com",
+		"password": "xxxxxxxxxxxxxxx",
+		"name": "Tester"
+	},
+	"IMAPS": {
+		"host": "mail.example.com",
+		"port": 993,
+		"imap_inbox": "imaps://mail.example.gr:993/INBOX",
+		"imap_inbox_mail": "imaps://mail.example.gr:993/INBOX/;UID=%d",
 		"username": "testing@example.com",
 		"password": "xxxxxxxxxxxxxxx",
 		"name": "Tester"
