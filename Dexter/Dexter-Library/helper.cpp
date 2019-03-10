@@ -61,6 +61,7 @@ bool helper::read_bool_value(rapidjson::Document *doc, const char *name) {
 }
 
 std::wstring helper::read_object_string_value(rapidjson::Document *doc, const char *name, const char *config) {
+
 	if (doc->HasMember(name) && (*doc)[name].IsObject()) {
 		for (rapidjson::Value::ConstMemberIterator itr = (*doc)[name].MemberBegin(); itr != (*doc)[name].MemberEnd(); ++itr) {
 			if (itr->name != NULL) {
@@ -72,6 +73,7 @@ std::wstring helper::read_object_string_value(rapidjson::Document *doc, const ch
 			}
 		}
 	}
+
 	return L"";
 }
 
@@ -100,6 +102,7 @@ WORD helper::read_object_word_value(rapidjson::Document *doc, const char *name, 
 			}
 		}
 	}
+
 	return -1;
 }
 
@@ -128,12 +131,15 @@ std::set<std::wstring> helper::load_useragent_strings(std::wstring filename) {
 	std::wstring line;
 	std::set<std::wstring> useragents;
 	std::wifstream ifsuagen(filename);
+
 	if (!ifsuagen) {
 		return useragents;
 	}
+
 	while (std::getline(ifsuagen, line)) {
 		useragents.insert(line);
 	}
+
 	return useragents;
 }
 
@@ -144,9 +150,11 @@ std::string helper::load_json_file(std::wstring filename) {
 	}
 
 	std::ifstream ifscfg(filename);
+
 	if (!ifscfg) {
 		return "";
 	}
+
 	std::string config_file_content((std::istreambuf_iterator<char>(ifscfg)),
 		(std::istreambuf_iterator<char>()));
 
