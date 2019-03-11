@@ -24,11 +24,10 @@
 
 #include "libnet.h"
 
-#define WIN32_LEAN_AND_MEAN
-
-#include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+
+DWORD libnet::LastError;
 
 static bool _INITIALIZED_ = false;
 
@@ -88,20 +87,24 @@ bool libnet::check_tcp_port_connectivity_byname(std::wstring hostname, unsigned 
 	std::wstring portW = std::to_wstring(port);
 
 	if (GetAddrInfoW(hostname.c_str(), portW.c_str(), &hints, &result) != 0) {
+		LastError = GetLastError();
 		return false;
 	}
 
 	if ((socket = WSASocket(result->ai_family, result->ai_socktype, result->ai_protocol, NULL, 0, 0)) == INVALID_SOCKET) {
+		LastError = GetLastError();
 		FreeAddrInfoW(result);
 		return false;
 	}
 
 	if (connect(socket, result->ai_addr, (int)result->ai_addrlen) == SOCKET_ERROR) {
+		LastError = GetLastError();
 		FreeAddrInfoW(result);
 		return false;
 	}
 
 	if (closesocket(socket) == SOCKET_ERROR) {
+		LastError = GetLastError();
 		FreeAddrInfoW(result);
 		return false;
 	}
@@ -121,6 +124,7 @@ bool libnet::check_tcp_port_connectivity(std::wstring ip_address, unsigned short
 	struct sockaddr_in client;
 
 	if ((socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0)) == INVALID_SOCKET) {
+		LastError = GetLastError();
 		return false;
 	}
 
@@ -130,14 +134,17 @@ bool libnet::check_tcp_port_connectivity(std::wstring ip_address, unsigned short
 	client.sin_port = htons(port);
 
 	if (InetPtonW(AF_INET, ip_address.c_str(), &client.sin_addr.s_addr) != 1) {
+		LastError = GetLastError();
 		return false;
 	}
 
 	if (connect(socket, (struct sockaddr*)&client, sizeof(client)) == SOCKET_ERROR) {
+		LastError = GetLastError();
 		return false;
 	}
 
 	if (closesocket(socket) == SOCKET_ERROR) {
+		LastError = GetLastError();
 		return false;
 	}
 

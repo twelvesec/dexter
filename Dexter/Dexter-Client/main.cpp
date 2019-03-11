@@ -106,12 +106,12 @@ int main(int argc, char *argv[]) {
 		if (HTTP_host == L"" || HTTP_port == -1 || HTTP_clientid == -1 || HTTP_secret == "" || HTTP_username == "" || HTTP_password == "" || HTTP_token_uri_method == L"" ||
 			HTTP_logclient_uri_method == L"" || HTTP_token_uri == L"" || HTTP_logclient_uri == L"") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][HTTP]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		std::wcout << "[DEXTER]" << " Using HTTP as transport method" << std::endl;
 
 		libagent::test_http_protocol(HTTP_host, HTTP_port, HTTP_token_uri_method, HTTP_logclient_uri_method,
 			HTTP_token_uri, HTTP_logclient_uri, useragents, HTTP_clientid, HTTP_secret, HTTP_username, HTTP_password, AES_PASSWORD,
@@ -137,12 +137,12 @@ int main(int argc, char *argv[]) {
 		if (HTTPs_host == L"" || HTTPs_port == -1 || HTTPs_clientid == -1 || HTTPs_secret == "" || HTTPs_username == "" || HTTPs_password == "" || HTTPs_token_uri_method == L"" ||
 			HTTPs_logclient_uri_method == L"" || HTTPs_token_uri == L"" || HTTPs_logclient_uri == L"") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][HTTPS]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		std::wcout << "[DEXTER]" << " Using HTTPS as transport method" << std::endl;
 
 		libagent::test_http_protocol(HTTPs_host, HTTPs_port, HTTPs_token_uri_method, HTTPs_logclient_uri_method, HTTPs_token_uri,
 			HTTPs_logclient_uri, useragents, HTTPs_clientid, HTTPs_secret, HTTPs_username, HTTPs_password, AES_PASSWORD, PoC_KEYWORD,
@@ -163,12 +163,12 @@ int main(int argc, char *argv[]) {
 
 		if (Gmail_host == L"" || Gmail_port == -1 || Gmail_smtp == L"" || Gmail_username == "" || Gmail_password == "" || Gmail_name == "") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][GMAIL]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		std::wcout << "[DEXTER]" << " Using GMAIL as transport method" << std::endl;
 
 		libagent::test_gmail_protocol(Gmail_host, Gmail_port, Gmail_smtp, Gmail_username, Gmail_password, Gmail_name, useragents, AES_PASSWORD, PoC_KEYWORD);
 
@@ -186,12 +186,12 @@ int main(int argc, char *argv[]) {
 
 		if (FTP_host == L"" || FTP_port == -1 || FTP_username == L"" || FTP_password == L"" || FTP_workingdir == L"") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][FTP]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		std::wcout << "[DEXTER]" << " Using FTP as transport method" << std::endl;
 
 		libagent::test_ftp_protocol(FTP_host, FTP_port, FTP_username, FTP_password, useragents, AES_PASSWORD, FTP_workingdir, PoC_KEYWORD);
 
@@ -209,12 +209,12 @@ int main(int argc, char *argv[]) {
 
 		if (FTPs_host == L"" || FTPs_port == -1 || FTPs_username == "" || FTPs_password == "" || FTPs_workingdir == "") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][FTPS]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		std::wcout << "[DEXTER]" << " Using FTPS as transport method" << std::endl;
 
 		libagent::test_ftps_protocol(FTPs_host, FTPs_port, FTPs_username, FTPs_password, useragents, AES_PASSWORD, FTPs_workingdir, PoC_KEYWORD, IGNORE_CERT_UNKNOWN_CA);
 
@@ -233,12 +233,12 @@ int main(int argc, char *argv[]) {
 
 		if (SMTP_host == L"" || SMTP_port == -1 || SMTP_addr == L"" || SMTP_username == "" || SMTP_password == "" || SMTP_name == "") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][SMTP]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		std::wcout << "[DEXTER]" << " Using SMTP as transport method" << std::endl;
 
 		libagent::test_smtp_protocol(SMTP_host, SMTP_port, SMTP_addr, SMTP_username, SMTP_password, SMTP_name, useragents, AES_PASSWORD, PoC_KEYWORD, false, IGNORE_CERT_UNKNOWN_CA);
 
@@ -257,12 +257,12 @@ int main(int argc, char *argv[]) {
 
 		if (SMTPs_host == L"" || SMTPs_port == -1 || SMTPs_addr == L"" || SMTPs_username == "" || SMTPs_password == "" || SMTPs_name == "") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][SMTPS]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		std::wcout << "[DEXTER]" << " Using SMTPS as transport method" << std::endl;
 
 		libagent::test_smtp_protocol(SMTPs_host, SMTPs_port, SMTPs_addr, SMTPs_username, SMTPs_password, SMTPs_name, useragents, AES_PASSWORD, PoC_KEYWORD, true, IGNORE_CERT_UNKNOWN_CA);
 
@@ -282,12 +282,12 @@ int main(int argc, char *argv[]) {
 
 		if (GIT_host == L"" || GIT_port == -1 || GIT_url == L"" || GIT_username == "" || GIT_password == "" || GIT_email == "" || GIT_workingdir == "") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][GIT]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		std::wcout << "[DEXTER]" << " Using GIT as transport method" << std::endl;
 
 		libagent::test_git_over_ssh_protocol(GIT_host, GIT_port, GIT_url, GIT_username, GIT_password, GIT_email, GIT_workingdir, AES_PASSWORD, PoC_KEYWORD);
 	}

@@ -112,12 +112,12 @@ int main(int argc, char *argv[])
 		if (HTTP_host == L"" || HTTP_port == -1 || HTTP_clientid == -1 || HTTP_secret == "" || HTTP_username == "" || HTTP_password == "" || HTTP_token_uri_method == L"" ||
 			HTTP_clients_uri_method == L"" || HTTP_token_uri == L"" || HTTP_clients_uri == L"") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][HTTP]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		std::wcout << "[DEXTER]" << " Using HTTP as transport method" << std::endl;
 
 		libreporter::test_http_protocol(HTTP_host, HTTP_port, HTTP_token_uri_method, HTTP_clients_uri_method,
 			HTTP_token_uri, HTTP_clients_uri, useragents, HTTP_clientid, HTTP_secret, HTTP_username, HTTP_password, AES_PASSWORD,
@@ -143,12 +143,12 @@ int main(int argc, char *argv[])
 		if (HTTPs_host == L"" || HTTPs_port == -1 || HTTPs_clientid == -1 || HTTPs_secret == "" || HTTPs_username == "" || HTTPs_password == "" || HTTPs_token_uri_method == L"" ||
 			HTTPs_clients_uri_method == L"" || HTTPs_token_uri == L"" || HTTPs_clients_uri == L"") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][HTTPS]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		std::wcout << "[DEXTER]" << " Using HTTPS as transport method" << std::endl;
 
 		libreporter::test_http_protocol(HTTPs_host, HTTPs_port, HTTPs_token_uri_method, HTTPs_clients_uri_method, HTTPs_token_uri,
 			HTTPs_clients_uri, useragents, HTTPs_clientid, HTTPs_secret, HTTPs_username, HTTPs_password, AES_PASSWORD, PoC_KEYWORD,
@@ -170,12 +170,12 @@ int main(int argc, char *argv[])
 
 		if (Gmail_host == L"" || Gmail_port == -1 || Gmail_imap == L"" || Gmail_imap_inbox_obj == "" || Gmail_username == "" || Gmail_password == "" || Gmail_name == "") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][GMAIL]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		std::wcout << "[DEXTER]" << " Using GMAIL as transport method" << std::endl;
 
 		libreporter::test_gmail_protocol(Gmail_host, Gmail_port, Gmail_imap, Gmail_imap_inbox_obj, Gmail_username, Gmail_password, Gmail_name, useragents, AES_PASSWORD, PoC_KEYWORD);
 
@@ -193,12 +193,12 @@ int main(int argc, char *argv[])
 
 		if (FTP_host == L"" || FTP_port == -1 || FTP_username == L"" || FTP_password == L"" || FTP_workingdir == L"") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][FTP]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		std::wcout << "[DEXTER]" << " Using FTP as transport method" << std::endl;
 
 		libreporter::test_ftp_protocol(FTP_host, FTP_port, FTP_username, FTP_password, useragents, AES_PASSWORD, FTP_workingdir, PoC_KEYWORD);
 
@@ -216,12 +216,12 @@ int main(int argc, char *argv[])
 
 		if (FTPs_host == L"" || FTPs_port == -1 || FTPs_username == "" || FTPs_password == "" || FTPs_workingdir == "") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][FTPS]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		std::wcout << "[DEXTER]" << " Using FTPS as transport method" << std::endl;
 
 		libreporter::test_ftps_protocol(FTPs_host, FTPs_port, FTPs_username, FTPs_password, useragents, AES_PASSWORD, FTPs_workingdir, PoC_KEYWORD, IGNORE_CERT_UNKNOWN_CA);
 
@@ -241,30 +241,30 @@ int main(int argc, char *argv[])
 
 		if (IMAPS_host == L"" || IMAPS_port == -1 || IMAPS_imap == L"" || IMAPS_imap_inbox_obj == "" || IMAPS_username == "" || IMAPS_password == "" || IMAPS_name == "") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][SMTP/s][IMAPS]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		if (PROTOCOL == L"SMTPS") {
-			std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		if (PROTOCOL == L"SMTP") {
+			std::wcout << "[DEXTER]" << " Using SMTP as transport method" << std::endl;
 
 			libreporter::test_smtp_protocol(IMAPS_host, IMAPS_port, IMAPS_imap, IMAPS_imap_inbox_obj, IMAPS_username, IMAPS_password,
 				IMAPS_name, useragents, AES_PASSWORD, PoC_KEYWORD, false, IGNORE_CERT_UNKNOWN_CA);
 		}
-		else if (PROTOCOL == L"SMTP") {
-			std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		else if (PROTOCOL == L"SMTPS") {
+			std::wcout << "[DEXTER]" << " Using SMTPS as transport method" << std::endl;
 
 			libreporter::test_smtp_protocol(IMAPS_host, IMAPS_port, IMAPS_imap, IMAPS_imap_inbox_obj, IMAPS_username, IMAPS_password,
 				IMAPS_name, useragents, AES_PASSWORD, PoC_KEYWORD, true, IGNORE_CERT_UNKNOWN_CA);
 		}
 		else {
-			std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+			std::wcout << "[DEXTER]" << " Using SMTP as transport method" << std::endl;
 
 			libreporter::test_smtp_protocol(IMAPS_host, IMAPS_port, IMAPS_imap, IMAPS_imap_inbox_obj, IMAPS_username, IMAPS_password,
 				IMAPS_name, useragents, AES_PASSWORD, PoC_KEYWORD, false, IGNORE_CERT_UNKNOWN_CA);
 
-			std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+			std::wcout << "[DEXTER]" << " Using SMTPS as transport method" << std::endl;
 
 			libreporter::test_smtp_protocol(IMAPS_host, IMAPS_port, IMAPS_imap, IMAPS_imap_inbox_obj, IMAPS_username, IMAPS_password,
 				IMAPS_name, useragents, AES_PASSWORD, PoC_KEYWORD, true, IGNORE_CERT_UNKNOWN_CA);
@@ -286,12 +286,12 @@ int main(int argc, char *argv[])
 
 		if (GIT_host == L"" || GIT_port == -1 || GIT_url == L"" || GIT_username == "" || GIT_password == "" || GIT_email == "" || GIT_workingdir == "") {
 
-			std::wcout << "[DEXTER][" << PROTOCOL << "]" << " It appears something is wrong with the configuration file" << std::endl;
+			std::wcout << "[DEXTER][GIT]" << " It appears something is wrong with the configuration file" << std::endl;
 			libnet::finalize();
 			return -1;
 		}
 
-		std::wcout << "[DEXTER]" << " Using " << PROTOCOL << " as transport method" << std::endl;
+		std::wcout << "[DEXTER]" << " Using GIT as transport method" << std::endl;
 
 		libreporter::test_git_over_ssh_protocol(GIT_host, GIT_port, GIT_url, GIT_username, GIT_password, GIT_email, GIT_workingdir, AES_PASSWORD, PoC_KEYWORD);
 

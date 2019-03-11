@@ -24,9 +24,13 @@
 
 #pragma once
 
+#define WIN32_LEAN_AND_MEAN
+
+#include <windows.h>
 #include <string>
 
 namespace libnet {
+	extern DWORD LastError;
 	bool init(void);
 	void finalize(void);
 	bool check_tcp_port_connectivity_byname(std::wstring hostname, unsigned short port);

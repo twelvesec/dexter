@@ -236,3 +236,61 @@ char* helper::Wchar_To_Char(const wchar_t *src, int slen) {
 
 	return dest;
 }
+
+std::string helper::GetLastErrorStringA(DWORD error) {
+
+	char *lastErrorString = nullptr;
+	DWORD size = 0;
+
+	if (error == 0) {
+		return "";
+	}
+
+	if ((size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (char*)&lastErrorString, 0, NULL)) == 0) {
+
+		return "";
+	}
+
+	std::string message(lastErrorString, size);
+	message.erase(std::remove(message.begin(), message.end(), '\n'), message.end());
+	message.erase(std::remove(message.begin(), message.end(), '\n'), message.end());
+
+	LocalFree(lastErrorString);
+
+	return message;
+}
+
+std::string helper::GetLastErrorStringA(void) {
+
+	return GetLastErrorStringA(GetLastError());
+}
+
+std::wstring helper::GetLastErrorStringW(DWORD error) {
+
+	wchar_t *lastErrorString = nullptr;
+	DWORD size = 0;
+
+	if (error == 0) {
+		return L"";
+	}
+
+	if ((size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (wchar_t*)&lastErrorString, 0, NULL)) == 0) {
+
+		return L"";
+	}
+
+	std::wstring message(lastErrorString, size);
+	message.erase(std::remove(message.begin(), message.end(), '\r'), message.end());
+	message.erase(std::remove(message.begin(), message.end(), '\n'), message.end());
+
+	LocalFree(lastErrorString);
+
+	return message;
+}
+
+std::wstring helper::GetLastErrorStringW(void) {
+
+	return GetLastErrorStringW(GetLastError());
+}

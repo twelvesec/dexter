@@ -45,4 +45,8 @@ namespace helper {
 	bool get_timezone_offset(char **datetime);
 	char* Wchar_To_Char(const wchar_t *src, int slen);
 	std::vector<std::string> split_string(std::string str, char delimeter);
+	std::string GetLastErrorStringA(void);
+	std::string GetLastErrorStringA(DWORD error);
+	std::wstring GetLastErrorStringW(void);
+	std::wstring GetLastErrorStringW(DWORD error);
 }

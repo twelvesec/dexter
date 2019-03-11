@@ -86,13 +86,13 @@ static bool check_tcp_server_connectivity(std::wstring protocol, std::wstring ho
 
 	if (libnet::is_ipv4_or_ipv6_address(host)) {
 		if (!libnet::check_tcp_port_connectivity(host, port)) {
-			std::wcout << L"[DEXTER][" << protocol << L"] " << L"Unable to contact server" << std::endl;
+			std::wcout << L"[DEXTER][" << protocol << L"] " << L"Unable to contact server (" << helper::GetLastErrorStringW(libnet::LastError) << ")" << std::endl;
 			return false;
 		}
 	}
 	else {
 		if (!libnet::check_tcp_port_connectivity_byname(host, port)) {
-			std::wcout << L"[DEXTER][" << protocol << L"] " << L"Unable to contact server" << std::endl;
+			std::wcout << L"[DEXTER][" << protocol << L"] " << L"Unable to contact server (" << helper::GetLastErrorStringW(libnet::LastError) << ")" << std::endl;
 			return false;
 		}
 	}
