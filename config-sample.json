@@ -26,7 +26,7 @@
 		"password": "dexter_user_password",
 		"token_uri_method": "POST",
 		"logclient_uri_method": "POST",
-		"clients_method": "GET",
+		"clients_uri_method": "GET",
 		"token_uri": "/oauth/token",
 		"logclient_uri": "/api/computers",
 		"clients_uri": "/api/computers"
