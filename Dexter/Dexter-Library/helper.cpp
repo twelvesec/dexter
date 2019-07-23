@@ -37,6 +37,8 @@
 #include "rapidjson/stringbuffer.h"
 
 std::string helper::read_string_value_ascii(rapidjson::Document *doc, const char *name) {
+	if (doc->IsNull() == true) return "";
+
 	if (doc->HasMember(name) && (*doc)[name].IsString()) {
 		std::string val((*doc)[name].GetString());
 		return val;
@@ -45,22 +47,29 @@ std::string helper::read_string_value_ascii(rapidjson::Document *doc, const char
 }
 
 std::wstring helper::read_string_value(rapidjson::Document *doc, const char *name) {
+	if (doc->IsNull() == true) return L"";
+
 	if (doc->HasMember(name) && (*doc)[name].IsString()) {
 		std::string val((*doc)[name].GetString());
 		return std::wstring(val.begin(), val.end());
 	}
+
 	return L"";
 }
 
 bool helper::read_bool_value(rapidjson::Document *doc, const char *name) {
+	if (doc->IsNull() == true) return false;
+
 	if (doc->HasMember(name) && (*doc)[name].IsBool()) {
 		bool val((*doc)[name].GetBool());
 		return val;
 	}
+
 	return false;
 }
 
 std::wstring helper::read_object_string_value(rapidjson::Document *doc, const char *name, const char *config) {
+	if (doc->IsNull() == true) return L"";
 
 	if (doc->HasMember(name) && (*doc)[name].IsObject()) {
 		for (rapidjson::Value::ConstMemberIterator itr = (*doc)[name].MemberBegin(); itr != (*doc)[name].MemberEnd(); ++itr) {
@@ -78,6 +87,8 @@ std::wstring helper::read_object_string_value(rapidjson::Document *doc, const ch
 }
 
 std::string helper::read_object_string_value_ascii(rapidjson::Document *doc, const char *name, const char *config) {
+	if (doc->IsNull() == true) return "";
+
 	if (doc->HasMember(name) && (*doc)[name].IsObject()) {
 		for (rapidjson::Value::ConstMemberIterator itr = (*doc)[name].MemberBegin(); itr != (*doc)[name].MemberEnd(); ++itr) {
 			if (itr->name != NULL) {
@@ -88,10 +99,13 @@ std::string helper::read_object_string_value_ascii(rapidjson::Document *doc, con
 			}
 		}
 	}
+
 	return "";
 }
 
 WORD helper::read_object_word_value(rapidjson::Document *doc, const char *name, const char *config) {
+	if (doc->IsNull() == true) return -1;
+
 	if (doc->HasMember(name) && (*doc)[name].IsObject()) {
 		for (rapidjson::Value::ConstMemberIterator itr = (*doc)[name].MemberBegin(); itr != (*doc)[name].MemberEnd(); ++itr) {
 			if (itr->name != NULL) {
@@ -111,6 +125,7 @@ int helper::random_number(int min, int max) {
 
 	time_t seconds;
 	time(&seconds);
+
 	if (!seconds) {
 		return 0;
 	}
@@ -124,6 +139,7 @@ std::wstring helper::pick_random_useragent_fromfile(std::set<std::wstring> usera
 	std::set<std::wstring>::const_iterator it(useragents.begin());
 	int index = random_number(0, (int)useragents.size() - 1);
 	advance(it, index);
+
 	return *it;
 }
 

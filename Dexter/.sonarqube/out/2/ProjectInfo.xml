@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
+  <ProjectName>DexterLibrary</ProjectName>
+  <ProjectLanguage>C++</ProjectLanguage>
+  <ProjectType>Product</ProjectType>
+  <ProjectGuid>5e3aafb0-ff80-46e0-b250-743511718ebf</ProjectGuid>
+  <FullPath>C:\Users\user\Documents\Dev\maldevel\dexter\Dexter\Dexter-Library\DexterLibrary.vcxproj</FullPath>
+  <IsExcluded>false</IsExcluded>
+  <AnalysisResults>
+    <AnalysisResult Id="FilesToAnalyze" Location="C:\Users\user\Documents\Dev\maldevel\dexter\Dexter\.sonarqube\out\2\FilesToAnalyze.txt" />
+  </AnalysisResults>
+  <AnalysisSettings />
+  <Configuration>Debug</Configuration>
+  <Platform>x64</Platform>
+</ProjectInfo>

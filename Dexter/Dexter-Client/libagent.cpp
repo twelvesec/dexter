@@ -159,6 +159,11 @@ void libagent::test_http_protocol(std::wstring host, WORD port, std::wstring tok
 		std::wstring logclient_headers = L"Accept: application/json\r\nContent-Type: application/x-www-form-urlencoded\r\nAuthorization: Bearer " +
 			access_token + L"\r\nConnection: close\r\n";
 
+		if (access_token == L"") {
+			std::wcout << "[DEXTER][HTTP]" << " Unable to retrieve an access token from the server" << std::endl;
+			return;
+		}
+
 		std::string data = generate_data(PoC_KEYWORD, aespassword, protocol);
 
 		std::wcout << L"[DEXTER][" << protocol << L"] " << L"Sending data with " << protocol << L" packet" << std::endl;

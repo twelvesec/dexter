@@ -80,7 +80,9 @@ HINTERNET libhttp::json_request(HINTERNET connection, std::wstring requestMethod
 			request = NULL;
 			return NULL;
 		}
+
 		extraFlags |= SECURITY_FLAG_IGNORE_UNKNOWN_CA;
+
 		if (!InternetSetOptionW(request, INTERNET_OPTION_SECURITY_FLAGS, &extraFlags, sizeof(extraFlags))) {
 			InternetCloseHandle(request);
 			request = NULL;
