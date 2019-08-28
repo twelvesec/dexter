@@ -38,6 +38,7 @@ namespace helper {
 	std::string read_object_string_value_ascii(rapidjson::Document *doc, const char *name, const char *config);
 	WORD read_object_word_value(rapidjson::Document *doc, const char *name, const char *config);
 	int random_number(int min, int max);
+	long unsigned int cpu_clock(int const K);
 	std::wstring pick_random_useragent_fromfile(std::set<std::wstring> useragents);
 	std::set<std::wstring> load_useragent_strings(std::wstring filename);
 	std::string load_json_file(std::wstring filename);

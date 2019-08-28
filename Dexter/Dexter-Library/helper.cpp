@@ -24,8 +24,11 @@
 
 #include "helper.h"
 
+#include <random>
+#include <iostream>
 #include <algorithm>
 #include <time.h>
+#include <chrono>
 #include <fstream>
 #include <string>
 #include <sstream>
@@ -120,6 +123,31 @@ WORD helper::read_object_word_value(rapidjson::Document *doc, const char *name, 
 	return -1;
 }
 
+long unsigned int helper::cpu_clock(int const K)
+{
+
+	typedef std::chrono::high_resolution_clock hiclock;
+
+	auto gett = [](std::chrono::time_point<hiclock> t0)
+	{
+		auto tn = hiclock::now();
+		return static_cast<long unsigned int>(std::chrono::duration_cast<std::chrono::microseconds>(tn - t0).count());
+	};
+
+	long unsigned int diffs[10];
+	diffs[0] = gett(hiclock::now());
+	for (int i = 1; i != 10; i++)
+	{
+		auto last = hiclock::now();
+		for (int k = K; k != 0; k--)
+		{
+			diffs[i] = gett(last);
+		}
+	}
+
+	return *std::max_element(&diffs[1], &diffs[9]);
+}
+
 int helper::random_number(int min, int max) {
 	if (min < 0 || max < 0 || max > RAND_MAX) return 0;
 
@@ -130,9 +158,11 @@ int helper::random_number(int min, int max) {
 		return 0;
 	}
 
-	srand((unsigned int)seconds);
+	std::seed_seq seed{ cpu_clock(6000), static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count()) };
+	std::default_random_engine engine{ seed };
+	std::uniform_real_distribution<double> urd(0, 6000);
+	return urd(engine);
 
-	return rand() % (max - min + 1) + min;
 }
 
 std::wstring helper::pick_random_useragent_fromfile(std::set<std::wstring> useragents) {
